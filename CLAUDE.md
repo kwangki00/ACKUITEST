@@ -170,6 +170,13 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
   - `editable` 만 `PopoverTrigger` 가 아니라 **`PopoverAnchor`** 를 씁니다. Trigger 는 클릭을 토글로 처리해서 입력창을 눌러 커서를 옮기면 패널이 닫힙니다. `onOpenAutoFocus` 도 막아 커서를 트리거에 남깁니다
 - 트리거는 `<button>` 이 아니라 **`<div role="combobox">`** 입니다. 칩의 삭제 버튼·Clear 가 안에 들어가는데 버튼 안의 버튼은 잘못된 HTML 이라 브라우저가 마크업을 재배치합니다. 대신 Enter·Space 를 직접 처리합니다
 
+### ListItem — 선택은 배경으로 알리지 않습니다
+
+- **배경 하나가 세 가지를 뜻합니다** — 마우스 hover · 방향키 커서 · 선택이 전부 `Action/Accent` 입니다. 그래서 선택은 **글자(`Text/Primary` · Medium)와 표식**으로 알립니다 (2026-08-06). 이전에는 배경만 바뀌어서, 값이 선택된 목록을 열면 어느 줄이 선택인지 구분되지 않았습니다
+- 목록 선택에는 `check`(단일) · `checkbox`(다중)만 쓰세요. `text` · `match` 는 표식이 없습니다
+- **검색어 강조(`query`)는 Type 축과 독립입니다** — Figma 는 `Match` 를 Type 값으로 두어 강조와 선택 표식을 동시에 켤 수 없지만, 검색이 있는 단일 목록은 둘 다 필요합니다. 코드는 `query` 를 별도 prop 으로 받아 `check` 와 함께 켭니다. Figma 의 `ComboboxPanel(Single)` 은 둘 중 **표식**을 택했습니다 (2026-08-06)
+- 열자마자 방향키 커서를 0번에 두지 마세요 — 고르지도 않은 첫 항목이 선택된 것처럼 보입니다. 검색어가 있을 때만 첫 결과를 짚습니다
+
 ### 떠 있는 패널
 
 - **반경은 전부 `Radius/md`(6)** — Popover · Tooltip · Toast · ComboboxPanel · LookupPanel. Card·Dialog 처럼 큰 표면만 `Radius/lg`(8) 입니다

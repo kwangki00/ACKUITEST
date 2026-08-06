@@ -68,16 +68,22 @@ export const Type: Story = {
 };
 
 /**
- * Hover 와 Selected 의 배경이 **같습니다** (둘 다 Action/Accent).
- * 그래서 text 는 선택을 배경으로 알릴 수 없습니다 — 단일 선택에는 check 를 쓰세요.
+ * Hover · Selected · 방향키 커서의 배경이 **전부 같습니다** (Action/Accent).
+ * 배경 하나가 세 가지를 뜻하므로 선택은 배경으로 알리지 않습니다 —
+ * 글자를 `Text/Primary` · Medium 으로 바꾸고 표식(check · checkbox)을 켭니다.
+ *
+ * `text` · `match` 는 표식이 없어 목록 선택에 쓰면 안 됩니다.
  */
 export const State: Story = {
   render: () => (
     <div className="flex flex-col">
       <ListItem>기본</ListItem>
-      <ListItem selected>선택됨 — 배경만으로는 hover 와 구분되지 않습니다</ListItem>
+      <ListItem selected>선택됨 (text) — 표식이 없어 목록 선택에는 쓰지 마세요</ListItem>
       <ListItem type="check" selected>
-        선택됨 (check)
+        선택됨 (check) — 글자 색·굵기 + 우측 체크
+      </ListItem>
+      <ListItem type="checkbox" selected>
+        선택됨 (checkbox)
       </ListItem>
       <ListItem disabled>비활성</ListItem>
     </div>

@@ -15,8 +15,11 @@ import { CheckMark } from "@/components/ui/check-mark";
  * 더 조밀한 목록이 필요해지면 Figma 에 sm 사이즈 축을 먼저 추가하세요.
  *
  * **Hover 와 Selected 의 배경이 같습니다** (둘 다 Action/Accent).
- * 그래서 type="text" 는 선택을 배경으로 알릴 수 없습니다 — 단일 선택 목록에는
- * check 를, 다중 선택에는 checkbox 를 쓰세요.
+ * 방향키로 짚은 항목도 같은 배경을 씁니다. 배경이 세 가지를 동시에 뜻하므로
+ * **선택은 반드시 표식으로 알려야 합니다** — 단일 선택 목록에는 check,
+ * 다중 선택에는 checkbox. text · match 는 선택 표식이 없어 목록 선택에 쓰면 안 됩니다.
+ *
+ * 검색어 강조(query)는 Type 축과 별개라 check · checkbox 와 함께 켤 수 있습니다.
  */
 
 type ListItemType = "text" | "check" | "checkbox" | "match";
@@ -30,8 +33,13 @@ export interface ListItemProps
   indeterminate?: boolean;
   leadingIcon?: React.ReactNode;
   /**
-   * type="match" 에서 진하게 표시할 부분. 라벨 안에서 처음 나오는 위치를 찾습니다.
+   * 진하게 표시할 부분. 라벨 안에서 처음 나오는 위치를 찾습니다.
    * Figma 는 앞부분만 모델링했지만(Match + Rest), 자동완성은 가운데도 맞아야 합니다.
+   *
+   * **Type 축과 독립입니다.** Figma 는 검색 강조를 Type=Match 로 모델링했지만,
+   * 검색이 있는 단일 선택 목록은 강조와 선택 표식이 **동시에** 필요합니다
+   * (Figma 의 Select Open Demo 도 Type=Check 입니다).
+   * 그래서 코드에서는 query 를 넘기면 어느 Type 이든 강조가 켜집니다.
    */
   query?: string;
 }
@@ -56,7 +64,8 @@ export function ListItem({
   ...props
 }: ListItemProps) {
   const label = typeof children === "string" ? children : null;
-  const parts = type === "match" && label ? splitMatch(label, query) : null;
+  const parts = label ? splitMatch(label, query) : null;
+  const dim = selected && !disabled ? undefined : "text-text-muted-foreground";
 
   return (
     <button
@@ -72,7 +81,10 @@ export function ListItem({
         "transition-colors outline-hidden",
         disabled ? "text-text-disabled-on" : "text-text-basic",
         !disabled && "hover:bg-action-accent focus-visible:bg-action-accent",
-        selected && !disabled && "bg-action-accent",
+        // 배경만으로는 hover·커서·선택이 구분되지 않습니다 (셋 다 Action/Accent).
+        // 그래서 선택은 글자로도 알립니다 — Text/Primary + Medium.
+        // 우측 CheckMark 도 같은 계열(Icon/Primary)이라 한 덩어리로 읽힙니다
+        selected && !disabled && "bg-action-accent font-medium text-text-primary",
         "disabled:pointer-events-none",
         className
       )}
@@ -108,9 +120,11 @@ export function ListItem({
       <span className="min-w-0 flex-1 truncate">
         {parts ? (
           <>
-            {parts.before && <span className="text-text-muted-foreground">{parts.before}</span>}
+            {/* 선택된 줄은 글자 전체가 Primary 라 안 맞는 부분을 흐리지 않습니다 —
+                흐리면 선택 색이 반쯤 지워져 무엇이 골라졌는지 다시 흐려집니다 */}
+            {parts.before && <span className={dim}>{parts.before}</span>}
             <span className="font-medium">{parts.hit}</span>
-            {parts.after && <span className="text-text-muted-foreground">{parts.after}</span>}
+            {parts.after && <span className={dim}>{parts.after}</span>}
           </>
         ) : (
           children

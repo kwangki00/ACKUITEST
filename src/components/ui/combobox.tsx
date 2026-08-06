@@ -156,7 +156,10 @@ export function ComboboxPanel({
           {options.map((o, i) => (
             <ListItem
               key={o.value}
-              type={type === "multi" ? "checkbox" : "match"}
+              // 단일도 Check 입니다 — Figma 의 Select Open Demo 와 같습니다.
+              // hover·커서·선택이 전부 같은 배경색이라, 우측 체크가 없으면
+              // 무엇이 골라진 상태인지 배경만으로는 구분되지 않습니다
+              type={type === "multi" ? "checkbox" : "check"}
               query={type === "single" && !isChoseongOnly(query) ? query : undefined}
               selected={selected.includes(o.value)}
               disabled={o.disabled}
@@ -249,8 +252,28 @@ export function Combobox({
     [options, query]
   );
 
-  // 검색어가 바뀌면 짚고 있던 위치를 첫 줄로 되돌립니다
-  React.useEffect(() => setActive(hits.length ? 0 : -1), [query, hits.length]);
+  /**
+   * 방향키로 짚는 위치.
+   *
+   * 검색 중이면 첫 결과에 둡니다 — 치고 나서 Enter 만 누르면 되게.
+   * **검색어가 없으면 아무것도 짚지 않습니다(-1).** 열자마자 첫 항목에 배경이 깔리면
+   * 고르지도 않은 값이 선택된 것처럼 읽힙니다 (hover·selected 와 배경이 같은 색입니다).
+   * 단일 선택은 지금 고른 값에 짚어 목록 어디에 있는지 보여줍니다 — Select 와 같습니다.
+   *
+   * value 를 deps 에 넣지 않는 이유 — 다중 선택은 고를 때마다 value 가 바뀌는데,
+   * 그때마다 재실행되면 방향키로 옮겨둔 위치가 매번 처음으로 돌아갑니다.
+   */
+  React.useEffect(() => {
+    if (!open) return;
+    if (query) {
+      setActive(hits.length ? 0 : -1);
+      return;
+    }
+    setActive(
+      type === "single" && value.length ? hits.findIndex((o) => o.value === value[0]) : -1
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, query, hits.length, type]);
 
   const pick = (v: string) => {
     if (type === "multi") {
