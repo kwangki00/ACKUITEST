@@ -21,6 +21,8 @@ export const figma = {
   toggleItem: node("585:400"),
   toggleGroup: node("586:448"),
   badge: node("555:104"),
+  chip: node("482:3473"),
+  avatar: node("648:208"),
   formField: node("436:2650"),
   card: node("661:59"),
   cardRow: node("660:29"),
@@ -30,6 +32,8 @@ export const figma = {
   progress: node("728:44"),
   separator: node("728:31"),
   tableCell: node("604:46"),
+  pagination: node("625:548"),
+  paginationItem: node("624:6740"),
   tableToolbar: node("617:295"),
 } as const;
 

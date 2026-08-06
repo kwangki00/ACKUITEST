@@ -34,17 +34,19 @@ Claude Code 는 프로젝트 루트뿐 아니라 **상위 폴더의 `CLAUDE.md` 
 PC · 모바일 화면 데모 완성
 ```
 
-**이 코드 저장소** — 위 컴포넌트 중 21개를 옮겨 검증하는 중입니다.
+**이 코드 저장소** — 위 컴포넌트 중 25개를 옮겨 검증하는 중입니다.
 
 ```
 Button · Input · InputGroup · Textarea · Select · Checkbox · Radio · Switch
 CheckMark · ChoiceGroup · ToggleGroup · Badge · FormField · Table
 Skeleton · Spinner · Progress · Separator · Card · CardRow · Alert
+Pagination · PaginationItem · Chip · Avatar
 ```
 
-**Input · Selection Controls · Loading & Divider 페이지는 전부 옮겼습니다.**
+**Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
+Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
-Popover 가 필요한 것들(Combobox · Lookup · DatePicker · Dialog · Toast · Tooltip · DropdownMenu · Tabs · Sidebar · Accordion · Pagination)은 Radix 의존이 있어 아직 없습니다.
+Popover 가 필요한 것들(Combobox · Lookup · DatePicker · Dialog · Toast · Tooltip · DropdownMenu · Tabs · Sidebar · Accordion)은 Radix 의존이 있어 아직 없습니다.
 
 ---
 
