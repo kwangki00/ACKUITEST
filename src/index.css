@@ -15,6 +15,14 @@
   *:focus-visible {
     outline: none;
   }
+
+  /* 아이콘 굵기 — lucide 기본값은 2 라 Figma(1)보다 두껍습니다. 1.5 로 통일합니다.
+     lucide 는 stroke-width 를 SVG 속성으로 박는데 CSS 가 속성을 이기므로,
+     컴포넌트가 준 strokeWidth prop 도 같이 덮입니다.
+     그래서 예외는 --icon-stroke 로 빠져나갑니다 — Tailwind 로는 [--icon-stroke:3]. */
+  .lucide {
+    stroke-width: var(--icon-stroke, 1.5);
+  }
 }
 
 /* 고대비 모드에서는 box-shadow(=ring)가 렌더링되지 않습니다.

@@ -34,11 +34,14 @@ Claude Code 는 프로젝트 루트뿐 아니라 **상위 폴더의 `CLAUDE.md` 
 PC · 모바일 화면 데모 완성
 ```
 
-**이 코드 저장소** — 위 컴포넌트 중 7개를 옮겨 검증하는 중입니다.
+**이 코드 저장소** — 위 컴포넌트 중 12개를 옮겨 검증하는 중입니다.
 
 ```
-Button · Input · Select · Checkbox · Badge · FormField · Table
+Button · Input · Select · Checkbox · Radio · Switch · CheckMark
+ChoiceGroup · ToggleGroup · Badge · FormField · Table
 ```
+
+Selection Controls 페이지는 이것으로 전부 옮겼습니다.
 
 Popover 가 필요한 것들(Combobox · Lookup · DatePicker · Dialog · Toast · Tooltip · DropdownMenu · Tabs · Sidebar · Accordion · Pagination)은 Radix 의존이 있어 아직 없습니다.
 
@@ -57,7 +60,31 @@ Responsive           28   --h-input-default …   (PC/Mobile 2모드)
 
 Primitive 나 Tailwind 색을 컴포넌트에서 직접 쓰면 안 됩니다. 색을 바꿔야 할 때 Semantic 한 곳만 고치면 전체가 따라오는 구조가 깨집니다.
 
+### 색의 출처는 두 갈래
+
+| | 어디에 정의 | 비고 |
+|---|---|---|
+| 브랜드 8램프 | `ack-theme.css` 가 직접 | Primary · Secondary · Sub · Danger · Warning · Success · Info1 · Info2 |
+| **중립 회색** | **정의하지 않음 — Tailwind 기본 팔레트** | Semantic 317개 중 **122개**가 여기서 왔습니다 |
+
+회색을 다시 정의하지 않는 이유는 Tailwind 값이 이미 충분히 잘 조율돼 있어서입니다. Figma 의 `TailwindCSS/Colors` 컬렉션 245개가 같은 값을 담고 있습니다.
+
+`slate` · `zinc` · `red` 도 쓸 수 있지만 **중립색은 `gray` 하나로 통일**했습니다. 회색 계열이 섞이면 미세하게 색이 어긋납니다.
+
+### @theme static — 토큰은 전부 내보냅니다
+
 `src/styles/ack-theme.css` 에 전부 있습니다. Tailwind 4 의 `@theme` 이라 `bg-button-primary-fill` 처럼 유틸리티가 자동 생성됩니다.
+
+**`@theme static` 인 이유** — Tailwind 4 는 기본적으로 *실제 쓰인 토큰만* CSS 로 내보냅니다. 그러면 `var(--color-sub-600)` 처럼 클래스가 아닌 방식으로 참조할 때 값이 비어 있습니다. `static` 을 빼면 문서 화면의 팔레트가 빈칸으로 나옵니다.
+
+**단, 이건 우리 블록에만 걸립니다.** Tailwind 자체 팔레트는 트리셰이킹이 그대로라, 회색은 이렇게 갈립니다.
+
+```
+bg-gray-300           됨    — 클래스라 Tailwind 가 생성
+var(--color-gray-300) 안 됨  — 변수가 CSS 에 없음
+```
+
+그래서 회색이 필요하면 `gray` 를 직접 쓰지 말고 Semantic 을 쓰세요. 규칙상으로도 그게 맞습니다.
 
 ### 반응형은 CSS 변수 + 미디어쿼리
 
@@ -94,7 +121,9 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 ### FormField
 
-- **라벨 12 Medium · 값 14** — 크기로 위계를 만듭니다. 조회 조건이 여러 개일 때 라벨이 값만큼 튀면 시끄럽습니다
+- **라벨 14 Medium · 값 14 Regular** — 크기가 아니라 **굵기로만** 위계를 만듭니다. Table 이 헤더·본문을 나누는 방식과 같습니다
+- **라벨을 Regular 로 내리지 마세요** — 값도 14 Regular 에 색까지 `Text/Basic` 로 같아서, 크기·굵기·색 세 축이 전부 겹치면 위치 말고는 구분할 단서가 없어집니다
+- 원래는 12 Medium 이었습니다. 한글은 획이 많아 12px 에서 먼저 뭉개지고, 종일 보는 업무 화면에는 빡빡했습니다 (2026-08-06 변경, 필드당 세로 3px 증가)
 - 설명·에러도 12 지만 위치와 색이 달라 구분됩니다
 - 에러는 `State=Error` 일 때만 — React Hook Form + Zod 의 검증 결과로 자동 결정됩니다
 

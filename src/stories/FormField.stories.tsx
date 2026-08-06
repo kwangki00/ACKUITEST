@@ -9,8 +9,11 @@ import { design, figma } from "./figma";
 /**
  * Figma: FormField — 42 변형 (Size 3 × State 2 × Control 7)
  *
- * 라벨 12 Medium · 값 14 — 크기로 위계를 만듭니다.
- * 설명과 에러도 12 지만 위치와 색이 달라 구분됩니다.
+ * 라벨 14 Medium · 값 14 Regular — 크기가 아니라 굵기로만 위계를 만듭니다.
+ * Table 이 헤더·본문을 나누는 방식과 같습니다.
+ * 라벨을 Regular 로 내리면 값과 크기·굵기·색이 전부 같아져 구분이 사라집니다.
+ *
+ * 설명과 에러는 12 로 둡니다 — 보조 정보라 라벨보다 작아야 합니다.
  * 에러는 React Hook Form + Zod 의 검증 결과로 자동 결정됩니다 — 수동으로 켜지 마세요.
  */
 const meta = {

@@ -5,6 +5,12 @@ import type { Meta, StoryObj } from "@storybook/react";
  *
  * 컴포넌트는 Semantic 만 참조합니다. Primitive 를 직접 쓰지 마세요.
  * 색을 바꿔야 하면 ack-theme.css 의 Semantic 한 곳만 고치면 전체가 따라옵니다.
+ *
+ * 색의 출처는 두 갈래입니다.
+ * - 브랜드 8램프 (Primary · Secondary · Sub · Danger · Warning · Success · Info1 · Info2)
+ *   → ack-theme.css 가 직접 정의합니다.
+ * - 중립 회색 → Tailwind 기본 팔레트를 그대로 씁니다. 다시 정의하지 않습니다.
+ *   Semantic 317개 중 122개가 여기서 왔습니다.
  */
 const meta = {
   title: "Foundation/Tokens",
@@ -64,6 +70,57 @@ export const Primitive: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * 중립 회색은 Tailwind 기본 팔레트를 그대로 씁니다 — ack-theme.css 에 다시 정의하지 않습니다.
+ * Figma 의 TailwindCSS/Colors 컬렉션(245개)이 같은 값을 담고 있습니다.
+ *
+ * 주의 — Tailwind 자체 팔레트는 클래스로 써야 생성됩니다.
+ * bg-gray-300 은 되지만 var(--color-gray-300) 은 값이 비어 있습니다.
+ * 우리 토큰만 @theme static 이라 항상 나가고, Tailwind 쪽은 트리셰이킹이 살아 있습니다.
+ * 그래서 회색이 필요하면 gray 를 직접 쓰지 말고 Semantic 을 쓰세요.
+ */
+export const Tailwind: Story = {
+  render: () => {
+    const GRAY = [
+      { step: "50", cls: "bg-gray-50", n: 16, ex: "background-gray-subtler · input-surface-readonly" },
+      { step: "100", cls: "bg-gray-100", n: 15, ex: "action-accent · table-row-hover" },
+      { step: "200", cls: "bg-gray-200", n: 29, ex: "surface-disabled · border-gray-light · table-border" },
+      { step: "300", cls: "bg-gray-300", n: 14, ex: "input-border · button-tertiary-fill-border" },
+      { step: "400", cls: "bg-gray-400", n: 5, ex: "text-disabled · switch-track-off" },
+      { step: "500", cls: "bg-gray-500", n: 14, ex: "text-placeholder · text-muted-foreground" },
+      { step: "600", cls: "bg-gray-600", n: 5, ex: "badge-neutral-solid-fill · tab-text-default" },
+      { step: "700", cls: "bg-gray-700", n: 6, ex: "text-subtle · table-header-text" },
+      { step: "800", cls: "bg-gray-800", n: 2, ex: "icon-gray · badge-neutral-text" },
+      { step: "900", cls: "bg-gray-900", n: 15, ex: "text-basic · background-inverse" },
+      { step: "950", cls: "bg-gray-950", n: 1, ex: "text-bolder" },
+    ];
+    return (
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-text-subtle">
+          Semantic 317개 중 <b className="text-text-basic">122개</b>가 이 회색에서 왔습니다.
+        </p>
+        <div className="flex flex-col">
+          {GRAY.map((g) => (
+            <div
+              key={g.step}
+              className="flex items-center gap-3 border-b border-border-gray-light py-2"
+            >
+              <div className={`size-9 shrink-0 rounded-md border border-border-gray-light ${g.cls}`} />
+              <span className="w-16 shrink-0 text-xs font-medium text-text-basic">gray/{g.step}</span>
+              <span className="w-12 shrink-0 text-2xs text-text-primary">{g.n}개</span>
+              <span className="truncate text-2xs text-text-subtle">{g.ex}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-text-muted-foreground">
+          slate · zinc · red 등 나머지 팔레트도 클래스로 쓸 수 있지만, 이 프로젝트는 중립색을
+          gray 하나로 통일했습니다. 회색 계열이 두 종류 섞이면 미세하게 색이 어긋납니다.
+        </p>
+      </div>
+    );
+  },
 };
 
 /** 컴포넌트가 실제로 참조하는 값입니다. */
