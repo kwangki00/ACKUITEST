@@ -16,6 +16,11 @@ import { cn } from "@/lib/utils";
  * Variant — Pill(리스트 배경 위 알약) / Outline(테두리가 이어진 세그먼트).
  * Pill 의 선택 배경은 리스트 배경과 대비 1.24:1 이라 **그림자가 필수**입니다.
  * 높이는 --h-input-* 이라 Input·Button·Tabs 와 줄이 맞습니다.
+ *
+ * Outline 선택은 **틴트**입니다 — 연한 파랑 채움 + 진한 파랑 글자.
+ * Primary 채움 + 흰 글자로 바꾸지 마세요. 주 액션 버튼과 구분이 안 되어
+ * 세그먼트 컨트롤로 읽히지 않습니다. Primary 채움은 주 액션 버튼에만 씁니다.
+ * (Tabs 의 Pill-Primary 는 별개입니다 — 거기는 진짜로 Primary 채움입니다.)
  */
 
 type Variant = "pill" | "outline";

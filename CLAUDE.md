@@ -34,14 +34,15 @@ Claude Code 는 프로젝트 루트뿐 아니라 **상위 폴더의 `CLAUDE.md` 
 PC · 모바일 화면 데모 완성
 ```
 
-**이 코드 저장소** — 위 컴포넌트 중 12개를 옮겨 검증하는 중입니다.
+**이 코드 저장소** — 위 컴포넌트 중 21개를 옮겨 검증하는 중입니다.
 
 ```
-Button · Input · Select · Checkbox · Radio · Switch · CheckMark
-ChoiceGroup · ToggleGroup · Badge · FormField · Table
+Button · Input · InputGroup · Textarea · Select · Checkbox · Radio · Switch
+CheckMark · ChoiceGroup · ToggleGroup · Badge · FormField · Table
+Skeleton · Spinner · Progress · Separator · Card · CardRow · Alert
 ```
 
-Selection Controls 페이지는 이것으로 전부 옮겼습니다.
+**Input · Selection Controls · Loading & Divider 페이지는 전부 옮겼습니다.**
 
 Popover 가 필요한 것들(Combobox · Lookup · DatePicker · Dialog · Toast · Tooltip · DropdownMenu · Tabs · Sidebar · Accordion · Pagination)은 Radix 의존이 있어 아직 없습니다.
 
@@ -130,7 +131,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 ### Table
 
 - **헤더·본문 글자 모두 14** — 굵기로만 구분합니다
-- **페이지네이션 대신 스크롤** — 건수는 툴바에 표시합니다
+- **페이지네이션과 스크롤 둘 다 씁니다** — 건수는 툴바에 표시합니다. 한 화면에서 훑는 목록은 스크롤, 건수가 많고 "몇 번째 페이지를 보고 있었는지"를 기억해야 하면 페이지네이션 (2026-08-06 방침 변경 — 이전에는 스크롤만이었습니다)
 - **헤더 행은 스크롤 영역 밖에** — 스크롤해도 열 이름이 남아야 합니다
 - 편집·삭제는 행이 선택됐을 때만 보입니다. 선택 없이 편집 버튼이 있으면 눌러도 아무 일이 없습니다
 

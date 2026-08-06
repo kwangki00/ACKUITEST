@@ -10,6 +10,8 @@ const node = (id: string) =>
 export const figma = {
   button: node("383:2073"),
   input: node("431:2985"),
+  inputGroup: node("439:3090"),
+  textarea: node("473:2669"),
   select: node("483:4085"),
   checkbox: node("488:3902"),
   radio: node("488:3945"),
@@ -20,6 +22,13 @@ export const figma = {
   toggleGroup: node("586:448"),
   badge: node("555:104"),
   formField: node("436:2650"),
+  card: node("661:59"),
+  cardRow: node("660:29"),
+  alert: node("716:275"),
+  skeleton: node("718:33"),
+  spinner: node("729:47"),
+  progress: node("728:44"),
+  separator: node("728:31"),
   tableCell: node("604:46"),
   tableToolbar: node("617:295"),
 } as const;

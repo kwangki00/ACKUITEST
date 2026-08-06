@@ -2,6 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { InputGroupContext } from "@/components/ui/input-group";
 
 /**
  * Figma: Button (224 variants)
@@ -68,17 +69,22 @@ export interface ButtonProps
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, shape, loading, children, disabled, ...props }, ref) => (
-    <button
-      ref={ref}
-      className={cn(buttonVariants({ variant, size, shape }), className)}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {loading && <Loader2 className="size-4 animate-spin" aria-hidden />}
-      {children}
-    </button>
-  )
+  ({ className, variant, size, shape, loading, children, disabled, ...props }, ref) => {
+    // InputGroup 안이면 그룹 크기를 따릅니다. 아이콘 버튼처럼 직접 지정하면 그쪽이 이깁니다
+    const group = React.useContext(InputGroupContext);
+    const s = size ?? group?.size ?? undefined;
+    return (
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size: s, shape }), className)}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {loading && <Loader2 className="size-4 animate-spin" aria-hidden />}
+        {children}
+      </button>
+    );
+  }
 );
 Button.displayName = "Button";
 

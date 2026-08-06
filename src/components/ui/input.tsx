@@ -1,6 +1,7 @@
 import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { InputGroupContext } from "@/components/ui/input-group";
 
 /**
  * Figma: Input (48 variants)
@@ -59,7 +60,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
-      size = "default",
+      size,
       state = "default",
       leadingIcon,
       trailingIcon,
@@ -71,13 +72,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
+    const group = React.useContext(InputGroupContext);
+    // InputGroup 안이면 그룹 크기를 따릅니다 — 따로 주면 버튼과 높이가 어긋납니다
+    const s: Size = size ?? group?.size ?? "default";
     const resolved: State = disabled ? "disabled" : readOnly ? "readonly" : state;
     return (
       <div
         className={cn(
           "flex w-full items-center border transition-colors",
-          sizeMap[size],
-          (size === "grid" ? gridStateMap : stateMap)[resolved],
+          sizeMap[s],
+          (s === "grid" ? gridStateMap : stateMap)[resolved],
           className
         )}
       >

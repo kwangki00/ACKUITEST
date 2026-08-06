@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
  *
  * 헤더와 본문 글자는 둘 다 14 입니다 — 굵기로만 구분합니다.
  * 행 높이는 --h-datagrid 라 모바일에서 커집니다.
- * 페이지네이션 대신 스크롤을 씁니다. 건수는 툴바에 표시합니다.
+ * 페이지네이션과 스크롤 둘 다 씁니다 — 한 화면에서 훑는 목록은 스크롤,
+ * 건수가 많고 위치를 기억해야 하면 페이지네이션. 건수는 툴바에 표시합니다.
  */
 export function Table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) {
   return (
