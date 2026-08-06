@@ -1,80 +1,131 @@
 import * as React from "react";
-import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { ComboboxPanel, type ComboboxOption } from "@/components/ui/combobox";
+import {
+  SelectTrigger,
+  type SelectSize,
+  type SelectState,
+} from "@/components/ui/select-trigger";
 
 /**
- * Figma: Select (72 variants) — Render=Text 만 네이티브로 구현
- * Chip · Combobox · Lookup 은 Popover 조합이라 별도입니다.
+ * Figma: SelectTrigger — Render=Placeholder · Text
+ *
+ * Figma 구조를 그대로 옮긴 단일 선택입니다.
+ * 트리거는 `SelectTrigger`, 목록은 Popover + ListItem — **목록도 토큰대로 그립니다.**
+ *
+ * | 필요한 것 | 쓸 것 |
+ * |---|---|
+ * | 하나만 고름 | **Select** |
+ * | 검색이 필요 | `Combobox` (트리거 껍데기는 같습니다) |
+ * | 여러 개 고름 | `Combobox type="multi"` |
+ * | OS 선택기를 쓰고 싶음 | `NativeSelect` — 목록 모양이 디자인과 다릅니다 |
+ *
+ * 검색창이 없다는 것만 빼면 `Combobox` 와 같은 패널입니다.
+ * 항목이 수십 개를 넘으면 `Combobox` 로 바꾸세요 — 눈으로 훑기 어려워집니다.
  */
-type Size = "sm" | "default" | "lg" | "grid";
-type State = "default" | "error" | "disabled" | "readonly";
 
-// Input 과 완전히 같은 규칙입니다 — 모바일 16px 이상, lg(1024)에서 축소.
-// 글자는 sm·default·grid 14 / lg 16, 반경은 grid 만 sm(4) 나머지 md(6).
-const sizeMap: Record<Size, string> = {
-  sm: "h-[var(--h-input-sm)] pl-3 pr-9 text-base lg:text-sm rounded-md",
-  default: "h-[var(--h-input-default)] pl-3 pr-10 text-base lg:text-sm rounded-md",
-  lg: "h-[var(--h-input-lg)] pl-4 pr-11 text-base rounded-md",
-  grid: "h-[var(--h-datagrid)] pl-2 pr-8 text-base lg:text-sm rounded-sm",
-};
+export type SelectOption = ComboboxOption;
 
-export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
-  size?: Size;
-  state?: State;
+export interface SelectProps {
+  options: SelectOption[];
+  value?: string;
+  onValueChange: (value: string) => void;
   placeholder?: string;
+  size?: SelectSize;
+  state?: SelectState;
+  disabled?: boolean;
+  /** 화살표 왼쪽 해제 X. 필수 항목에는 쓰지 마세요. */
+  clearable?: boolean;
+  leadingIcon?: React.ReactNode;
+  emptyText?: string;
+  className?: string;
 }
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, size = "default", state = "default", placeholder, children, disabled, ...props }, ref) => {
-    const resolved: State = disabled ? "disabled" : state;
-    const isGrid = size === "grid";
-    return (
-      <div className="relative w-full">
-        <select
-          ref={ref}
+export function Select({
+  options,
+  value,
+  onValueChange,
+  placeholder = "선택해 주세요.",
+  size = "default",
+  state = "default",
+  disabled,
+  clearable,
+  leadingIcon,
+  emptyText = "항목이 없습니다.",
+  className,
+}: SelectProps) {
+  const [open, setOpen] = React.useState(false);
+  const [active, setActive] = React.useState(-1);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  const selected = value != null ? [value] : [];
+  const label = value != null ? (options.find((o) => o.value === value)?.label ?? value) : placeholder;
+
+  // 열 때 지금 고른 값에 짚어둡니다 — 어디에 있는지 바로 보여야 합니다
+  React.useEffect(() => {
+    if (!open) return;
+    const i = options.findIndex((o) => o.value === value);
+    setActive(i >= 0 ? i : 0);
+  }, [open, options, value]);
+
+  const pick = (v: string) => {
+    onValueChange(v);
+    setOpen(false);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (!options.length) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const d = e.key === "ArrowDown" ? 1 : -1;
+      setActive((p) => (p + d + options.length) % options.length);
+    } else if (e.key === "Enter" && active >= 0 && options[active] && !options[active].disabled) {
+      e.preventDefault();
+      pick(options[active].value);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <SelectTrigger
+          size={size}
+          state={state}
           disabled={disabled}
-          className={cn(
-            "w-full appearance-none border text-text-basic outline-hidden transition-colors",
-            sizeMap[size],
-            // grid 는 셀에 녹아 있어야 합니다 — 평상시 테두리·배경 없이
-            // 행의 hover·selected 색이 비치고, 포커스·에러일 때만 나타납니다.
-            isGrid
-              ? "bg-transparent focus:bg-input-surface"
-              : "bg-input-surface",
-            resolved === "default" &&
-              (isGrid
-                ? "border-transparent focus:border-input-border-focus focus:ring-[3px] focus:ring-action-focus-ring"
-                : "border-input-border focus:border-input-border-focus focus:ring-[3px] focus:ring-action-focus-ring"),
-            resolved === "error" &&
-              "border-input-border-error bg-input-surface focus:ring-[3px] focus:ring-action-focus-ring-danger",
-            resolved === "disabled" &&
-              cn(
-                "bg-input-surface-disabled text-text-disabled cursor-not-allowed",
-                isGrid ? "border-transparent" : "border-input-border-disabled"
-              ),
-            resolved === "readonly" &&
-              cn(
-                "bg-input-surface-readonly",
-                isGrid ? "border-transparent" : "border-input-border-readonly"
-              ),
-            className
-          )}
-          {...props}
+          open={open}
+          leadingIcon={leadingIcon}
+          onClear={clearable && value != null ? () => onValueChange("") : undefined}
+          className={cn(value == null && !disabled && "text-text-placeholder", className)}
         >
-          {placeholder && (
-            <option value="" disabled>
-              {placeholder}
-            </option>
-          )}
-          {children}
-        </select>
-        <ChevronDown
-          className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-icon-muted-foreground"
-          aria-hidden
+          <span className="truncate">{label}</span>
+        </SelectTrigger>
+      </PopoverTrigger>
+
+      <PopoverContent
+        ref={contentRef}
+        type="list"
+        className="gap-0 p-0 pb-1"
+        onKeyDown={onKeyDown}
+        // 검색창이 없어 Radix 가 첫 항목에 포커스를 줍니다. 그러면 브라우저 포커스와
+        // 방향키로 짚은 항목이 따로 놀아 표시가 둘이 됩니다 — 패널 자체에 포커스를 둡니다
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          contentRef.current?.focus();
+        }}
+      >
+        <ComboboxPanel
+          type="single"
+          options={options}
+          query=""
+          onQueryChange={() => {}}
+          selected={selected}
+          onSelect={pick}
+          activeIndex={active}
+          emptyText={emptyText}
+          showSearch={false}
         />
-      </div>
-    );
-  }
-);
-Select.displayName = "Select";
+      </PopoverContent>
+    </Popover>
+  );
+}

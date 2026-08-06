@@ -64,6 +64,12 @@
   --inset-shadow-xs: inset 0 1px 1px 0 rgb(0 0 0 / 0.05);
   --inset-shadow-sm: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 
+  /* ---------- Motion ----------
+     떠 있는 패널이 즉시 나타나면 어디서 열렸는지 알기 어렵습니다.
+     열린 방향에서 4px 밀려나오게 합니다 — 방향은 --ack-pop-x/y 로 받습니다.
+     tailwindcss-animate 플러그인을 쓰지 않으려고 직접 정의했습니다. */
+  --animate-pop-in: ack-pop-in 120ms ease-out;
+
   /* ---------- Radius (Primitive) ---------- */
   --radius-none: 0px;
   --radius-xs: 2px;
@@ -523,6 +529,29 @@
   --color-spinner-track: #e5e7eb;
   --color-spinner-indicator: #0070bc;
   --color-spinner-on-primary: #f9fafb;
+}
+
+@keyframes ack-pop-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--ack-pop-x, 0), var(--ack-pop-y, 0));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 움직임을 줄여달라고 한 사용자에게는 애니메이션을 끕니다 */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes ack-pop-in {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 /* ============================================================

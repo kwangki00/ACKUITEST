@@ -74,9 +74,14 @@ export const Control: Story = {
         <Input id="d1" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
       </FormField>
       <FormField label="검사 항목" htmlFor="d2">
-        <Select id="d2" defaultValue="all">
-          <option value="all">전체</option>
-        </Select>
+        <Select
+          options={[
+            { value: "all", label: "전체" },
+            { value: "blood", label: "혈액검사" },
+          ]}
+          value="all"
+          onValueChange={() => {}}
+        />
       </FormField>
       <FormField label="옵션">
         <Checkbox label="병원 출력금지 항목 제외" />

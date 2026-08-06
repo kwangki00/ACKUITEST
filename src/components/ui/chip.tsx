@@ -54,11 +54,18 @@ export function Chip({
       )}
       {...props}
     >
-      <span className="truncate">{children}</span>
+      {/* min-w-0 이 없으면 truncate 가 동작하지 않습니다 —
+          flex 자식은 기본 min-width:auto 라 내용보다 작아지지 않고 밖으로 넘칩니다 */}
+      <span className="min-w-0 truncate">{children}</span>
       {onRemove && (
         <button
           type="button"
-          onClick={onRemove}
+          // 칩이 누를 수 있는 영역(Select 트리거 등) 안에 있을 때
+          // 삭제가 바깥 클릭으로 새면 패널이 같이 열립니다
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
           disabled={disabled}
           aria-label={removeLabel ?? `${typeof children === "string" ? children : ""} 삭제`.trim()}
           className={cn(

@@ -3,6 +3,7 @@ import { Calendar, Download, Plus, Printer, RefreshCw, Search, Share2 } from "lu
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/ui/form-field";
@@ -17,6 +18,12 @@ import {
 } from "@/components/ui/table";
 
 /** 섹션 래퍼 — 갤러리 자체는 조용하게, 컴포넌트가 주인공입니다. */
+const TESTS = [
+  { value: "all", label: "전체" },
+  { value: "blood", label: "혈액검사" },
+  { value: "urine", label: "소변검사" },
+];
+
 function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
     <section className="scroll-mt-6" id={title}>
@@ -148,42 +155,43 @@ export default function App() {
           </Row>
         </Section>
 
-        <Section title="Select" note="Render=Text 만 네이티브. Chip · Combobox · Lookup 은 Popover 조합입니다.">
+        <Section
+          title="Select"
+          note="트리거는 SelectTrigger, 목록은 Popover + ListItem. 목록도 토큰대로 그립니다."
+        >
           <Row label="size">
-            <div className="w-44">
-              <Select size="sm" defaultValue="all">
-                <option value="all">전체</option>
-                <option value="blood">혈액검사</option>
-              </Select>
-            </div>
-            <div className="w-44">
-              <Select defaultValue="all">
-                <option value="all">전체</option>
-                <option value="blood">혈액검사</option>
-              </Select>
-            </div>
-            <div className="w-44">
-              <Select size="lg" defaultValue="all">
-                <option value="all">전체</option>
-              </Select>
-            </div>
+            {(["sm", "default", "lg"] as const).map((z) => (
+              <div key={z} className="w-44">
+                <Select size={z} options={TESTS} value="all" onValueChange={() => {}} />
+              </div>
+            ))}
           </Row>
           <Row label="state">
             <div className="w-44">
-              <Select placeholder="선택해 주세요" defaultValue="">
-                <option value="a">접수번호순</option>
-              </Select>
+              <Select options={TESTS} onValueChange={() => {}} placeholder="선택해 주세요" />
             </div>
             <div className="w-44">
-              <Select state="error" defaultValue="a">
-                <option value="a">잘못된 값</option>
-              </Select>
+              <Select state="error" options={TESTS} value="all" onValueChange={() => {}} />
             </div>
             <div className="w-44">
-              <Select disabled defaultValue="a">
-                <option value="a">비활성</option>
-              </Select>
+              <Select disabled options={TESTS} value="all" onValueChange={() => {}} />
             </div>
+          </Row>
+        </Section>
+
+        <Section
+          title="NativeSelect"
+          note="네이티브 <select>. 목록은 OS 가 그려서 디자인 시스템과 다릅니다 — 모바일 OS 선택기가 필요할 때만."
+        >
+          <Row label="size">
+            {(["sm", "default", "lg"] as const).map((z) => (
+              <div key={z} className="w-44">
+                <NativeSelect size={z} defaultValue="all">
+                  <option value="all">전체</option>
+                  <option value="blood">혈액검사</option>
+                </NativeSelect>
+              </div>
+            ))}
           </Row>
         </Section>
 
@@ -226,9 +234,7 @@ export default function App() {
               <Input id="f1" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
             </FormField>
             <FormField label="검사 항목" htmlFor="f2" description="여러 항목은 쉼표로 구분합니다.">
-              <Select id="f2" defaultValue="all">
-                <option value="all">전체</option>
-              </Select>
+              <Select options={TESTS} value="all" onValueChange={() => {}} />
             </FormField>
             <FormField label="접수번호" htmlFor="f3" required error="접수번호를 입력해 주세요.">
               <Input id="f3" state="error" placeholder="예: 20250601001" />
@@ -314,10 +320,14 @@ export default function App() {
               </div>
               <div className="w-40">
                 <FormField label="정렬" htmlFor="p3">
-                  <Select id="p3" defaultValue="a">
-                    <option value="a">접수번호순</option>
-                    <option value="b">이름순</option>
-                  </Select>
+                  <Select
+                    options={[
+                      { value: "a", label: "접수번호순" },
+                      { value: "b", label: "이름순" },
+                    ]}
+                    value="a"
+                    onValueChange={() => {}}
+                  />
                 </FormField>
               </div>
               <Checkbox label="병원 출력금지 항목 제외" className="mb-2" />

@@ -191,10 +191,14 @@ export const 결과조회화면: Story = {
           </div>
           <div className="w-40">
             <FormField label="정렬" htmlFor="s3">
-              <Select id="s3" defaultValue="a">
-                <option value="a">접수번호순</option>
-                <option value="b">이름순</option>
-              </Select>
+              <Select
+                options={[
+                  { value: "a", label: "접수번호순" },
+                  { value: "b", label: "이름순" },
+                ]}
+                value="a"
+                onValueChange={() => {}}
+              />
             </FormField>
           </div>
           <Checkbox label="병원 출력금지 항목 제외" className="mb-2.5" />
