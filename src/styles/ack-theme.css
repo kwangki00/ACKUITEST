@@ -1,0 +1,528 @@
+/* ============================================================
+   ack-theme.css
+   SCL DesignSystem 토큰 — Figma Variables 에서 추출
+   Primitive 197 · Semantic 313 · Responsive 28
+   ============================================================ */
+
+@theme {
+  /* ---------- Font ---------- */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
+
+  /* ---------- Font Size (Primitive) ---------- */
+  --text-2xs: 10px;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 12px;
+  --text-xs--line-height: 1.4;
+  --text-sm: 14px;
+  --text-sm--line-height: 1.4;
+  --text-base: 16px;
+  --text-base--line-height: 1.4;
+  --text-lg: 18px;
+  --text-lg--line-height: 1.4;
+  --text-xl: 20px;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 1.4;
+  --text-3xl: 30px;
+  --text-3xl--line-height: 1.4;
+  --text-4xl: 36px;
+  --text-4xl--line-height: 1.4;
+  --text-5xl: 48px;
+  --text-5xl--line-height: 1.4;
+  --text-6xl: 60px;
+  --text-6xl--line-height: 1.4;
+
+  /* ---------- Radius (Primitive) ---------- */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* ============================================================
+     Primitive — 브랜드 램프
+     컴포넌트에서 직접 쓰지 마세요. Semantic 을 거칩니다.
+     ============================================================ */
+  --color-primary-50: #e5f1f8;
+  --color-primary-100: #cce2f2;
+  --color-primary-200: #99c6e4;
+  --color-primary-300: #66a9d7;
+  --color-primary-400: #338dc9;
+  --color-primary-500: #0070bc;
+  --color-primary-600: #005fa0;
+  --color-primary-700: #004e84;
+  --color-primary-800: #003e67;
+  --color-primary-900: #002d4b;
+
+  --color-secondary-50: #f7f5f0;
+  --color-secondary-100: #ede8de;
+  --color-secondary-200: #d9ceb9;
+  --color-secondary-300: #c4b595;
+  --color-secondary-400: #b09b70;
+  --color-secondary-500: #9a7f48;
+  --color-secondary-600: #836c3d;
+  --color-secondary-700: #6c5932;
+  --color-secondary-800: #554628;
+  --color-secondary-900: #3e331d;
+
+  --color-sub-50: #eaf2f0;
+  --color-sub-100: #d5e5e2;
+  --color-sub-200: #abcbc5;
+  --color-sub-300: #82b1a8;
+  --color-sub-400: #58978b;
+  --color-sub-500: #2e7d6e;
+  --color-sub-600: #276a5e;
+  --color-sub-700: #20584d;
+  --color-sub-800: #19453d;
+  --color-sub-900: #12322c;
+
+  --color-danger-50: #ffeeee;
+  --color-danger-100: #ffd9d9;
+  --color-danger-200: #ffbfbf;
+  --color-danger-300: #ff9191;
+  --color-danger-400: #f65656;
+  --color-danger-500: #e31515;
+  --color-danger-600: #c41616;
+  --color-danger-700: #9d0e0e;
+  --color-danger-800: #770808;
+  --color-danger-900: #560404;
+
+  --color-warning-50: #fff3db;
+  --color-warning-100: #ffe0a3;
+  --color-warning-200: #ffd37b;
+  --color-warning-300: #ffc95c;
+  --color-warning-400: #ffbd38;
+  --color-warning-500: #ffae0a;
+  --color-warning-600: #db970e;
+  --color-warning-700: #bd7e00;
+  --color-warning-800: #8d5e00;
+  --color-warning-900: #523a09;
+
+  --color-success-50: #eaf6ec;
+  --color-success-100: #d8eedd;
+  --color-success-200: #a9dab4;
+  --color-success-300: #7ec88e;
+  --color-success-400: #3fa654;
+  --color-success-500: #1d9437;
+  --color-success-600: #237b37;
+  --color-success-700: #1c662b;
+  --color-success-800: #1b5326;
+  --color-success-900: #103c1b;
+
+  --color-info1-50: #deedff;
+  --color-info1-100: #c2deff;
+  --color-info1-200: #9ecbff;
+  --color-info1-300: #5ea9ff;
+  --color-info1-400: #2585f3;
+  --color-info1-500: #0068df;
+  --color-info1-600: #0057ba;
+  --color-info1-700: #00418b;
+  --color-info1-800: #003571;
+  --color-info1-900: #001936;
+
+  --color-info2-50: #ffe7d7;
+  --color-info2-100: #ffd4b7;
+  --color-info2-200: #ffb988;
+  --color-info2-300: #ff9b56;
+  --color-info2-400: #ff822c;
+  --color-info2-500: #fd6d0a;
+  --color-info2-600: #e25c00;
+  --color-info2-700: #bf4e00;
+  --color-info2-800: #983f01;
+  --color-info2-900: #6b2c00;
+
+  /* ============================================================
+     Semantic — 컴포넌트가 참조하는 의미값
+     ============================================================ */
+
+  /* Alpha */
+  --color-alpha-base100: #ffffff;
+  --color-alpha-base75: rgb(255 255 255 / 0.75);
+  --color-alpha-base50: rgb(255 255 255 / 0.5);
+  --color-alpha-base25: rgb(255 255 255 / 0.25);
+  --color-alpha-base10: rgb(255 255 255 / 0.1);
+  --color-alpha-base0: rgb(255 255 255 / 0);
+  --color-alpha-inverse100: #000000;
+  --color-alpha-inverse75: rgb(0 0 0 / 0.75);
+  --color-alpha-inverse50: rgb(0 0 0 / 0.5);
+  --color-alpha-inverse25: rgb(0 0 0 / 0.25);
+  --color-alpha-inverse10: rgb(0 0 0 / 0.1);
+  --color-alpha-inverse0: rgb(0 0 0 / 0);
+  --color-alpha-shadow1: rgb(0 0 0 / 0.05);
+  --color-alpha-shadow2: rgb(0 0 0 / 0.08);
+  --color-alpha-shadow3: rgb(0 0 0 / 0.13);
+
+  /* Background · Surface */
+  --color-background-white: #ffffff;
+  --color-background-gray-subtler: #f9fafb;
+  --color-background-gray-subtle: #f3f4f6;
+  --color-background-inverse: #101828;
+  --color-background-dim: rgb(0 0 0 / 0.5);
+  --color-surface-white: #ffffff;
+  --color-surface-inverse: #101828;
+  --color-surface-gray-subtle: #f9fafb;
+  --color-surface-gray-subtler: #f3f4f6;
+  --color-surface-disabled: #e5e7eb;
+  --color-surface-primary-subtler: #e5f1f8;
+  --color-surface-secondary-subtler: #f7f5f0;
+  --color-surface-danger-subtler: #ffeeee;
+  --color-surface-warning-subtler: #fff3db;
+  --color-surface-success-subtler: #eaf6ec;
+  --color-surface-information1-subtler: #deedff;
+  --color-surface-information2-subtler: #ffe7d7;
+
+  /* Border */
+  --color-border-transparent: rgb(0 0 0 / 0);
+  --color-border-inverse: #ffffff;
+  --color-border-disabled: #d1d5dc;
+  --color-border-gray-light: #e5e7eb;
+  --color-border-gray: #d1d5dc;
+  --color-border-gray-dark: #4a5565;
+  --color-border-gray-darker: #101828;
+  --color-border-primary-light: #cce2f2;
+  --color-border-primary: #0070bc;
+  --color-border-secondary-light: #ede8de;
+  --color-border-secondary: #6c5932;
+  --color-border-danger-light: #ffeeee;
+  --color-border-danger: #e31515;
+  --color-border-warning-light: #fff3db;
+  --color-border-warning: #ffae0a;
+  --color-border-success-light: #eaf6ec;
+  --color-border-success: #1d9437;
+  --color-border-information1-light: #9ecbff;
+  --color-border-information1: #0068df;
+  --color-border-information2-light: #ffe7d7;
+  --color-border-information2: #fd6d0a;
+
+  /* Divider */
+  --color-divider-gray-light: #e5e7eb;
+  --color-divider-gray: #99a1af;
+  --color-divider-gray-dark: #6a7282;
+  --color-divider-gray-darker: #101828;
+  --color-divider-inverse: #ffffff;
+  --color-divider-primary-light: #cce2f2;
+  --color-divider-primary: #0070bc;
+  --color-divider-secondary-light: #d5e5e2;
+  --color-divider-secondary: #6c5932;
+  --color-divider-danger: #e31515;
+
+  /* Input */
+  --color-input-surface: #ffffff;
+  --color-input-border: #d1d5dc;
+  --color-input-border-focus: #0070bc;
+  --color-input-border-error: #e31515;
+  --color-input-surface-disabled: #e5e7eb;
+  --color-input-border-disabled: #d1d5dc;
+  --color-input-surface-readonly: #f9fafb;
+  --color-input-border-readonly: #e5e7eb;
+
+  /* Text */
+  --color-text-bolder: #030712;
+  --color-text-basic: #101828;
+  --color-text-subtle: #364153;
+  --color-text-disabled: #99a1af;
+  --color-text-disabled-on: #6a7282;
+  --color-text-bolder-inverse: #ffffff;
+  --color-text-basic-inverse: #ffffff;
+  --color-text-subtle-inverse: #d1d5dc;
+  --color-text-static: #101828;
+  --color-text-static-inverse: #ffffff;
+  --color-text-primary: #0070bc;
+  --color-text-primary-strong: #004e84;
+  --color-text-secondary: #554628;
+  --color-text-danger: #e31515;
+  --color-text-warning: #8d5e00;
+  --color-text-success: #237b37;
+  --color-text-information1: #0068df;
+  --color-text-information2: #bf4e00;
+  --color-text-muted-foreground: #6a7282;
+  --color-text-placeholder: #6a7282;
+
+  /* Action */
+  --color-action-white: #ffffff;
+  --color-action-primary: rgb(255 255 255 / 0);
+  --color-action-primary-hover: #e5f1f8;
+  --color-action-primary-pressed: #cce2f2;
+  --color-action-primary-selected: #e5f1f8;
+  --color-action-primary-active: #0070bc;
+  --color-action-secondary: rgb(255 255 255 / 0);
+  --color-action-secondary-hover: #f7f5f0;
+  --color-action-secondary-pressed: #ede8de;
+  --color-action-secondary-selected: #f7f5f0;
+  --color-action-secondary-on-hover: #f9fafb;
+  --color-action-secondary-on-pressed: #e5e7eb;
+  --color-action-secondary-on-selected: #f3f4f6;
+  --color-action-disabled: #e5e7eb;
+  --color-action-focus-ring: rgb(0 112 188 / 0.5);
+  --color-action-focus-ring-danger: rgb(227 21 21 / 0.5);
+  --color-action-accent: #f3f4f6;
+  --color-action-accent-strong: #e5e7eb;
+
+  /* Icon */
+  --color-icon-gray: #1e2939;
+  --color-icon-gray-light: #364153;
+  --color-icon-gray-fill: #e5e7eb;
+  --color-icon-inverse: #ffffff;
+  --color-icon-disabled: #99a1af;
+  --color-icon-disabled-on: #6a7282;
+  --color-icon-primary: #0070bc;
+  --color-icon-primary-strong: #004e84;
+  --color-icon-secondary: #9a7f48;
+  --color-icon-danger: #e31515;
+  --color-icon-warning: #bd7e00;
+  --color-icon-success: #1d9437;
+  --color-icon-information1: #0068df;
+  --color-icon-information2: #e25c00;
+  --color-icon-muted-foreground: #6a7282;
+
+  /* Button */
+  --color-button-primary-fill: #0070bc;
+  --color-button-primary-fill-hover: #004e84;
+  --color-button-primary-fill-active: #003e67;
+  --color-button-secondary-fill: #ede8de;
+  --color-button-secondary-fill-hover: #ede8de;
+  --color-button-secondary-fill-active: #b09b70;
+  --color-button-tertiary-fill: rgb(255 255 255 / 0);
+  --color-button-tertiary-fill-border: #d1d5dc;
+  --color-button-tertiary-fill-hover: #f3f4f6;
+  --color-button-tertiary-fill-active: #d1d5dc;
+  --color-button-text-fill: rgb(255 255 255 / 0);
+  --color-button-text-fill-hover: #f9fafb;
+  --color-button-text-fill-pressed: #f3f4f6;
+  --color-button-text-border: rgb(0 0 0 / 0);
+  --color-button-disabled-fill: #e5e7eb;
+  --color-button-disabled-border: #d1d5dc;
+  --color-button-destructive-fill: #e31515;
+  --color-button-soft-fill: #cce2f2;
+
+  /* Badge */
+  --color-badge-neutral-soft-fill: #f3f4f6;
+  --color-badge-neutral-text: #1e2939;
+  --color-badge-neutral-solid-fill: #4a5565;
+  --color-badge-neutral-solid-text: #f9fafb;
+  --color-badge-neutral-border: #d1d5dc;
+  --color-badge-primary-soft-fill: #cce2f2;
+  --color-badge-primary-text: #003e67;
+  --color-badge-primary-solid-fill: #005fa0;
+  --color-badge-primary-solid-text: #f9fafb;
+  --color-badge-primary-border: #66a9d7;
+  --color-badge-info-soft-fill: #c2deff;
+  --color-badge-info-text: #003571;
+  --color-badge-info-solid-fill: #0057ba;
+  --color-badge-info-solid-text: #f9fafb;
+  --color-badge-info-border: #5ea9ff;
+  --color-badge-success-soft-fill: #d8eedd;
+  --color-badge-success-text: #1b5326;
+  --color-badge-success-solid-fill: #237b37;
+  --color-badge-success-solid-text: #f9fafb;
+  --color-badge-success-border: #7ec88e;
+  --color-badge-warning-soft-fill: #ffe0a3;
+  --color-badge-warning-text: #523a09;
+  --color-badge-warning-solid-fill: #ffae0a;
+  --color-badge-warning-solid-text: #523a09;
+  --color-badge-warning-border: #ffbd38;
+  --color-badge-danger-soft-fill: #ffd9d9;
+  --color-badge-danger-text: #770808;
+  --color-badge-danger-solid-fill: #c41616;
+  --color-badge-danger-solid-text: #f9fafb;
+  --color-badge-danger-border: #ff9191;
+
+  /* Switch */
+  --color-switch-track-off: #99a1af;
+  --color-switch-track-on: #0070bc;
+  --color-switch-track-disabled: #e5e7eb;
+  --color-switch-thumb: #f9fafb;
+  --color-switch-thumb-disabled: #f3f4f6;
+
+  /* Tab */
+  --color-tab-indicator: #0070bc;
+  --color-tab-text-active: #004e84;
+  --color-tab-text-default: #4a5565;
+  --color-tab-list-surface: #e5e7eb;
+  --color-tab-surface-active: #ffffff;
+  --color-tab-divider: #e5e7eb;
+  --color-tab-surface-active-primary: #0070bc;
+  --color-tab-text-active-primary: #f9fafb;
+
+  /* Toggle */
+  --color-toggle-list-surface: #e5e7eb;
+  --color-toggle-surface-selected: #e5f1f8;
+  --color-toggle-text-selected: #004e84;
+  --color-toggle-surface-pill: #ffffff;
+  --color-toggle-text-default: #4a5565;
+  --color-toggle-border: #d1d5dc;
+  --color-toggle-border-selected: #338dc9;
+
+  /* Table */
+  --color-table-row-surface: #ffffff;
+  --color-table-row-hover: #f3f4f6;
+  --color-table-row-selected: #e5f1f8;
+  --color-table-header-surface: #f3f4f6;
+  --color-table-header-text: #364153;
+  --color-table-border: #e5e7eb;
+  --color-table-border-strong: #d1d5dc;
+  --color-table-text: #101828;
+  --color-table-text-muted: #6a7282;
+
+  /* Pagination */
+  --color-pagination-current-surface: #cce2f2;
+  --color-pagination-current-text: #004e84;
+
+  /* Sidebar */
+  --color-sidebar-surface: #ffffff;
+  --color-sidebar-item-hover: #f3f4f6;
+  --color-sidebar-item-active: #e5f1f8;
+  --color-sidebar-item-active-strong: #e5f1f8;
+  --color-sidebar-text: #364153;
+  --color-sidebar-text-active: #004e84;
+  --color-sidebar-text-muted: #6a7282;
+  --color-sidebar-border: #e5e7eb;
+  --color-sidebar-indicator: #0070bc;
+  --color-sidebar-avatar-surface: #e5e7eb;
+
+  /* Tooltip · Avatar · Overlay */
+  --color-tooltip-surface: #101828;
+  --color-tooltip-text: #f9fafb;
+  --color-avatar-surface: #e5e7eb;
+  --color-avatar-text: #364153;
+  --color-avatar-surface-primary: #cce2f2;
+  --color-avatar-text-primary: #004e84;
+  --color-avatar-status-online: #1d9437;
+  --color-avatar-status-offline: #99a1af;
+  --color-avatar-ring: #ffffff;
+  --color-overlay-scrim: rgb(0 0 0 / 0.5);
+
+  /* Dialog · Toast */
+  --color-dialog-surface: #ffffff;
+  --color-dialog-border: #e5e7eb;
+  --color-toast-surface: #ffffff;
+  --color-toast-border: #e5e7eb;
+  --color-toast-success-surface: #d8eedd;
+  --color-toast-success-border: #7ec88e;
+  --color-toast-info-surface: #c2deff;
+  --color-toast-info-border: #5ea9ff;
+  --color-toast-warning-surface: #ffe0a3;
+  --color-toast-warning-border: #ffc95c;
+  --color-toast-danger-surface: #ffd9d9;
+  --color-toast-danger-border: #ff9191;
+
+  /* Card · Accordion */
+  --color-card-surface: #ffffff;
+  --color-card-surface-filled: #f9fafb;
+  --color-card-border: #e5e7eb;
+  --color-card-title: #101828;
+  --color-card-label: #6a7282;
+  --color-card-value: #101828;
+  --color-accordion-surface: #ffffff;
+  --color-accordion-trigger-hover: #f3f4f6;
+  --color-accordion-border: #e5e7eb;
+  --color-accordion-title: #101828;
+  --color-accordion-icon: #6a7282;
+
+  /* Lookup · Tree */
+  --color-lookup-row-hover: #f3f4f6;
+  --color-lookup-row-selected: #e5f1f8;
+  --color-lookup-text: #101828;
+  --color-lookup-text-selected: #004e84;
+  --color-lookup-code: #4a5565;
+  --color-tree-item-hover: #f3f4f6;
+  --color-tree-item-selected: #e5f1f8;
+  --color-tree-text: #101828;
+  --color-tree-text-selected: #004e84;
+  --color-tree-text-muted: #6a7282;
+  --color-tree-guide: #e5e7eb;
+  --color-tree-indicator: #0070bc;
+
+  /* Calendar */
+  --color-cal-cell-hover: #f3f4f6;
+  --color-cal-cell-selected: #338dc9;
+  --color-cal-cell-range: #e5f1f8;
+  --color-cal-text: #101828;
+  --color-cal-text-selected: #f9fafb;
+  --color-cal-text-range: #004e84;
+  --color-cal-text-outside: #d1d5dc;
+  --color-cal-text-disabled: #d1d5dc;
+  --color-cal-text-weekend: #e31515;
+  --color-cal-today-border: #0070bc;
+  --color-cal-header-text: #6a7282;
+  --color-cal-border: #e5e7eb;
+
+  /* Alert */
+  --color-alert-info-surface: #deedff;
+  --color-alert-info-border: #5ea9ff;
+  --color-alert-success-surface: #eaf6ec;
+  --color-alert-success-border: #7ec88e;
+  --color-alert-warning-surface: #fff3db;
+  --color-alert-warning-border: #ffc95c;
+  --color-alert-danger-surface: #ffeeee;
+  --color-alert-danger-border: #ff9191;
+
+  /* Skeleton · Menu · Breadcrumb · Separator · Progress · Spinner */
+  --color-skeleton-base: #e5e7eb;
+  --color-menu-surface: #ffffff;
+  --color-menu-border: #e5e7eb;
+  --color-breadcrumb-link: #6a7282;
+  --color-breadcrumb-current: #101828;
+  --color-breadcrumb-divider: #d1d5dc;
+  --color-separator-line: #e5e7eb;
+  --color-separator-label: #6a7282;
+  --color-progress-track: #e5e7eb;
+  --color-progress-fill: #0070bc;
+  --color-progress-text: #364153;
+  --color-spinner-track: #e5e7eb;
+  --color-spinner-indicator: #0070bc;
+  --color-spinner-on-primary: #f9fafb;
+}
+
+/* ============================================================
+   Responsive — PC / Mobile 2모드
+   Figma Responsive 컬렉션과 같은 값. 1024px(lg) 에서 갈립니다.
+   ============================================================ */
+:root {
+  /* Mobile 기준값 — 모바일 우선 */
+  --h-input-xs: 28px;
+  --h-input-sm: 36px;
+  --h-input-default: 40px;
+  --h-input-lg: 52px;
+  --h-datagrid: 36px;
+  --h-toolbar: 44px;
+  --h-toolbar-lg: 52px;
+  --h-row: 48px;
+  --h-row-lg: 56px;
+  --h-control-sm: 22px;
+  --h-control-default: 26px;
+  --h-calendar-cell: 44px;
+  --h-calendar-unit: 48px;
+  --h-list-item: 48px;
+  --h-lookup-row: 52px;
+  --h-lookup-header: 44px;
+  --h-sheet-min: 240px;
+  --h-sheet-max: 717px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --h-input-xs: 24px;
+    --h-input-sm: 32px;
+    --h-input-default: 36px;
+    --h-input-lg: 48px;
+    --h-datagrid: 34px;
+    --h-toolbar: 40px;
+    --h-toolbar-lg: 48px;
+    --h-row: 44px;
+    --h-row-lg: 52px;
+    --h-control-sm: 20px;
+    --h-control-default: 24px;
+    --h-calendar-cell: 36px;
+    --h-calendar-unit: 40px;
+    --h-list-item: 32px;
+    --h-lookup-row: 40px;
+    --h-lookup-header: 36px;
+  }
+}

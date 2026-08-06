@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@import "./styles/ack-theme.css";
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--color-background-gray-subtler);
+    color: var(--color-text-basic);
+  }
+  /* 포커스 표시는 각 컴포넌트가 테두리 색 변경 + ring-[3px] 로 그립니다.
+     그래서 브라우저 기본 outline 은 지웁니다. */
+  *:focus-visible {
+    outline: none;
+  }
+}
+
+/* 고대비 모드에서는 box-shadow(=ring)가 렌더링되지 않습니다.
+   위에서 outline 까지 지웠으므로 여기서 되살리지 않으면
+   포커스가 어디 있는지 알 수 없게 됩니다. */
+@media (forced-colors: active) {
+  *:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
