@@ -9,12 +9,13 @@ import { cn } from "@/lib/utils";
 type Size = "sm" | "default" | "lg" | "grid";
 type State = "default" | "error" | "disabled" | "readonly";
 
-// Input 과 같은 규칙 — 모바일 16px 이상으로 iOS 자동 확대를 막습니다.
+// Input 과 완전히 같은 규칙입니다 — 모바일 16px 이상, lg(1024)에서 축소.
+// 글자는 sm·default·grid 14 / lg 16, 반경은 grid 만 sm(4) 나머지 md(6).
 const sizeMap: Record<Size, string> = {
-  sm: "h-[var(--h-input-sm)] pl-3 pr-9 text-base md:text-xs rounded-md",
-  default: "h-[var(--h-input-default)] pl-3 pr-10 text-base md:text-sm rounded-md",
-  lg: "h-[var(--h-input-lg)] pl-4 pr-11 text-base rounded-lg",
-  grid: "h-[var(--h-datagrid)] pl-2 pr-8 text-base md:text-sm rounded-none",
+  sm: "h-[var(--h-input-sm)] pl-3 pr-9 text-base lg:text-sm rounded-md",
+  default: "h-[var(--h-input-default)] pl-3 pr-10 text-base lg:text-sm rounded-md",
+  lg: "h-[var(--h-input-lg)] pl-4 pr-11 text-base rounded-md",
+  grid: "h-[var(--h-datagrid)] pl-2 pr-8 text-base lg:text-sm rounded-sm",
 };
 
 export interface SelectProps
@@ -27,21 +28,36 @@ export interface SelectProps
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, size = "default", state = "default", placeholder, children, disabled, ...props }, ref) => {
     const resolved: State = disabled ? "disabled" : state;
+    const isGrid = size === "grid";
     return (
       <div className="relative w-full">
         <select
           ref={ref}
           disabled={disabled}
           className={cn(
-            "w-full appearance-none border bg-input-surface text-text-basic outline-hidden transition-colors",
+            "w-full appearance-none border text-text-basic outline-hidden transition-colors",
             sizeMap[size],
+            // grid 는 셀에 녹아 있어야 합니다 — 평상시 테두리·배경 없이
+            // 행의 hover·selected 색이 비치고, 포커스·에러일 때만 나타납니다.
+            isGrid
+              ? "bg-transparent focus:bg-input-surface"
+              : "bg-input-surface",
             resolved === "default" &&
-              "border-input-border focus:border-input-border-focus focus:ring-[3px] focus:ring-action-focus-ring",
+              (isGrid
+                ? "border-transparent focus:border-input-border-focus focus:ring-[3px] focus:ring-action-focus-ring"
+                : "border-input-border focus:border-input-border-focus focus:ring-[3px] focus:ring-action-focus-ring"),
             resolved === "error" &&
-              "border-input-border-error focus:ring-[3px] focus:ring-action-focus-ring-danger",
+              "border-input-border-error bg-input-surface focus:ring-[3px] focus:ring-action-focus-ring-danger",
             resolved === "disabled" &&
-              "border-input-border-disabled bg-input-surface-disabled text-text-disabled cursor-not-allowed",
-            resolved === "readonly" && "border-input-border-readonly bg-input-surface-readonly",
+              cn(
+                "bg-input-surface-disabled text-text-disabled cursor-not-allowed",
+                isGrid ? "border-transparent" : "border-input-border-disabled"
+              ),
+            resolved === "readonly" &&
+              cn(
+                "bg-input-surface-readonly",
+                isGrid ? "border-transparent" : "border-input-border-readonly"
+              ),
             className
           )}
           {...props}

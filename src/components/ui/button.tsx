@@ -22,19 +22,23 @@ const buttonVariants = cva(
   ].join(" "),
   {
     variants: {
+      // Figma 가 variant 별 Focus 토큰을 따로 두는 것(default·secondary·outline)은
+      // 그대로 씁니다. 나머지는 공통 Action/Focus-Ring 이라 기본값을 씁니다.
       variant: {
         default:
-          "bg-button-primary-fill text-text-basic-inverse hover:bg-button-primary-fill-hover active:bg-button-primary-fill-active",
+          "bg-button-primary-fill text-text-basic-inverse hover:bg-button-primary-fill-hover active:bg-button-primary-fill-active focus-visible:bg-button-primary-fill-focus focus-visible:ring-button-primary-fill-focus-border",
         secondary:
-          "bg-button-secondary-fill text-text-basic hover:bg-button-secondary-fill-hover active:bg-button-secondary-fill-active",
+          "bg-button-secondary-fill text-text-basic hover:bg-button-secondary-fill-hover active:bg-button-secondary-fill-active focus-visible:bg-button-secondary-fill-focus focus-visible:ring-button-secondary-fill-focus-border",
         destructive:
-          "bg-button-destructive-fill text-text-basic-inverse hover:bg-danger-600 active:bg-danger-700",
+          "bg-button-destructive-fill text-text-basic-inverse hover:bg-button-destructive-fill-hover active:bg-button-destructive-fill-active",
         outline:
-          "border border-button-tertiary-fill-border bg-button-tertiary-fill text-text-basic hover:bg-button-tertiary-fill-hover active:bg-button-tertiary-fill-active",
+          "border border-button-tertiary-fill-border bg-button-tertiary-fill text-text-basic hover:bg-button-tertiary-fill-hover active:bg-button-tertiary-fill-active focus-visible:bg-button-tertiary-fill-focus focus-visible:ring-button-tertiary-fill-focus-border",
         ghost:
           "text-text-basic hover:bg-button-text-fill-hover active:bg-button-text-fill-pressed",
         link: "text-text-primary underline-offset-4 hover:underline",
-        soft: "bg-button-soft-fill text-text-primary-strong hover:bg-primary-200 active:bg-primary-300",
+        // 누르는 동안 글자를 한 단계 더 어둡게 — 배경이 Primary/300 까지
+        // 진해져서 Primary-Strong 으로는 대비가 3.39:1 밖에 안 나옵니다
+        soft: "bg-button-soft-fill text-text-primary-strong hover:bg-button-soft-fill-hover active:bg-button-soft-fill-active active:text-text-primary-stronger",
       },
       // 반경은 4개 사이즈 모두 Radius/md(6) 입니다 — Figma 가 사이즈별로 반경을
       // 키우지 않습니다. 글자는 xs 12 · sm 14 · default 14 · lg 18.

@@ -29,7 +29,7 @@ Claude Code 는 프로젝트 루트뿐 아니라 **상위 폴더의 `CLAUDE.md` 
 **Figma 라이브러리** — 파일 키 `cbV1vpZGUrpJhD1gro6j2m` (SCL_DesignSystem)
 
 ```
-79 컴포넌트 세트 · 931 변형 · 토큰 800여 개
+62 컴포넌트 세트 · 913 변형 · 단독 컴포넌트 219(아이콘 201 포함) · 변수 787
 모든 페이지에 About(개요) + Documentation(개발자용) 완비
 PC · 모바일 화면 데모 완성
 ```
@@ -51,7 +51,7 @@ Popover 가 필요한 것들(Combobox · Lookup · DatePicker · Dialog · Toast
 ```
 TailwindCSS/Colors  245   gray · slate · red …  (중립 회색은 여기서)
 Primitive           197   Primary · Danger …    (브랜드 8램프 × 10단계)
-Semantic            313   button-primary-fill · table-border …
+Semantic            317   button-primary-fill · table-border …
 Responsive           28   --h-input-default …   (PC/Mobile 2모드)
 ```
 

@@ -25,7 +25,11 @@ const meta = {
       options: ["xs", "sm", "default", "lg", "icon-xs", "icon-sm", "icon", "icon-lg"],
       description: "높이는 --h-input-* 변수라 모바일에서 커집니다.",
     },
-    shape: { control: "inline-radio", options: ["default", "pill"] },
+    shape: {
+      control: "inline-radio",
+      options: ["default", "pill"],
+      description: "반경만 달라집니다 — 높이·패딩·간격은 같습니다.",
+    },
     loading: { control: "boolean", description: "스피너가 라벨 앞에 붙습니다." },
     disabled: { control: "boolean" },
     children: { control: "text" },
@@ -40,6 +44,7 @@ export const 기본: Story = {};
 
 const VARIANTS = ["default", "secondary", "destructive", "outline", "ghost", "link", "soft"] as const;
 const SIZES = ["xs", "sm", "default", "lg"] as const;
+const SHAPES = ["default", "pill"] as const;
 
 /** 7가지 무게를 나란히 봅니다. */
 export const Variant: Story = {
@@ -69,21 +74,46 @@ export const Size: Story = {
   ),
 };
 
+/**
+ * Shape 은 반경만 바꿉니다 — 높이·패딩·간격은 default 와 완전히 같습니다.
+ * default 는 Radius/md(6), pill 은 Radius/full.
+ */
+export const Shape: Story = {
+  parameters: { layout: "padded", ...design(figma.button) },
+  render: (args) => (
+    <div className="flex flex-col gap-4">
+      {SHAPES.map((sh) => (
+        <div key={sh} className="flex flex-wrap items-center gap-3">
+          <span className="w-16 shrink-0 text-xs text-text-subtle">{sh}</span>
+          {SIZES.map((s) => (
+            <Button key={s} {...args} size={s} shape={sh}>
+              {s}
+            </Button>
+          ))}
+          <Button {...args} size="icon" shape={sh} aria-label="추가">
+            <Plus className="size-4" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
 /** 아이콘만 있는 버튼은 aria-label 이 필수입니다. */
 export const 아이콘: Story = {
   parameters: { layout: "padded", ...design(figma.button) },
-  render: () => (
+  render: ({ shape }) => (
     <div className="flex flex-wrap items-center gap-3">
-      <Button size="icon-sm" variant="outline" aria-label="검색">
+      <Button size="icon-sm" variant="outline" shape={shape} aria-label="검색">
         <Search className="size-4" />
       </Button>
-      <Button size="icon" variant="outline" aria-label="다운로드">
+      <Button size="icon" variant="outline" shape={shape} aria-label="다운로드">
         <Download className="size-4" />
       </Button>
-      <Button size="icon-lg" variant="outline" aria-label="인쇄">
+      <Button size="icon-lg" variant="outline" shape={shape} aria-label="인쇄">
         <Printer className="size-5" />
       </Button>
-      <Button variant="outline">
+      <Button variant="outline" shape={shape}>
         <Plus className="size-4" />
         추가
       </Button>
@@ -94,38 +124,51 @@ export const 아이콘: Story = {
 /** Disabled 는 opacity 가 아니라 토큰으로 표현합니다. 겹친 요소가 비치지 않습니다. */
 export const 상태: Story = {
   parameters: { layout: "padded", ...design(figma.button) },
-  render: () => (
+  render: ({ shape }) => (
     <div className="flex flex-wrap items-center gap-3">
-      <Button>기본</Button>
-      <Button disabled>비활성</Button>
-      <Button loading>저장 중</Button>
-      <Button variant="outline" disabled>
+      <Button shape={shape}>기본</Button>
+      <Button shape={shape} disabled>
         비활성
       </Button>
-      <Button variant="outline" loading>
+      <Button shape={shape} loading>
+        저장 중
+      </Button>
+      <Button variant="outline" shape={shape} disabled>
+        비활성
+      </Button>
+      <Button variant="outline" shape={shape} loading>
         조회 중
       </Button>
     </div>
   ),
 };
 
-/** 전체 조합. Figma 세트와 대조할 때 씁니다. */
+/**
+ * 전체 조합. Figma 세트와 대조할 때 씁니다.
+ * Figma 페이지가 Shape=default · Shape=pill 두 덩어리로 쌓여 있어 같은 순서로 폅니다.
+ * 컨트롤로 고르지 않고 둘 다 보여주는 이유 — 대조는 나란히 놓고 봐야 합니다.
+ */
 export const 전체: Story = {
   parameters: { layout: "padded", ...design(figma.button) },
   render: () => (
-    <div className="flex flex-col gap-4">
-      {VARIANTS.map((v) => (
-        <div key={v} className="flex flex-wrap items-center gap-3">
-          <span className="w-24 shrink-0 text-xs text-text-subtle">{v}</span>
-          {SIZES.map((s) => (
-            <Button key={s} variant={v} size={s}>
-              버튼
-            </Button>
+    <div className="flex flex-col gap-8">
+      {SHAPES.map((sh) => (
+        <section key={sh} className="flex flex-col gap-4">
+          <h3 className="text-sm font-semibold text-text-basic">Shape = {sh}</h3>
+          {VARIANTS.map((v) => (
+            <div key={v} className="flex flex-wrap items-center gap-3">
+              <span className="w-24 shrink-0 text-xs text-text-subtle">{v}</span>
+              {SIZES.map((s) => (
+                <Button key={s} variant={v} size={s} shape={sh}>
+                  버튼
+                </Button>
+              ))}
+              <Button variant={v} shape={sh} disabled>
+                비활성
+              </Button>
+            </div>
           ))}
-          <Button variant={v} disabled>
-            비활성
-          </Button>
-        </div>
+        </section>
       ))}
     </div>
   ),

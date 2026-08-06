@@ -101,7 +101,7 @@ export function TableToolbar({
       )}
       {...props}
     >
-      {title && <span className="text-base font-semibold text-text-basic">{title}</span>}
+      {title && <span className="text-base font-semibold text-table-text">{title}</span>}
       {count && <span className="text-xs text-table-text-muted">{count}</span>}
       <div className="ml-auto flex items-center gap-2">{children}</div>
     </div>

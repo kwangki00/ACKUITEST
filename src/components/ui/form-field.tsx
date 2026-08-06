@@ -46,7 +46,7 @@ export function FormField({
       )}
       {children}
       {description && !error && (
-        <p className="text-xs text-text-subtle">{description}</p>
+        <p className="text-xs text-text-muted-foreground">{description}</p>
       )}
       {error && (
         <p className="text-xs text-text-danger" role="alert">

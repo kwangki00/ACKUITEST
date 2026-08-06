@@ -17,7 +17,11 @@ const meta = {
     size: { control: "inline-radio", options: ["sm", "default"] },
     label: { control: "text" },
     checked: { control: "boolean" },
-    indeterminate: { control: "boolean" },
+    indeterminate: {
+      control: "boolean",
+      description: "하위가 일부만 선택된 상태. DOM 프로퍼티라 ref 로 세웁니다.",
+    },
+    error: { control: "boolean", description: "필수 동의 미체크 등 — 테두리가 빨강으로." },
     disabled: { control: "boolean" },
   },
   args: { label: "병원 출력금지 항목 제외", size: "default" },
@@ -39,7 +43,10 @@ export const 상태: Story = {
     <div className="flex flex-col gap-3">
       <Checkbox label="선택 안 됨" />
       <Checkbox label="선택됨" defaultChecked />
-      <Checkbox label="일부 선택 — 하위가 섞여 있음" indeterminate readOnly checked />
+      {/* checked 를 같이 주지 않습니다 — indeterminate 는 Figma 의 Checked 축에서
+          Unchecked·Checked 와 나란한 세 번째 값이지 '체크된 상태'가 아닙니다 */}
+      <Checkbox label="일부 선택 — 하위가 섞여 있음" indeterminate />
+      <Checkbox label="필수 동의 — 체크해 주세요" error />
       <Checkbox label="비활성" disabled />
       <Checkbox label="비활성 · 선택됨" disabled defaultChecked />
     </div>

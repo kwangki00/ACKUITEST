@@ -235,6 +235,9 @@
   --color-text-static-inverse: #ffffff;
   --color-text-primary: #0070bc;
   --color-text-primary-strong: #004e84;
+  /* Soft 버튼을 누르고 있을 때 씁니다 — Primary/300(#66a9d7) 위에서
+     Primary-Strong 은 3.39:1 로 AA 미달, 이 값은 5.56:1 입니다 */
+  --color-text-primary-stronger: #002d4b;
   --color-text-secondary: #554628;
   --color-text-danger: #e31515;
   --color-text-warning: #8d5e00;
@@ -285,13 +288,21 @@
   --color-button-primary-fill: #0070bc;
   --color-button-primary-fill-hover: #004e84;
   --color-button-primary-fill-active: #003e67;
+  --color-button-primary-fill-focus: #0070bc;
+  --color-button-primary-fill-focus-border: rgb(0 112 188 / 0.5);
   --color-button-secondary-fill: #ede8de;
-  --color-button-secondary-fill-hover: #ede8de;
+  --color-button-secondary-fill-hover: #d9ceb9;
   --color-button-secondary-fill-active: #b09b70;
-  --color-button-tertiary-fill: rgb(255 255 255 / 0);
+  --color-button-secondary-fill-focus: #f7f5f0;
+  --color-button-secondary-fill-focus-border: rgb(0 112 188 / 0.5);
+  /* outline 은 투명이 아니라 흰색입니다 — Figma 컴포넌트와 같습니다.
+     색 있는 배경 위에서 뒤가 비치지 않습니다 */
+  --color-button-tertiary-fill: #ffffff;
   --color-button-tertiary-fill-border: #d1d5dc;
   --color-button-tertiary-fill-hover: #f3f4f6;
   --color-button-tertiary-fill-active: #d1d5dc;
+  --color-button-tertiary-fill-focus: #ffffff;
+  --color-button-tertiary-fill-focus-border: rgb(0 112 188 / 0.5);
   --color-button-text-fill: rgb(255 255 255 / 0);
   --color-button-text-fill-hover: #f9fafb;
   --color-button-text-fill-pressed: #f3f4f6;
@@ -299,7 +310,11 @@
   --color-button-disabled-fill: #e5e7eb;
   --color-button-disabled-border: #d1d5dc;
   --color-button-destructive-fill: #e31515;
+  --color-button-destructive-fill-hover: #9d0e0e;
+  --color-button-destructive-fill-active: #770808;
   --color-button-soft-fill: #cce2f2;
+  --color-button-soft-fill-hover: #99c6e4;
+  --color-button-soft-fill-active: #66a9d7;
 
   /* Badge */
   --color-badge-neutral-soft-fill: #f3f4f6;

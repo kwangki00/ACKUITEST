@@ -13,12 +13,15 @@ type Size = "sm" | "default" | "lg" | "grid";
 type State = "default" | "error" | "disabled" | "readonly";
 
 // 모바일은 16px 이상이어야 iOS 가 포커스 시 화면을 확대하지 않습니다.
-// md 이상에서만 Figma 에 그려진 PC 값으로 줄입니다.
+// 줄이는 시점은 lg(1024) — Responsive 변수가 PC 로 갈리는 지점과 같아야
+// 높이는 모바일인데 글자만 PC 인 구간이 생기지 않습니다.
+// 글자는 sm·default·grid 가 14, lg 만 16 입니다 — 높이는 달라도 글자는 같습니다.
+// 반경은 grid 만 sm(4), 나머지는 md(6).
 const sizeMap: Record<Size, string> = {
-  sm: "h-[var(--h-input-sm)] px-3 gap-1.5 text-base md:text-xs rounded-md",
-  default: "h-[var(--h-input-default)] px-3 gap-2 text-base md:text-sm rounded-md",
-  lg: "h-[var(--h-input-lg)] px-4 gap-2 text-base rounded-lg",
-  grid: "h-[var(--h-datagrid)] px-2 gap-2 text-base md:text-sm rounded-none",
+  sm: "h-[var(--h-input-sm)] px-3 gap-1.5 text-base lg:text-sm rounded-md",
+  default: "h-[var(--h-input-default)] px-3 gap-2 text-base lg:text-sm rounded-md",
+  lg: "h-[var(--h-input-lg)] px-4 gap-2 text-base rounded-md",
+  grid: "h-[var(--h-datagrid)] px-2 gap-2 text-base lg:text-sm rounded-sm",
 };
 
 const stateMap: Record<State, string> = {
@@ -28,6 +31,18 @@ const stateMap: Record<State, string> = {
     "bg-input-surface border-input-border-error focus-within:ring-[3px] focus-within:ring-action-focus-ring-danger",
   disabled: "bg-input-surface-disabled border-input-border-disabled",
   readonly: "bg-input-surface-readonly border-input-border-readonly",
+};
+
+// grid 는 데이터그리드 셀에 녹아 있어야 합니다. 평상시 테두리도 배경도 없어
+// 행의 hover·selected 색이 그대로 비칩니다 — 흰 배경을 주면 행 위에 떠 보입니다.
+// 클릭해서 포커스가 오거나 에러일 때만 나타납니다.
+const gridStateMap: Record<State, string> = {
+  default:
+    "bg-transparent border-transparent focus-within:bg-input-surface focus-within:border-input-border-focus focus-within:ring-[3px] focus-within:ring-action-focus-ring",
+  error:
+    "bg-input-surface border-input-border-error focus-within:ring-[3px] focus-within:ring-action-focus-ring-danger",
+  disabled: "bg-input-surface-disabled border-transparent",
+  readonly: "bg-input-surface-readonly border-transparent",
 };
 
 export interface InputProps
@@ -62,7 +77,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           "flex w-full items-center border transition-colors",
           sizeMap[size],
-          stateMap[resolved],
+          (size === "grid" ? gridStateMap : stateMap)[resolved],
           className
         )}
       >
@@ -80,7 +95,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           {...props}
         />
-        {unit && <span className="text-text-subtle">{unit}</span>}
+        {unit && <span className="text-text-muted-foreground">{unit}</span>}
         {onClear && !disabled && !readOnly && (
           <button
             type="button"
