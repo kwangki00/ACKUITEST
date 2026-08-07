@@ -1,5 +1,7 @@
 import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import {
   addDays,
@@ -32,7 +34,15 @@ import {
  * 점까지 겹치면 시끄럽습니다.
  */
 
-export type CellState = "default" | "today" | "selected" | "disabled" | "outside";
+export type CellState =
+  | "default"
+  | "today"
+  | "selected"
+  | "disabled"
+  | "outside"
+  | "range-start"
+  | "range-middle"
+  | "range-end";
 
 export interface CalendarCellProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
@@ -42,24 +52,35 @@ export interface CalendarCellProps
   weekend?: boolean;
 }
 
+/**
+ * 범위 띠는 **셀 전체**에 깔립니다 (안쪽 원이 아니라).
+ * 양 끝만 한쪽을 둥글려 가운데와 이어 붙입니다 — Figma 도 999/0 으로 반쪽만 둥급니다.
+ */
+const rangeBand: Partial<Record<CellState, string>> = {
+  "range-start": "bg-cal-cell-range rounded-l-full",
+  "range-middle": "bg-cal-cell-range",
+  "range-end": "bg-cal-cell-range rounded-r-full",
+};
+
 export const CalendarCell = React.forwardRef<HTMLButtonElement, CalendarCellProps>(
   ({ date, state = "default", weekend, className, ...props }, ref) => {
-    const selected = state === "selected";
     const disabled = state === "disabled";
+    // 범위의 양 끝은 선택된 날입니다 — 안쪽 원이 채워집니다
+    const filled = state === "selected" || state === "range-start" || state === "range-end";
 
     return (
       <button
         ref={ref}
         type="button"
         role="gridcell"
-        aria-selected={selected}
+        aria-selected={filled}
         aria-current={state === "today" ? "date" : undefined}
         disabled={disabled}
         tabIndex={-1}
         className={cn(
-          // 셀은 배경을 갖지 않습니다 — 범위 띠가 여기에 깔릴 자리입니다
           "relative grid size-[var(--h-calendar-cell)] shrink-0 place-items-center",
           "outline-hidden disabled:pointer-events-none",
+          rangeBand[state],
           className
         )}
         {...props}
@@ -68,18 +89,20 @@ export const CalendarCell = React.forwardRef<HTMLButtonElement, CalendarCellProp
         <span
           className={cn(
             "grid size-8 place-items-center rounded-full text-sm transition-colors",
-            selected
+            filled
               ? "bg-cal-cell-selected font-medium text-cal-text-selected"
               : disabled
                 ? "text-cal-text-disabled"
                 : state === "outside"
                   ? "text-cal-text-outside hover:bg-cal-cell-hover"
-                  : cn(
-                      weekend ? "text-cal-text-weekend" : "text-cal-text",
-                      // 오늘은 점만으로는 눈에 덜 들어와서 글자도 한 단계 굵힙니다
-                      state === "today" && "font-semibold",
-                      "hover:bg-cal-cell-hover"
-                    )
+                  : state === "range-middle"
+                    ? "text-cal-text-range"
+                    : cn(
+                        weekend ? "text-cal-text-weekend" : "text-cal-text",
+                        // 오늘은 점만으로는 눈에 덜 들어와서 글자도 한 단계 굵힙니다
+                        state === "today" && "font-semibold",
+                        "hover:bg-cal-cell-hover"
+                      )
           )}
         >
           {date.getDate()}
@@ -109,16 +132,45 @@ CalendarCell.displayName = "CalendarCell";
  * 그리드 전체가 탭 정지 하나입니다 (칸마다 멈추면 42번 눌러야 다음으로 갑니다).
  */
 
+/** 시작·종료 한 쌍. 고르는 도중에는 한쪽만 있을 수 있습니다. */
+export interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
 export interface CalendarMonthProps {
   /** 보고 있는 달. 1일로 정규화해서 다룹니다. */
   month: Date;
   onMonthChange: (month: Date) => void;
+  /** 단일 선택. `range` 와 함께 쓰지 않습니다. */
   selected?: Date | null;
+  /** 범위 선택. 넘기면 띠가 그려집니다. */
+  range?: DateRange;
+  /**
+   * 종료를 고르는 중에 마우스가 지나가는 날. 시작부터 여기까지 띠를 **미리** 보여줍니다.
+   * 누르기 전에 어디까지 잡히는지 보이지 않으면 매번 눌러 보고 되돌려야 합니다.
+   */
+  preview?: Date | null;
   onSelect: (date: Date) => void;
+  onPreviewChange?: (date: Date | null) => void;
+  /**
+   * 방향키 커서를 이 날짜로 옮깁니다 — "오늘로 이동" 같은 바깥 동작이 씁니다.
+   * **새 Date 객체를 넘기세요.** 같은 날짜라도 참조가 달라야 다시 짚습니다
+   * (두 번 연속 눌렀을 때도 반응해야 합니다).
+   */
+  focusDate?: Date | null;
   min?: Date;
   max?: Date;
   /** 년 Select 에 채울 범위. 기본은 보고 있는 해 ±10 입니다. */
   yearRange?: [number, number];
+  /**
+   * 달을 옮기는 방식.
+   *
+   * - `select` — 년·월 Select (PC). 먼 달로 한 번에 갑니다
+   * - `nav` — ‹ 2026년 7월 › 화살표 (모바일). Select 를 열면 시트 위에 또 레이어가
+   *   생기는데, **시트를 두 개 겹치지 말라**는 규칙과 부딪힙니다
+   */
+  header?: "select" | "nav";
   className?: string;
 }
 
@@ -126,10 +178,15 @@ export function CalendarMonth({
   month,
   onMonthChange,
   selected,
+  range,
+  preview,
   onSelect,
+  onPreviewChange,
+  focusDate,
   min,
   max,
   yearRange,
+  header = "select",
   className,
 }: CalendarMonthProps) {
   const today = React.useMemo(() => startOfDay(new Date()), []);
@@ -147,6 +204,11 @@ export function CalendarMonth({
   React.useEffect(() => {
     setFocused((prev) => (isSameMonth(prev, month) ? prev : startOfMonth(month)));
   }, [month]);
+
+  // 바깥에서 특정 날짜를 짚어달라고 하면 따릅니다 (오늘로 이동 등)
+  React.useEffect(() => {
+    if (focusDate) setFocused(focusDate);
+  }, [focusDate]);
 
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -193,10 +255,46 @@ export function CalendarMonth({
   const [minYear, maxYear] = yearRange ?? [year - 10, year + 10];
   const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i);
 
+  /**
+   * 미리보기까지 반영한 실제 범위.
+   * 시작만 정해진 상태에서 마우스가 지나가면 그 날까지를 끝으로 칩니다.
+   * 마우스가 시작보다 앞에 있으면 앞뒤가 뒤집힌 채로 그려야 띠가 정상으로 보입니다.
+   */
+  const effective = React.useMemo(() => {
+    if (!range) return null;
+    const { start, end } = range;
+    if (start && !end && preview) {
+      return preview < start ? { start: preview, end: start } : { start, end: preview };
+    }
+    if (start && end && start > end) return { start: end, end: start };
+    return { start, end };
+  }, [range, preview]);
+
   const stateOf = (d: Date): CellState => {
     if (outOfRange(d, min, max)) return "disabled";
-    if (isSameDay(d, selected)) return "selected";
+
+    /*
+      다른 달 날짜는 **무엇이든 Outside** 입니다 — 선택이든 범위의 끝이든.
+
+      이 달력은 이 달을 보여주는 것이고, 그 날짜는 제 달력에서 제대로 그려집니다.
+      끝만 걸러내지 않으면 왼쪽 달력(1월)에 2월 6일이 종료로 찍혀서,
+      같은 날이 두 달력에 두 번 나타납니다.
+
+      Figma 의 State 축이 배타적인 것도 같은 이유입니다.
+    */
     if (!isSameMonth(d, month)) return "outside";
+
+    if (effective) {
+      const { start, end } = effective;
+      // 하루짜리 범위는 띠가 아니라 점 하나입니다 — 반쪽 둥근 배경 둘을 붙이면
+      // 가운데에 이음매가 보입니다
+      if (start && end && isSameDay(start, end) && isSameDay(d, start)) return "selected";
+      if (isSameDay(d, start)) return "range-start";
+      if (isSameDay(d, end)) return "range-end";
+      if (start && end && d > start && d < end) return "range-middle";
+    }
+
+    if (isSameDay(d, selected)) return "selected";
     if (isSameDay(d, today)) return "today";
     return "default";
   };
@@ -266,7 +364,12 @@ export function CalendarMonth({
         </div>
 
         {Array.from({ length: 6 }, (_, w) => (
-          <div key={w} role="row" className="flex">
+          <div
+            key={w}
+            role="row"
+            className="flex"
+            onMouseLeave={() => onPreviewChange?.(null)}
+          >
             {days.slice(w * 7, w * 7 + 7).map((d) => {
               const state = stateOf(d);
               return (
@@ -280,6 +383,7 @@ export function CalendarMonth({
                     setFocused(d);
                     onSelect(d);
                   }}
+                  onMouseEnter={() => onPreviewChange?.(d)}
                   aria-label={`${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`}
                 />
               );

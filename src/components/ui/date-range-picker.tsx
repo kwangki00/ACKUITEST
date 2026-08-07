@@ -1,0 +1,706 @@
+import * as React from "react";
+import { Calendar, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input, type InputProps } from "@/components/ui/input";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { CalendarMonth, type DateRange } from "@/components/ui/calendar";
+import { CalendarUnitGrid } from "@/components/ui/calendar-unit";
+import {
+  addDays,
+  addMonths,
+  addYears,
+  clamp,
+  endOfUnit,
+  startOfYear,
+  formatByPrecision,
+  formatDate,
+  formatDigitsByPrecision,
+  isDisabled,
+  isSameMonth,
+  parseByPrecision,
+  PRECISION_DIGITS,
+  startOfDay,
+  startOfMonth,
+  startOfUnit,
+  toDigits,
+  type DatePrecision,
+} from "@/lib/date";
+
+/**
+ * Figma: DateRangeTabs (5 변형 — Step 5)
+ *
+ * 시작·종료 중 **어느 쪽을 고르는 중인지** 보여주고, 눌러서 전환합니다.
+ *
+ * Figma 는 이걸 `Step` 축 다섯으로 모델링했지만, 코드에서는 **값 유무 × 편집 중**
+ * 두 가지로 계산합니다 — 같은 것을 두 번 적어두면 한쪽만 고쳐집니다.
+ *
+ * | Figma Step | 코드에서는 |
+ * |---|---|
+ * | Start | `editing="start"`, 둘 다 빈 값 |
+ * | End | `editing="end"`, 시작에 값 |
+ * | Complete | `editing=null`, 둘 다 값 |
+ * | Edit-Start · Edit-End | 완료 후 다시 그쪽을 편집 중 |
+ *
+ * 색 규칙은 세 가지입니다 — **고르는 중**(파란 틴트 + 파란 테두리) /
+ * **값 있고 쉬는 중**(흰 배경 + 진한 글자) / **값 없음**(흰 배경 + 흐린 글자).
+ */
+
+export interface DateRangeTabsProps {
+  range: DateRange;
+  editing: "start" | "end" | null;
+  onEditingChange: (which: "start" | "end") => void;
+  /** 표시 단위. 월을 고르는 화면에서 2026-08-01 이라고 쓰면 하루를 고른 것처럼 보입니다. */
+  precision?: DatePrecision;
+  className?: string;
+}
+
+function tabTone(active: boolean, filled: boolean) {
+  if (active) return "border-cal-today-border bg-cal-cell-range text-cal-text-range";
+  if (filled) return "border-cal-border bg-background-white text-cal-text";
+  return "border-cal-border bg-background-white text-text-subtle";
+}
+
+export function DateRangeTabs({
+  range,
+  editing,
+  onEditingChange,
+  precision = "day",
+  className,
+}: DateRangeTabsProps) {
+  /*
+    빈 칸 문구는 **짧게** 둡니다.
+
+    "시작 월을 선택해 주세요" 처럼 문장으로 쓰면 탭이 그 글자에 맞춰 넓어지고,
+    패널 전체가 따라 커집니다. 무엇을 하라는 안내는 활성 탭의 파란 테두리가
+    이미 하고 있어서, 여기서는 어느 쪽인지만 밝히면 됩니다.
+  */
+  const unit = precision === "year" ? "연도" : precision === "month" ? "월" : "일";
+  const tabs = [
+    { key: "start" as const, value: range.start, empty: `시작${unit}` },
+    { key: "end" as const, value: range.end, empty: `종료${unit}` },
+  ];
+
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      {tabs.map((t, i) => (
+        <React.Fragment key={t.key}>
+          {i === 1 && <span className="shrink-0 text-sm text-text-subtle">~</span>}
+          <button
+            type="button"
+            aria-pressed={editing === t.key}
+            onClick={() => onEditingChange(t.key)}
+            className={cn(
+              "h-10 flex-1 rounded-md border px-2.5 text-sm font-medium transition-colors",
+              "focus-visible:ring-[3px] focus-visible:ring-action-focus-ring focus-visible:outline-hidden",
+              tabTone(editing === t.key, t.value != null)
+            )}
+          >
+            {t.value ? formatByPrecision(t.value, precision) : t.empty}
+          </button>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * 빠른 선택 — **달력을 만지지 않고 끝나는 경로**입니다.
+ * 조회 화면에서는 이것만으로 끝나는 경우가 많아서, 항상 열어둡니다.
+ *
+ * 기간은 **오늘을 포함해서** 셉니다 — "3일" 은 그저께부터 오늘까지입니다.
+ * 화면마다 다르니 `presets` 로 갈아끼우세요.
+ */
+export interface DatePreset {
+  label: string;
+  range: () => DateRange;
+}
+
+/**
+ * "전체" 는 넣지 않습니다 — 나머지가 전부 기간인데 혼자만 **조건을 지우는** 동작이라
+ * 같은 줄에 있으면 무엇을 고르는 자리인지 흐려집니다. 기간을 비우는 일은
+ * 입력창의 지우기(X)가 이미 맡고 있습니다 (2026-08-07 제거).
+ */
+const DAY_PRESETS: DatePreset[] = [
+  { label: "1일", range: () => ({ start: startOfDay(new Date()), end: startOfDay(new Date()) }) },
+  {
+    label: "3일",
+    range: () => ({ start: addDays(startOfDay(new Date()), -2), end: startOfDay(new Date()) }),
+  },
+  {
+    label: "7일",
+    range: () => ({ start: addDays(startOfDay(new Date()), -6), end: startOfDay(new Date()) }),
+  },
+  {
+    label: "1개월",
+    range: () => ({
+      start: addDays(addMonths(startOfDay(new Date()), -1), 1),
+      end: startOfDay(new Date()),
+    }),
+  },
+];
+
+/** 이번 달을 포함해 n개월. 종료는 이번 달 말일입니다. */
+const lastMonths = (n: number) => () => ({
+  start: startOfMonth(addMonths(new Date(), -(n - 1))),
+  end: endOfUnit(new Date(), "month"),
+});
+
+/** 올해를 포함해 n년. 종료는 올해 12월 31일입니다. */
+const lastYears = (n: number) => () => ({
+  start: startOfYear(addYears(new Date(), -(n - 1))),
+  end: endOfUnit(new Date(), "year"),
+});
+
+const MONTH_PRESETS: DatePreset[] = [
+  { label: "1개월", range: lastMonths(1) },
+  { label: "3개월", range: lastMonths(3) },
+  { label: "6개월", range: lastMonths(6) },
+  { label: "1년", range: lastMonths(12) },
+];
+
+const YEAR_PRESETS: DatePreset[] = [
+  { label: "1년", range: lastYears(1) },
+  { label: "3년", range: lastYears(3) },
+  { label: "5년", range: lastYears(5) },
+];
+
+/**
+ * **빠른 선택은 고르는 단위를 따라갑니다.**
+ *
+ * 월을 고르는 화면에 "3일" 이 붙어 있으면 눌러도 월 하나로 뭉개져서,
+ * 무엇을 고른 것인지 설명되지 않습니다. 단위가 바뀌면 목록도 바뀌어야 합니다.
+ */
+export const PRESETS_BY_PRECISION: Record<DatePrecision, DatePreset[]> = {
+  day: DAY_PRESETS,
+  month: MONTH_PRESETS,
+  year: YEAR_PRESETS,
+};
+
+/** 날짜 단위 기본값. 다른 단위는 `PRESETS_BY_PRECISION` 을 쓰세요. */
+export const DEFAULT_PRESETS = DAY_PRESETS;
+
+/**
+ * Figma: DatePickerPanel — Mode=Range · Confirm=True · Precision=Day
+ *
+ * **두 달을 나란히** 보여줍니다. 시작일이 안 보이면 범위를 고르기 어렵기 때문입니다.
+ *
+ * `Confirm=True` 인 이유 — 두 날짜를 골라야 하니 중간에 잘못 눌러도 되돌릴 수 있어야 합니다.
+ * (단일은 반대로 False 입니다. 한 번 누르면 끝나는데 버튼을 또 누르게 하면 번거롭습니다.)
+ */
+
+export interface DateRangePickerPanelProps {
+  value: DateRange;
+  onConfirm: (range: DateRange) => void;
+  onCancel: () => void;
+  /** 고르는 단위. month·year 는 달력 대신 3×4 그리드가 뜹니다. */
+  precision?: DatePrecision;
+  min?: Date;
+  max?: Date;
+  presets?: DatePreset[];
+  className?: string;
+}
+
+export function DateRangePickerPanel({
+  value,
+  onConfirm,
+  onCancel,
+  precision = "day",
+  min,
+  max,
+  presets,
+  className,
+}: DateRangePickerPanelProps) {
+  const quick = presets ?? PRESETS_BY_PRECISION[precision];
+  // 확정 전까지는 여기서만 바뀝니다 — 취소하면 통째로 버립니다
+  const [draft, setDraft] = React.useState<DateRange>(value);
+  /**
+   * 지금 고르는 중인 쪽. **null 은 다 골랐다는 뜻**입니다 (Figma 의 Complete).
+   *
+   * Figma 의 Step 축 5개가 여기서 나옵니다 —
+   * `start`+빈값=Start · `end`+시작있음=End · `null`+둘다=Complete ·
+   * `start`·`end`+둘다=Edit-Start·Edit-End.
+   */
+  const [editing, setEditing] = React.useState<"start" | "end" | null>(() =>
+    value.start && value.end ? null : value.start ? "end" : "start"
+  );
+  const [preview, setPreview] = React.useState<Date | null>(null);
+  const [left, setLeft] = React.useState<Date>(() => startOfMonth(value.start ?? new Date()));
+  // 오늘로 이동이 커서를 옮겨달라고 부탁하는 통로입니다. 매번 새 객체라 두 번 눌러도 반응합니다
+  const [focusReq, setFocusReq] = React.useState<Date | null>(null);
+  const right = addMonths(left, 1);
+
+  /**
+   * 고른 칸을 값으로 바꿉니다.
+   *
+   * **종료는 그 단위의 마지막 날**입니다 — 2026년 8월을 종료로 고르면 8월 31일.
+   * 1일로 두면 8월 2일부터가 조용히 빠져서, 화면은 8월까지라는데 자료는 하루만 나옵니다.
+   */
+  const asStart = (d: Date) => startOfUnit(d, precision);
+  const asEnd = (d: Date) => endOfUnit(d, precision);
+
+  const pick = (raw: Date) => {
+    setPreview(null);
+    const d = asStart(raw);
+
+    // 종료를 고르는 중 — 시작보다 앞을 고르면 그쪽이 시작이 됩니다.
+    // 되돌리라고 하는 것보다 낫습니다
+    if (editing === "end" && draft.start) {
+      setDraft(
+        d < draft.start
+          ? { start: d, end: asEnd(draft.start) }
+          : { ...draft, end: asEnd(raw) }
+      );
+      setEditing(null);
+      return;
+    }
+
+    // 다 고른 뒤 시작만 다시 고르는 중 (Figma 의 Edit-Start)
+    if (editing === "start" && draft.end) {
+      // 종료보다 늦은 날을 시작으로 잡으면 범위가 뒤집힙니다 —
+      // 종료를 비우고 이어서 다시 고르게 합니다
+      if (d > draft.end) {
+        setDraft({ start: d, end: null });
+        setEditing("end");
+      } else {
+        setDraft({ ...draft, start: d });
+        setEditing(null);
+      }
+      return;
+    }
+
+    // 그 밖에는 새 범위를 시작합니다 — 빈 상태에서 고를 때와
+    // 다 고른 뒤 달력을 다시 눌렀을 때가 여기입니다
+    setDraft({ start: d, end: null });
+    setEditing("end");
+  };
+
+  /**
+   * 탭을 누르면 그쪽을 다시 고릅니다.
+   *
+   * 값이 있으면 그 날짜가 **보이는 곳까지 달력을 옮기고** 커서도 거기에 둡니다 —
+   * 3월을 골라놓고 8월을 보던 중에 시작 탭을 눌렀는데 8월이 그대로면
+   * 무엇을 고치는 중인지 알 수 없습니다.
+   *
+   * 이미 보이는 달이면 옮기지 않습니다. 멀쩡히 보이는 화면이 움직이는 게 더 놀랍습니다.
+   */
+  const editTab = (which: "start" | "end") => {
+    setEditing(which);
+    const target = which === "start" ? draft.start : draft.end;
+    if (!target) return;
+    if (!isSameMonth(target, left) && !isSameMonth(target, right)) {
+      setLeft(startOfMonth(target));
+    }
+    setFocusReq(new Date(target));
+  };
+
+  const today = startOfDay(new Date());
+  const complete = draft.start != null && draft.end != null;
+
+  return (
+    <div className={cn("flex rounded-xl border border-cal-border bg-background-white", className)}>
+      <div className="flex flex-col">
+        <div className="px-4 pt-4 pb-3">
+          <DateRangeTabs
+            range={draft}
+            editing={editing}
+            onEditingChange={editTab}
+            precision={precision}
+          />
+        </div>
+
+        {/* 두 달은 늘 이웃합니다 — 왼쪽을 바꾸면 오른쪽이, 오른쪽을 바꾸면 왼쪽이 따라옵니다.
+            따로 놀게 두면 7월과 11월이 나란히 놓여 사이가 비어 보입니다 */}
+        {/*
+          날짜는 두 달을 나란히 보여주지만 **월·연은 하나면 됩니다** —
+          월 그리드 하나에 열두 달이 다 들어 있어서, 둘을 놓으면 같은 해가 두 번 나옵니다.
+        */}
+        <div className="flex gap-2 px-2 pb-2">
+          {precision === "day" ? (
+            <>
+              <CalendarMonth
+                month={left}
+                onMonthChange={setLeft}
+                range={draft}
+                preview={preview}
+                onSelect={pick}
+                onPreviewChange={setPreview}
+                focusDate={focusReq}
+                min={min}
+                max={max}
+              />
+              <CalendarMonth
+                month={right}
+                onMonthChange={(m) => setLeft(addMonths(m, -1))}
+                range={draft}
+                preview={preview}
+                onSelect={pick}
+                onPreviewChange={setPreview}
+                min={min}
+                max={max}
+              />
+            </>
+          ) : (
+            <CalendarUnitGrid
+              unit={precision}
+              cursor={left}
+              onCursorChange={setLeft}
+              range={draft}
+              preview={preview}
+              onSelect={pick}
+              onPreviewChange={setPreview}
+              min={min}
+              max={max}
+            />
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-2 border-t border-cal-border px-4 py-3">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="link"
+              size="sm"
+              disabled={!draft.start && !draft.end}
+              onClick={() => {
+                setDraft({ start: null, end: null });
+                setEditing("start");
+              }}
+            >
+              초기화
+            </Button>
+            {/*
+              범위는 **달만 옮깁니다** — 오늘 하나를 넣어봐야 두 날짜를 골라야 하는
+              일이 끝나지 않습니다. 단일(DatePicker)은 반대로 오늘을 바로 고릅니다.
+              커서도 오늘 칸으로 옮겨서, 이어서 방향키로 집어갈 수 있게 합니다
+            */}
+            <Button
+              variant="link"
+              size="sm"
+              disabled={isDisabled(today, min, max)}
+              onClick={() => {
+                setLeft(startOfMonth(today));
+                setFocusReq(startOfDay(new Date()));
+              }}
+            >
+              {precision === "year" ? "올해로 이동" : precision === "month" ? "이번 달로 이동" : "오늘로 이동"}
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onCancel}>
+              취소
+            </Button>
+            <Button size="sm" disabled={!complete} onClick={() => onConfirm(draft)}>
+              선택
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex w-30 shrink-0 flex-col gap-2 border-l border-cal-border bg-surface-gray-subtle px-3 py-4">
+        <p className="text-xs font-semibold text-text-subtle">빠른 선택</p>
+        {quick.map((p) => (
+          <Button
+            key={p.label}
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => {
+              const r = p.range();
+              setDraft(r);
+              setLeft(startOfMonth(r.start ?? new Date()));
+              // 다 정해졌으니 활성 탭을 끕니다 — 이어서 고칠 쪽을 직접 누르면 됩니다
+              setEditing(null);
+            }}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 완성형 — 입력창 + 범위 패널입니다. **Figma 에 대응물이 없습니다.**
+ *
+ * 단일과 마찬가지로 **직접 칠 수 있습니다.** 숫자 16자리를 이어 치면
+ * `2026-01-07 ~ 2026-04-15` 가 됩니다 — 구분자는 저절로 붙습니다.
+ * 여덟 자리에서 시작이, 열여섯 자리에서 종료가 정해집니다.
+ */
+
+/** 표시 문자열에서 각 칸이 앉는 자리. 정밀도마다 길이가 달라집니다. */
+type RangeSeg = { side: "start" | "end"; unit: "year" | "month" | "day"; sel: [number, number] };
+
+/**
+ * `2026-01-07 ~ 2026-04-15` · `2026-01 ~ 2026-04` · `2026 ~ 2029` 의 칸 자리를 계산합니다.
+ * 한쪽 길이(len)와 구분자 3칸(` ~ `)으로 뒤쪽 자리가 정해집니다.
+ */
+function rangeSegments(p: DatePrecision): RangeSeg[] {
+  const one: { unit: "year" | "month" | "day"; sel: [number, number] }[] =
+    p === "year"
+      ? [{ unit: "year", sel: [0, 4] }]
+      : p === "month"
+        ? [
+            { unit: "year", sel: [0, 4] },
+            { unit: "month", sel: [5, 7] },
+          ]
+        : [
+            { unit: "year", sel: [0, 4] },
+            { unit: "month", sel: [5, 7] },
+            { unit: "day", sel: [8, 10] },
+          ];
+  const len = p === "year" ? 4 : p === "month" ? 7 : 10;
+  const shift = len + 3;
+  return [
+    ...one.map((s) => ({ side: "start" as const, ...s })),
+    ...one.map((s) => ({
+      side: "end" as const,
+      unit: s.unit,
+      sel: [s.sel[0] + shift, s.sel[1] + shift] as [number, number],
+    })),
+  ];
+}
+
+function rangeSegmentAt(pos: number, p: DatePrecision): RangeSeg {
+  const segs = rangeSegments(p);
+  const len = p === "year" ? 4 : p === "month" ? 7 : 10;
+  // 구분자(` ~ `) 위는 앞쪽 마지막 칸으로 칩니다
+  const half = segs.length / 2;
+  if (pos <= len + 2) return segs.slice(0, half).find((s) => pos <= s.sel[1]) ?? segs[half - 1];
+  return segs.slice(half).find((s) => pos <= s.sel[1]) ?? segs[segs.length - 1];
+}
+
+/** 숫자열에 구분자를 얹습니다. 한쪽을 다 채우기 전에는 시작만 보입니다. */
+function formatRangeDigits(d: string, p: DatePrecision) {
+  const size = PRECISION_DIGITS[p];
+  if (d.length <= size) return formatDigitsByPrecision(d, p);
+  return `${formatDigitsByPrecision(d.slice(0, size), p)} ~ ${formatDigitsByPrecision(d.slice(size), p)}`;
+}
+
+/** 값 → 숫자열. 한쪽만 있으면 그만큼만 채웁니다. */
+function rangeToDigits(r: DateRange, p: DatePrecision) {
+  if (!r.start) return "";
+  const s = formatByPrecision(r.start, p).replace(/\D/g, "");
+  return s + (r.end ? formatByPrecision(r.end, p).replace(/\D/g, "") : "");
+}
+
+export interface DateRangePickerProps
+  extends Omit<
+    InputProps,
+    "value" | "onChange" | "defaultValue" | "trailingIcon" | "min" | "max"
+  > {
+  value: DateRange;
+  onValueChange: (range: DateRange) => void;
+  /** 고르는 단위. 입력 자릿수와 패널 모양이 함께 바뀝니다. */
+  precision?: DatePrecision;
+  min?: Date;
+  max?: Date;
+  presets?: DatePreset[];
+}
+
+const RANGE_PLACEHOLDER: Record<DatePrecision, string> = {
+  day: "YYYY-MM-DD ~ YYYY-MM-DD",
+  month: "YYYY-MM ~ YYYY-MM",
+  year: "YYYY ~ YYYY",
+};
+
+export function DateRangePicker({
+  value,
+  onValueChange,
+  precision = "day",
+  min,
+  max,
+  presets,
+  placeholder,
+  disabled,
+  readOnly,
+  className,
+  onKeyDown,
+  ...props
+}: DateRangePickerProps) {
+  const [open, setOpen] = React.useState(false);
+  const size = PRECISION_DIGITS[precision];
+  const [digits, setDigits] = React.useState(() => rangeToDigits(value, precision));
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // 날짜가 실제로 달라졌을 때만 글자를 맞춥니다.
+  // value 를 통째로 지켜보면 부모가 매 렌더 새 객체를 만드는 순간 타이핑이 되돌려집니다
+  const startKey = value.start?.getTime();
+  const endKey = value.end?.getTime();
+  React.useEffect(() => {
+    setDigits(rangeToDigits(value, precision));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startKey, endKey, precision]);
+
+  const commit = (raw: string) => {
+    const d = toDigits(raw, size * 2);
+    setDigits(d);
+
+    if (d === "") {
+      onValueChange({ start: null, end: null });
+      return;
+    }
+    // 한쪽을 다 채우기 전에는 아직 날짜가 아닙니다
+    if (d.length < size) return;
+
+    const start = parseByPrecision(d.slice(0, size), precision);
+    if (!start || isDisabled(start, min, max)) return;
+
+    /*
+      시작이 막 정해진 순간에만 알립니다.
+
+      9~15 자리는 **종료를 치는 중**이라 아직 알릴 것이 없습니다.
+      그 구간에서도 알리면 value 가 바뀌고 → 글자를 value 기준으로 맞추면서
+      방금 친 아홉 번째 숫자가 잘려나갑니다. 실제로 종료 칸에 아무것도
+      안 들어가던 원인이 이것이었습니다.
+    */
+    if (d.length === size) {
+      onValueChange({ start, end: null });
+      return;
+    }
+    if (d.length < size * 2) return;
+
+    const parsedEnd = parseByPrecision(d.slice(size), precision);
+    if (!parsedEnd || isDisabled(parsedEnd, min, max)) return;
+    // 종료는 그 단위의 마지막 날입니다 — 8월을 종료로 치면 8월 31일
+    const end = endOfUnit(parsedEnd, precision);
+    // 뒤집어 쳤으면 바로잡습니다 — 되돌리라고 하는 것보다 낫습니다
+    onValueChange(end < start ? { start: parsedEnd, end: endOfUnit(start, precision) } : { start, end });
+  };
+
+  const clear = () => {
+    setDigits("");
+    onValueChange({ start: null, end: null });
+    inputRef.current?.focus();
+  };
+
+  // 값이 바뀌면 커서가 끝으로 튑니다 — 오르내린 칸을 렌더 직후에 다시 선택합니다
+  const pendingSel = React.useRef<[number, number] | null>(null);
+  React.useLayoutEffect(() => {
+    const sel = pendingSel.current;
+    if (!sel || !inputRef.current) return;
+    inputRef.current.setSelectionRange(sel[0], sel[1]);
+    pendingSel.current = null;
+  });
+
+  /**
+   * 위·아래로 커서가 놓인 칸만 오르내립니다 — 시작 년/월/일, 종료 년/월/일 여섯 칸.
+   *
+   * 시작은 종료를 넘지 못하고 종료는 시작보다 앞서지 못합니다.
+   * 넘어가게 두면 눌러둔 범위가 조용히 뒤집힙니다.
+   */
+  const step = (e: React.KeyboardEvent<HTMLInputElement>, dir: 1 | -1) => {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const seg = rangeSegmentAt(el.selectionStart ?? 0, precision);
+    const today = startOfUnit(new Date(), precision);
+    const base = (seg.side === "start" ? value.start : value.end) ?? today;
+
+    const moved =
+      seg.unit === "year"
+        ? addYears(base, dir)
+        : seg.unit === "month"
+          ? addMonths(base, dir)
+          : addDays(base, dir);
+
+    const next =
+      seg.side === "start"
+        ? { start: clamp(moved, min, value.end ?? max), end: value.end }
+        : { start: value.start, end: clamp(moved, value.start ?? min, max) };
+
+    onValueChange(next);
+    // 글자도 같은 렌더에서 갱신해야 커서가 제자리에 남습니다 (단일과 같은 이유)
+    setDigits(rangeToDigits(next, precision));
+    pendingSel.current = seg.sel;
+    el.setSelectionRange(seg.sel[0], seg.sel[1]);
+  };
+
+  const text = formatRangeDigits(digits, precision);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverAnchor asChild>
+        <Input
+          {...props}
+          ref={inputRef}
+          value={text}
+          placeholder={placeholder ?? RANGE_PLACEHOLDER[precision]}
+          disabled={disabled}
+          readOnly={readOnly}
+          inputMode="numeric"
+          onChange={(e) => commit(e.target.value)}
+          onKeyDown={(e) => {
+            onKeyDown?.(e);
+            if (e.defaultPrevented || readOnly || disabled) return;
+            if (e.key === "ArrowUp") step(e, 1);
+            else if (e.key === "ArrowDown") step(e, -1);
+          }}
+          onBlur={() => {
+            // 열여섯 자리를 못 채웠으면 되돌립니다 — 반쪽 기간을 남겨두면
+            // 조회 조건이 무엇인지 설명되지 않습니다
+            if (digits === "" || digits.length === size * 2) return;
+            setDigits(rangeToDigits(value, precision));
+          }}
+          clearable={false}
+          className={className}
+          trailingIcon={
+            <span className="flex items-center gap-1">
+              {digits !== "" && !disabled && !readOnly && (
+                <button
+                  type="button"
+                  aria-label="기간 지우기"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clear();
+                  }}
+                  className={cn(
+                    "grid place-items-center rounded-xs text-icon-muted-foreground",
+                    "hover:text-text-basic focus-visible:ring-2 focus-visible:ring-action-focus-ring",
+                    "focus-visible:outline-hidden"
+                  )}
+                >
+                  <X />
+                </button>
+              )}
+              <button
+                type="button"
+                aria-label="달력 열기"
+                aria-expanded={open}
+                disabled={disabled}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen((v) => !v);
+                }}
+                className={cn(
+                  "grid place-items-center rounded-xs text-icon-muted-foreground",
+                  "hover:text-text-basic focus-visible:ring-2 focus-visible:ring-action-focus-ring",
+                  "focus-visible:outline-hidden disabled:pointer-events-none"
+                )}
+              >
+                <Calendar />
+              </button>
+            </span>
+          }
+        />
+      </PopoverAnchor>
+
+      <PopoverContent type="content" align="start" className="w-auto border-0 p-0 shadow-none">
+        {/* 열 때마다 새로 만듭니다 — 지난번에 고르다 만 상태가 남아 있으면
+            취소했는데도 그 흔적이 다시 보입니다 */}
+        <DateRangePickerPanel
+          key={open ? "open" : "closed"}
+          value={value}
+          precision={precision}
+          min={min}
+          max={max}
+          presets={presets}
+          onConfirm={(r) => {
+            onValueChange(r);
+            setOpen(false);
+          }}
+          onCancel={() => setOpen(false)}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}

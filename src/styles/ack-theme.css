@@ -69,6 +69,10 @@
      열린 방향에서 4px 밀려나오게 합니다 — 방향은 --ack-pop-x/y 로 받습니다.
      tailwindcss-animate 플러그인을 쓰지 않으려고 직접 정의했습니다. */
   --animate-pop-in: ack-pop-in 120ms ease-out;
+  /* Dialog 의 Scrim 처럼 자리는 그대로고 밝기만 켜질 때 */
+  --animate-fade-in: ack-fade-in 120ms ease-out;
+  /* 하단 시트 — 아래에서 올라옵니다. 팝오버보다 거리가 길어 조금 느립니다 */
+  --animate-slide-up: ack-slide-up 200ms cubic-bezier(0.32, 0.72, 0, 1);
 
   /* ---------- Radius (Primitive) ---------- */
   --radius-none: 0px;
@@ -452,6 +456,9 @@
   /* Dialog · Toast */
   --color-dialog-surface: #ffffff;
   --color-dialog-border: #e5e7eb;
+  /* 하단 시트 손잡이. Figma 는 Color/gray/300 을 직접 참조하지만
+     컴포넌트는 Semantic 만 보게 이름을 붙였습니다 */
+  --color-sheet-handle: #d1d5dc;
   --color-toast-surface: #ffffff;
   --color-toast-border: #e5e7eb;
   --color-toast-success-surface: #d8eedd;
@@ -497,7 +504,8 @@
   --color-cal-text: #101828;
   --color-cal-text-selected: #f9fafb;
   --color-cal-text-range: #004e84;
-  --color-cal-text-outside: #d1d5dc;
+  /* Disabled(gray/300)보다 진합니다 — Outside 는 클릭할 수 있습니다 */
+  --color-cal-text-outside: #99a1af;
   --color-cal-text-disabled: #d1d5dc;
   --color-cal-text-weekend: #e31515;
   --color-cal-today-border: #0070bc;
@@ -542,11 +550,40 @@
   }
 }
 
-/* 움직임을 줄여달라고 한 사용자에게는 애니메이션을 끕니다 */
+@keyframes ack-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ack-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 움직임을 줄여달라고 한 사용자에게는 애니메이션을 끕니다.
+   fade 는 자리가 움직이지 않아 어지럼을 만들지 않으므로 그대로 둡니다 —
+   Scrim 이 갑자기 켜지면 오히려 놀랍니다. */
 @media (prefers-reduced-motion: reduce) {
   @keyframes ack-pop-in {
     from {
       opacity: 1;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  /* 시트는 화면 높이만큼 움직여서 어지럼을 만들기 쉽습니다 — 페이드로 대체합니다 */
+  @keyframes ack-slide-up {
+    from {
+      opacity: 0;
     }
     to {
       opacity: 1;
@@ -560,6 +597,31 @@
    ============================================================ */
 :root {
   /* Mobile 기준값 — 모바일 우선 */
+  --h-input-xs: 28px;
+  --h-input-sm: 36px;
+  --h-input-default: 40px;
+  --h-input-lg: 52px;
+  --h-datagrid: 36px;
+  --h-toolbar: 44px;
+  --h-toolbar-lg: 52px;
+  --h-row: 48px;
+  --h-row-lg: 56px;
+  --h-control-sm: 22px;
+  --h-control-default: 26px;
+  --h-calendar-cell: 44px;
+  --h-calendar-unit: 48px;
+  --h-list-item: 48px;
+  --h-lookup-row: 52px;
+  --h-lookup-header: 44px;
+  --h-sheet-min: 240px;
+  --h-sheet-max: 717px;
+}
+
+/* 데모·문서에서 **모바일 환경을 흉내낼 때** 씁니다.
+   미디어쿼리는 브라우저 창을 재기 때문에, 390px 틀 안에 넣어도 창이 넓으면
+   PC 값이 그대로 적용됩니다 — 목록 항목이 48 이어야 하는데 32 로 나옵니다.
+   실제 앱에서는 쓰지 마세요. 창 크기가 알아서 정합니다. */
+.ack-mobile {
   --h-input-xs: 28px;
   --h-input-sm: 36px;
   --h-input-default: 40px;

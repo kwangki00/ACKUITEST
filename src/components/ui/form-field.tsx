@@ -15,6 +15,10 @@ import { cn } from "@/lib/utils";
  * 설명·에러는 12 로 둡니다. 보조 정보라 라벨보다 작아야 하고,
  * 색(Muted-Foreground · Danger)과 위치로 이미 구분됩니다.
  * 에러 메시지는 State=Error 일 때만 보입니다.
+ *
+ * **`size` prop 은 없습니다.** Figma 의 Size 축은 래퍼가 아니라 **안쪽 컨트롤의 높이**라,
+ * `<Input size="lg" />` 처럼 컨트롤에 직접 줍니다. 래퍼에 받아봐야 쓸 데가 없어
+ * 받기만 하고 아무 데도 안 쓰는 prop 이었습니다 (2026-08-07 제거).
  */
 export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   label?: string;
@@ -22,7 +26,6 @@ export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   description?: string;
   error?: string;
   htmlFor?: string;
-  size?: "sm" | "default" | "lg";
 }
 
 export function FormField({
@@ -31,7 +34,6 @@ export function FormField({
   description,
   error,
   htmlFor,
-  size = "default",
   className,
   children,
   ...props

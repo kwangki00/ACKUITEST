@@ -220,3 +220,94 @@ export const 결과조회화면: Story = {
     </div>
   ),
 };
+
+/**
+ * Figma: `TableHeaderCell` 의 `Sort` 축 (None · Asc · Desc)
+ *
+ * **정렬할 수 있는 열에만** `sort` 를 넘기세요. 불가능한 열에 화살표가 보이면
+ * 사용자가 눌러 봅니다 — Figma 문서도 같은 것을 경고합니다.
+ *
+ * 정렬되지 않은 열의 화살표는 **hover 에서만** 나타납니다.
+ * 늘 보이면 어느 열이 실제로 정렬돼 있는지 흐려지고, 아예 없으면
+ * 정렬할 수 있다는 걸 모릅니다.
+ *
+ * `aria-sort` 도 함께 나갑니다 — 보조기술은 화살표를 볼 수 없습니다.
+ */
+export const 정렬: Story = {
+  render: function Sorting() {
+    const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" }>({
+      key: "name",
+      dir: "asc",
+    });
+    const cols = [
+      { key: "name", label: "환자명", sortable: true },
+      { key: "chart", label: "차트번호", sortable: true },
+      { key: "test", label: "검사명", sortable: false },
+      { key: "date", label: "보고일", sortable: true },
+    ];
+    const rows = [
+      { name: "김진영", chart: "C-10293", test: "일반혈액검사", date: "2026-08-05" },
+      { name: "박서준", chart: "C-10294", test: "소변검사", date: "2026-08-06" },
+      { name: "이하늘", chart: "C-10295", test: "영상의학", date: "2026-08-07" },
+    ];
+    const sorted = [...rows].sort((a, b) => {
+      const x = String(a[sort.key as keyof typeof a]);
+      const y = String(b[sort.key as keyof typeof b]);
+      return sort.dir === "asc" ? x.localeCompare(y) : y.localeCompare(x);
+    });
+
+    return (
+      <div className="overflow-hidden rounded-lg border border-table-border bg-background-white">
+        <Table>
+          <TableHeader>
+            <tr>
+              {cols.map((c) => (
+                <TableHead
+                  key={c.key}
+                  sort={c.sortable ? (sort.key === c.key ? sort.dir : "none") : undefined}
+                  onSortChange={(dir) => setSort({ key: c.key, dir })}
+                >
+                  {c.label}
+                </TableHead>
+              ))}
+            </tr>
+          </TableHeader>
+          <TableBody>
+            {sorted.map((r) => (
+              <TableRow key={r.chart}>
+                <TableCell>{r.name}</TableCell>
+                <TableCell>{r.chart}</TableCell>
+                <TableCell>{r.test}</TableCell>
+                <TableCell>{r.date}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  },
+};
+
+/**
+ * 건수는 **칩**입니다. 제목 옆 회색 글자로 두면 부제처럼 읽혀
+ * 세는 값이라는 게 흐려집니다.
+ *
+ * 선택이 있으면 한 칩에 함께 적습니다 — 칩을 둘로 나누면
+ * 어느 쪽이 전체인지 매번 읽어야 합니다. 톤은 늘 neutral 입니다.
+ */
+export const 툴바건수: Story = {
+  name: "툴바 건수",
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="rounded-lg border border-table-border bg-background-white">
+        <TableToolbar title="검사이력목록" count="총 13건" />
+      </div>
+      <div className="rounded-lg border border-table-border bg-background-white">
+        <TableToolbar title="검사이력목록" count="총 13건 / 3건 선택됨" />
+      </div>
+      <div className="rounded-lg border border-table-border bg-background-white">
+        <TableToolbar title="검사이력목록" count="총 13건" size="lg" />
+      </div>
+    </div>
+  ),
+};

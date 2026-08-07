@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Download, Plus, Printer, RefreshCw, Search, Share2 } from "lucide-react";
+import { Calendar, Download, Plus, Printer, RefreshCw, Search, Share2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -13,6 +13,13 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { DatePicker } from "@/components/ui/date-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DateField } from "@/components/ui/date-field";
+import type { DateRange } from "@/components/ui/calendar";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { ToastProvider, useToast } from "@/components/ui/toast";
+import { addDays, startOfDay, startOfMonth } from "@/lib/date";
 import {
   Table,
   TableBody,
@@ -63,17 +70,22 @@ const ROWS = [
   { name: "정혜진", chart: "2312349", test: "C-Reactive Protein", value: "0.8", unit: "mg/L", status: "진행중", tone: "warning", date: "—" },
 ] as const;
 
-export default function App() {
+function Gallery() {
+  const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const today = startOfDay(new Date());
+  const [reportDate, setReportDate] = useState<Date | null>(today);
+  const [month, setMonth] = useState<Date | null>(startOfMonth(today));
+  const [period, setPeriod] = useState<DateRange>({ start: addDays(today, -6), end: today });
+  const [statRange, setStatRange] = useState<DateRange>({ start: null, end: null });
   const [checked, setChecked] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const toggle = (chart: string) =>
     setSelected((prev) => (prev.includes(chart) ? prev.filter((c) => c !== chart) : [...prev, chart]));
 
   return (
-    // Radix Tooltip 은 Provider 없이 쓰면 던집니다. 앱에 하나만 둡니다
-    <TooltipProvider>
     <div className="mx-auto max-w-5xl px-6 py-10">
       <header className="mb-8 border-b border-divider-gray-light pb-6">
         <h1 className="text-2xl font-bold text-text-basic">ACK UI</h1>
@@ -266,16 +278,56 @@ export default function App() {
           </div>
         </Section>
 
+        <Section
+          title="DatePicker"
+          note="단일 · 범위 × 날짜 · 월 · 연. 달력은 라이브러리 없이 직접 그렸습니다."
+        >
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="w-52">
+              <FormField label="보고일">
+                <DatePicker value={reportDate} onValueChange={setReportDate} />
+              </FormField>
+            </div>
+            <div className="w-52">
+              <FormField label="정산 월">
+                <DatePicker precision="month" value={month} onValueChange={setMonth} />
+              </FormField>
+            </div>
+            <div className="w-72">
+              <FormField label="조회 기간">
+                <DateRangePicker value={period} onValueChange={setPeriod} />
+              </FormField>
+            </div>
+            <div className="w-72">
+              <FormField label="통계 기간 (월 단위)">
+                <DateRangePicker precision="month" value={statRange} onValueChange={setStatRange} />
+              </FormField>
+            </div>
+          </div>
+        </Section>
+
         <Section title="Table" note="헤더·본문 모두 14. 페이지네이션 대신 스크롤을 씁니다.">
           <div className="overflow-hidden rounded-lg border border-table-border">
-            <TableToolbar title="검사이력목록" count={`총 ${ROWS.length}건`}>
-              {selected.length > 0 && (
-                <span className="text-xs text-text-primary-strong">{selected.length}건 선택됨</span>
-              )}
+            {/* 건수는 칩 하나에 모읍니다 — 선택이 있으면 함께 적습니다 */}
+            <TableToolbar
+              title="검사이력목록"
+              count={
+                selected.length > 0
+                  ? `총 ${ROWS.length}건 / ${selected.length}건 선택됨`
+                  : `총 ${ROWS.length}건`
+              }
+            >
               <Button size="sm" variant="outline">
                 <Plus />
                 추가
               </Button>
+              {/* 삭제는 행이 선택됐을 때만 — 선택 없이 버튼이 있으면 눌러도 아무 일이 없습니다 */}
+              {selected.length > 0 && (
+                <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)}>
+                  <Trash2 />
+                  삭제
+                </Button>
+              )}
               <span className="mx-1 h-4 w-px bg-table-border" aria-hidden />
               {[
                 { icon: <Download />, label: "엑셀 내려받기" },
@@ -337,11 +389,8 @@ export default function App() {
         <Section title="조회 조건 바" note="위 컴포넌트만으로 실제 화면 조각을 조립해 봅니다.">
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-end gap-4">
-              <div className="w-64">
-                <FormField label="기간설정" htmlFor="p1">
-                  <Input id="p1" trailingIcon={<Calendar />} defaultValue="2025-04-26 ~ 2026-07-07" />
-                </FormField>
-              </div>
+              {/* 라벨 + 입력 + 빠른 선택이 한 묶음입니다 (Figma 의 PCDateField) */}
+              <DateField label="기간설정" value={period} onValueChange={setPeriod} />
               <div className="w-56">
                 <FormField label="검색" htmlFor="p2">
                   <Input id="p2" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
@@ -365,7 +414,15 @@ export default function App() {
                   <RefreshCw />
                   초기화
                 </Button>
-                <Button>
+                <Button
+                  onClick={() =>
+                    toast({
+                      tone: "info",
+                      title: "조회가 완료되었습니다",
+                      description: `총 ${ROWS.length}건이 검색되었습니다.`,
+                    })
+                  }
+                >
                   <Search />
                   조회
                 </Button>
@@ -375,11 +432,45 @@ export default function App() {
         </Section>
       </div>
 
+      {/* 되돌릴 수 없는 동작이라 확인을 받습니다. 제목은 질문형, 설명은 결과를 알립니다 */}
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title={`검사 결과 ${selected.length}건을 삭제할까요?`}
+        description="삭제한 결과는 되돌릴 수 없습니다. 계속하시겠습니까?"
+        tone="destructive"
+        confirmLabel="삭제"
+        onConfirm={() => {
+          const n = selected.length;
+          setSelected([]);
+          setConfirmDelete(false);
+          // 결과는 Toast 로 알립니다 — 확인은 Dialog, 결과는 Toast
+          toast({
+            tone: "success",
+            title: `${n}건을 삭제했습니다`,
+            description: "목록에서 제외되었습니다.",
+          });
+        }}
+      />
+
       <footer className="mt-12 border-t border-divider-gray-light pt-6 text-xs text-text-subtle">
         토큰은 <code className="text-text-primary">src/styles/ack-theme.css</code> 에 있습니다.
         Figma Variables 에서 추출한 값이라 이름이 그대로 대응합니다.
       </footer>
     </div>
+  );
+}
+
+/**
+ * Provider 는 앱에 하나씩만 둡니다.
+ * useToast 가 Provider 안에서만 동작해서 갤러리를 한 겹 안으로 넣었습니다.
+ */
+export default function App() {
+  return (
+    <TooltipProvider>
+      <ToastProvider>
+        <Gallery />
+      </ToastProvider>
     </TooltipProvider>
   );
 }

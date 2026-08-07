@@ -67,10 +67,10 @@ import { design, figma } from "./figma";
  *
  * 그리드 전체가 **탭 정지 하나**입니다. 칸마다 멈추면 다음 요소로 가는 데 42번을 눌러야 합니다.
  *
- * ### 아직 없는 것
+ * ### 단위를 바꾸려면
  *
- * `Mode=Range`(두 달 + 시작·종료 탭 + 빠른 선택) · `Precision=Month·Year` ·
- * `Confirm=True`(취소·선택 버튼). 단일 날짜부터 검증하고 그 위에 얹습니다.
+ * `precision="month"` · `"year"` 로 달력 대신 3×4 그리드가 뜹니다.
+ * 범위는 `DateRangePicker` 입니다.
  */
 const meta = {
   title: "Controls/DatePicker",
@@ -80,6 +80,7 @@ const meta = {
     size: { control: "inline-radio", options: ["sm", "default", "lg", "grid"] },
     state: { control: "inline-radio", options: ["default", "error", "disabled", "readonly"] },
     placeholder: { control: "text" },
+    precision: { control: "inline-radio", options: ["day", "month", "year"] },
     value: { control: false },
     min: { control: false },
     max: { control: false },
@@ -256,6 +257,43 @@ export const 셀상태: Story = {
         <p className="text-2xs text-text-muted-foreground">
           오늘 아래 점 · 선택은 파란 원 · 범위 밖은 흐림 · 이전달은 더 흐림
         </p>
+      </div>
+    );
+  },
+};
+
+/**
+ * Figma 의 `Precision` 축입니다. 달력 대신 **3×4 그리드**가 뜹니다 —
+ * 열두 칸이 한 화면에 들어와 스크롤이 없습니다.
+ *
+ * | | 머리글 | 입력 |
+ * |---|---|---|
+ * | `month` | 연도 Select | `202608` → `2026-08` |
+ * | `year` | ‹ 2020 – 2031 › | `2026` |
+ *
+ * 값은 그 단위의 **첫 날**입니다 (2026년 8월 → `2026-08-01`).
+ * 표시는 단위에 맞춰 자릅니다 — 월을 고르는 화면에서 `2026-08-01` 이라고 쓰면
+ * 고르지도 않은 날짜까지 정한 것처럼 보입니다.
+ *
+ * 연도 그리드의 시작점은 **12로 내림**합니다. 안 그러면 앞뒤로 넘길 때마다
+ * 경계가 달라져 같은 해가 두 화면에 나옵니다.
+ */
+export const 월연선택: Story = {
+  name: "월 · 연 선택",
+  decorators: [],
+  render: function Precision() {
+    const [m, setM] = useState<Date | null>(startOfMonth(new Date()));
+    const [y, setY] = useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="w-56">
+          <p className="mb-1.5 text-xs text-text-subtle">precision=&quot;month&quot;</p>
+          <DatePicker precision="month" value={m} onValueChange={setM} />
+        </div>
+        <div className="w-56">
+          <p className="mb-1.5 text-xs text-text-subtle">precision=&quot;year&quot;</p>
+          <DatePicker precision="year" value={y} onValueChange={setY} />
+        </div>
       </div>
     );
   },

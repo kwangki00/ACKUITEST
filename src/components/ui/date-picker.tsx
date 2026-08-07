@@ -1,19 +1,26 @@
 import * as React from "react";
-import { CalendarDays, X } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { CalendarMonth } from "@/components/ui/calendar";
+import { CalendarUnitGrid } from "@/components/ui/calendar-unit";
 import {
   addDays,
   addMonths,
+  addYears,
   clamp,
-  formatDate,
+  formatByPrecision,
+  formatDigitsByPrecision,
   isDisabled,
-  parseDate,
+  parseByPrecision,
+  PRECISION_DIGITS,
   startOfDay,
   startOfMonth,
+  startOfUnit,
+  toDigits,
+  type DatePrecision,
 } from "@/lib/date";
 
 /**
@@ -23,12 +30,12 @@ import {
  * **혼자 큽니다** — Popover 계열(6)보다 크고 Card·Dialog(8)보다도 큽니다.
  * Figma 가 그렇게 정의해 두었습니다.
  *
- * 아직 없는 축 —
- * `Mode=Range`(두 달 + DateRangeTabs + 빠른 선택), `Precision=Month·Year`(월·연 그리드),
- * `Confirm=True`(취소·선택 버튼). 단일 날짜부터 검증하고 그 위에 얹습니다.
+ * `precision` 으로 Figma 의 Precision 축을 탑니다 — `day` 는 달력,
+ * `month` · `year` 는 3×4 그리드(`CalendarUnitGrid`)입니다.
  *
- * `Confirm` 을 아직 안 만든 이유는 Figma 문서가 그렇게 권하기 때문입니다 —
+ * `Confirm=True`(취소·선택 버튼)는 두지 않았습니다. Figma 문서가 그렇게 권합니다 —
  * *"Single 모드는 False 를 권장합니다. 한 번 누르면 끝나는데 버튼을 또 누르게 하면 번거롭습니다."*
+ * 범위는 반대로 확인 버튼이 있습니다 (`DateRangePicker`).
  */
 
 export interface DatePickerPanelProps {
@@ -36,6 +43,8 @@ export interface DatePickerPanelProps {
   onMonthChange: (month: Date) => void;
   selected?: Date | null;
   onSelect: (date: Date) => void;
+  /** 고르는 단위. day 는 달력, month·year 는 3×4 그리드입니다. */
+  precision?: DatePrecision;
   min?: Date;
   max?: Date;
   /** 값을 비웁니다. 필수 항목에는 넘기지 마세요 — 지울 수 없는데 버튼만 생깁니다. */
@@ -48,6 +57,7 @@ export function DatePickerPanel({
   onMonthChange,
   selected,
   onSelect,
+  precision = "day",
   min,
   max,
   onClear,
@@ -58,17 +68,28 @@ export function DatePickerPanel({
 
   return (
     <div className={cn("w-fit", className)}>
-      <CalendarMonth
-        month={month}
-        onMonthChange={onMonthChange}
-        selected={selected}
-        onSelect={onSelect}
-        min={min}
-        max={max}
-      />
+      {precision === "day" ? (
+        <CalendarMonth
+          month={month}
+          onMonthChange={onMonthChange}
+          selected={selected}
+          onSelect={onSelect}
+          min={min}
+          max={max}
+        />
+      ) : (
+        <CalendarUnitGrid
+          unit={precision}
+          cursor={month}
+          onCursorChange={onMonthChange}
+          selected={selected}
+          onSelect={onSelect}
+          min={min}
+          max={max}
+        />
+      )}
 
-      {/* 좌측은 값을 되돌리는 동작, 우측은 자리를 옮기는 동작입니다.
-          둘 다 link 라 같은 무게입니다 — 어느 쪽도 주 액션이 아닙니다 */}
+      {/* 둘 다 link 라 같은 무게입니다 — 어느 쪽도 주 액션이 아닙니다 */}
       <div className="flex items-center justify-between border-t border-cal-border px-4 py-3">
         <Button
           variant="link"
@@ -78,13 +99,23 @@ export function DatePickerPanel({
         >
           초기화
         </Button>
+        {/*
+          단일에서는 **오늘을 고릅니다** — "오늘로 이동"(달만 옮기기)이 아닙니다.
+
+          값이 하나뿐이라 달만 옮겨봐야 결국 한 번 더 눌러야 하고, 이미 오늘이 있는
+          달을 보고 있으면 눌러도 아무 반응이 없습니다. 단일에서 제일 자주 하는 일이
+          "오늘로 맞추기" 라 한 번에 끝냅니다. 라벨도 그래서 "오늘" 입니다.
+
+          범위는 반대로 달만 옮깁니다 — 거기서는 두 날짜를 골라야 해서
+          오늘 하나를 넣어봐야 소용이 없습니다.
+        */}
         <Button
           variant="link"
           size="sm"
-          onClick={() => onMonthChange(startOfMonth(today))}
+          onClick={() => onSelect(startOfUnit(today, precision))}
           disabled={todayBlocked}
         >
-          오늘로 이동
+          {precision === "year" ? "올해" : precision === "month" ? "이번 달" : "오늘"}
         </Button>
       </div>
     </div>
@@ -109,57 +140,53 @@ export interface DatePickerProps
   > {
   value?: Date | null;
   onValueChange: (date: Date | null) => void;
+  /**
+   * 고르는 단위. `month` · `year` 는 달력 대신 3×4 그리드가 뜨고,
+   * 입력 자릿수도 6 · 4 로 줄어듭니다. 값은 그 단위의 **첫 날**입니다
+   * (2026년 8월 → 2026-08-01).
+   */
+  precision?: DatePrecision;
   /** 고를 수 있는 가장 이른 날. 경계는 포함입니다. */
   min?: Date;
   /** 고를 수 있는 가장 늦은 날. 경계는 포함입니다. */
   max?: Date;
-  /** 값이 없을 때 보여줄 문구. 형식을 알려주는 편이 낫습니다. */
+  /** 값이 없을 때 보여줄 문구. 비우면 형식에 맞춰 자동으로 붙습니다. */
   placeholder?: string;
 }
 
-/**
- * 숫자만 남기고 8자리로 자릅니다. `2022-12-12` 를 붙여넣어도 같은 결과입니다.
- * 문자를 치면 그냥 사라집니다 — 막는 것보다 조용히 걸러내는 편이 덜 성가십니다.
- */
-function toDigits(s: string) {
-  return s.replace(/\D/g, "").slice(0, 8);
+/** 정밀도별 칸 배치. year 는 칸이 하나뿐이라 방향키가 늘 연도를 움직입니다. */
+const SEGMENTS: Record<DatePrecision, { unit: "year" | "month" | "day"; sel: [number, number] }[]> = {
+  day: [
+    { unit: "year", sel: [0, 4] },
+    { unit: "month", sel: [5, 7] },
+    { unit: "day", sel: [8, 10] },
+  ],
+  month: [
+    { unit: "year", sel: [0, 4] },
+    { unit: "month", sel: [5, 7] },
+  ],
+  year: [{ unit: "year", sel: [0, 4] }],
+};
+
+/** 커서 위치로 칸을 고릅니다. 구분자 위는 앞 칸으로 칩니다. */
+function segmentAt(pos: number, precision: DatePrecision) {
+  const segs = SEGMENTS[precision];
+  return segs.find((s) => pos <= s.sel[1]) ?? segs[segs.length - 1];
 }
 
-/**
- * 숫자에 하이픈을 끼워 보여줍니다. `2022` → `2022`, `202212` → `2022-12`.
- *
- * 하이픈은 **표시일 뿐 상태가 아닙니다.** 그래서 하이픈 위에서 Backspace 를 눌러도
- * 지워질 것이 없어 멈추지 않고, 앞의 숫자가 지워집니다.
- */
-function formatDigits(d: string) {
-  if (d.length <= 4) return d;
-  if (d.length <= 6) return `${d.slice(0, 4)}-${d.slice(4)}`;
-  return `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`;
-}
-
-/**
- * 커서가 어느 칸에 있는지 — `2022-12-12` 에서 하이픈은 4·7 자리입니다.
- * 경계(하이픈 위)는 앞 칸으로 칩니다. 방금 친 칸을 계속 만지는 게 자연스럽습니다.
- */
-function segmentAt(pos: number): "year" | "month" | "day" {
-  if (pos <= 4) return "year";
-  if (pos <= 7) return "month";
-  return "day";
-}
-
-/** 칸별 선택 범위. 오르내린 뒤 그 칸을 통째로 선택해 두면 연달아 누를 수 있습니다. */
-const SEGMENT_RANGE: Record<"year" | "month" | "day", [number, number]> = {
-  year: [0, 4],
-  month: [5, 7],
-  day: [8, 10],
+const PLACEHOLDER: Record<DatePrecision, string> = {
+  day: "YYYY-MM-DD",
+  month: "YYYY-MM",
+  year: "YYYY",
 };
 
 export function DatePicker({
   value,
   onValueChange,
+  precision = "day",
   min,
   max,
-  placeholder = "YYYY-MM-DD",
+  placeholder,
   disabled,
   readOnly,
   className,
@@ -168,29 +195,36 @@ export function DatePicker({
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const [month, setMonth] = React.useState<Date>(() => startOfMonth(value ?? new Date()));
-  // 상태는 숫자 8자리까지입니다. 화면의 하이픈은 formatDigits 가 얹습니다
-  const [digits, setDigits] = React.useState(() => (value ? formatDate(value, "") : ""));
+  const size = PRECISION_DIGITS[precision];
+  // 상태는 숫자만 담습니다. 화면의 구분자는 formatDigitsByPrecision 이 얹습니다
+  const [digits, setDigits] = React.useState(() =>
+    value ? formatByPrecision(value, precision).replace(/\D/g, "") : ""
+  );
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // 밖에서 값이 바뀌면 글자와 보고 있는 달을 맞춥니다 (빠른 선택 · 폼 초기화)
+  // 밖에서 값이 바뀌면 글자와 보고 있는 달을 맞춥니다 (빠른 선택 · 폼 초기화).
+  // 날짜가 실제로 달라졌을 때만입니다 — value 를 통째로 지켜보면 부모가
+  // 매 렌더 새 Date 를 만드는 순간 타이핑이 되돌려집니다
+  const valueKey = value?.getTime();
   React.useEffect(() => {
-    setDigits(value ? formatDate(value, "") : "");
+    setDigits(value ? formatByPrecision(value, precision).replace(/\D/g, "") : "");
     if (value) setMonth(startOfMonth(value));
-  }, [value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [valueKey, precision]);
 
   const commit = (raw: string) => {
-    const d = toDigits(raw);
+    const d = toDigits(raw, size);
     setDigits(d);
 
     if (d === "") {
       onValueChange(null);
       return;
     }
-    // 여덟 자리를 채우기 전에는 아직 날짜가 아닙니다 —
+    // 다 채우기 전에는 아직 날짜가 아닙니다 —
     // 2022 만 쳤는데 2022-01-01 로 잡아버리면 다 치기도 전에 값이 바뀝니다
-    if (d.length < 8) return;
+    if (d.length < size) return;
 
-    const parsed = parseDate(formatDigits(d));
+    const parsed = parseByPrecision(d, precision);
     if (parsed && !isDisabled(parsed, min, max)) {
       onValueChange(parsed);
       setMonth(startOfMonth(parsed));
@@ -225,12 +259,12 @@ export function DatePicker({
   const step = (e: React.KeyboardEvent<HTMLInputElement>, dir: 1 | -1) => {
     e.preventDefault();
     const el = e.currentTarget;
-    const seg = segmentAt(el.selectionStart ?? 0);
-    const base = value ?? startOfDay(new Date());
+    const seg = segmentAt(el.selectionStart ?? 0, precision);
+    const base = value ?? startOfUnit(new Date(), precision);
     const next =
-      seg === "year"
-        ? addMonths(base, 12 * dir)
-        : seg === "month"
+      seg.unit === "year"
+        ? addYears(base, dir)
+        : seg.unit === "month"
           ? addMonths(base, dir)
           : addDays(base, dir);
 
@@ -239,13 +273,12 @@ export function DatePicker({
     // 글자도 같은 렌더에서 함께 갱신합니다.
     // 부모가 value 를 바꿔 오기를 기다리면(useEffect) 커서를 되돌린 **뒤에**
     // 글자가 갈려서 다시 맨 뒤로 튑니다. 한 번에 끝내야 커서가 제자리에 남습니다
-    setDigits(formatDate(target, ""));
+    setDigits(formatByPrecision(target, precision).replace(/\D/g, ""));
     setMonth(startOfMonth(target));
 
-    const range = SEGMENT_RANGE[seg];
-    pendingSel.current = range;
+    pendingSel.current = seg.sel;
     // 경계에 걸려 값이 그대로면 다시 렌더되지 않습니다 — 그때는 지금 맞춥니다
-    el.setSelectionRange(range[0], range[1]);
+    el.setSelectionRange(seg.sel[0], seg.sel[1]);
   };
 
   const pick = (d: Date) => {
@@ -259,7 +292,7 @@ export function DatePicker({
         <Input
           {...props}
           ref={inputRef}
-          value={formatDigits(digits)}
+          value={formatDigitsByPrecision(digits, precision)}
           onChange={(e) => commit(e.target.value)}
           onKeyDown={(e) => {
             onKeyDown?.(e);
@@ -271,12 +304,12 @@ export function DatePicker({
             // 여덟 자리를 못 채웠거나 없는 날짜면 되돌립니다 —
             // 화면의 글자와 실제 값이 다른 채로 두면 조회 결과가 설명되지 않습니다
             if (digits === "") return;
-            const parsed = digits.length === 8 ? parseDate(formatDigits(digits)) : null;
+            const parsed = parseByPrecision(digits, precision);
             if (!parsed || isDisabled(parsed, min, max)) {
-              setDigits(value ? formatDate(value, "") : "");
+              setDigits(value ? formatByPrecision(value, precision).replace(/\D/g, "") : "");
             }
           }}
-          placeholder={placeholder}
+          placeholder={placeholder ?? PLACEHOLDER[precision]}
           disabled={disabled}
           readOnly={readOnly}
           inputMode="numeric"
@@ -313,7 +346,7 @@ export function DatePicker({
                   "focus-visible:outline-hidden disabled:pointer-events-none"
                 )}
               >
-                <CalendarDays />
+                <Calendar />
               </button>
             </span>
           }
@@ -333,6 +366,7 @@ export function DatePicker({
           onMonthChange={setMonth}
           selected={value}
           onSelect={pick}
+          precision={precision}
           min={min}
           max={max}
           onClear={() => onValueChange(null)}

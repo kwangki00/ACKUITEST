@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/react";
 import { TooltipProvider } from "../src/components/ui/tooltip";
+import { ToastProvider } from "../src/components/ui/toast";
 import "../src/index.css";
 
 const preview: Preview = {
@@ -8,7 +9,9 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <TooltipProvider>
-        <Story />
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </TooltipProvider>
     ),
   ],
@@ -58,9 +61,13 @@ const preview: Preview = {
           "Display",
           "Data",
           "Feedback",
+          ["Alert", "Dialog", "Loading & Divider", "Toast"],
           // 조립 부품만 남깁니다 — 완성형 컨트롤(Combobox · Select)은 Controls 로 갑니다
           "Overlay",
           ["ListItem", "Popover", "Tooltip"],
+          // 모바일 전용은 마지막에 모읍니다 — 그룹은 "무엇인가" 로 나누지만
+          // 모바일은 "어디서 쓰나" 라는 다른 축이라 섞이면 찾기 어렵습니다
+          "Mobile",
         ],
       },
     },

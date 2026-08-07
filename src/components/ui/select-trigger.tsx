@@ -23,10 +23,11 @@ export type SelectState = "default" | "error" | "disabled" | "readonly";
 
 /** 껍데기 규격 — Figma Size 축 그대로. */
 const sizeMap: Record<SelectSize, string> = {
-  sm: "h-[var(--h-input-sm)] gap-1.5 px-3 text-base lg:text-sm rounded-md",
-  default: "h-[var(--h-input-default)] gap-2 px-3 text-base lg:text-sm rounded-md",
-  lg: "h-[var(--h-input-lg)] gap-2 px-4 text-base rounded-md",
-  grid: "h-[var(--h-datagrid)] gap-2 px-2 text-base lg:text-sm rounded-sm",
+  sm: "h-[var(--h-input-sm)] gap-1.5 px-3 text-base lg:text-sm rounded-md [&_svg]:size-4",
+  default: "h-[var(--h-input-default)] gap-2 px-3 text-base lg:text-sm rounded-md [&_svg]:size-4",
+  // lg 만 아이콘이 20 입니다 — 글자도 16 이라 짝이 맞습니다 (Input 과 같은 규칙)
+  lg: "h-[var(--h-input-lg)] gap-2 px-4 text-base rounded-md [&_svg]:size-5",
+  grid: "h-[var(--h-datagrid)] gap-2 px-2 text-base lg:text-sm rounded-sm [&_svg]:size-4",
 };
 
 const stateMap: Record<SelectState, string> = {
@@ -117,7 +118,7 @@ export const SelectTrigger = React.forwardRef<HTMLDivElement, SelectTriggerProps
         {...props}
       >
         {leadingIcon && (
-          <span className="shrink-0 text-icon-muted-foreground [&_svg]:size-4">{leadingIcon}</span>
+          <span className="shrink-0 text-icon-muted-foreground">{leadingIcon}</span>
         )}
 
         <span className="flex min-w-0 flex-1 items-center gap-1">{children}</span>
@@ -137,10 +138,10 @@ export const SelectTrigger = React.forwardRef<HTMLDivElement, SelectTriggerProps
                 "focus-visible:ring-action-focus-ring focus-visible:outline-hidden"
               )}
             >
-              <X className="size-4" />
+              <X />
             </button>
           )}
-          <ChevronDown className="size-4 text-icon-muted-foreground" aria-hidden />
+          <ChevronDown className="text-icon-muted-foreground" aria-hidden />
         </span>
       </div>
     );
