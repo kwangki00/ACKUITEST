@@ -49,7 +49,7 @@ Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
 MobileDateField · MobileFilterBar · MobileListCard
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
-Lookup · LookupPanel · LookupRow
+Lookup · LookupPanel · LookupRow · PCFilterBar · EmptyState
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
@@ -409,6 +409,31 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 오른쪽 작업 영역은 **남는 폭을 쓰게** 두세요 (`flex-1`). 고정 폭을 주면 접을 때 빈칸이 생깁니다
 - **`Sidebar1`(Layouts 페이지)은 옛 목업입니다** — 인스턴스 0개, description 없음, 폭 212, `Color/Primary/500` 같은 **Primitive 를 직접 참조**하고 `SidebarItem` 을 쓰지 않습니다. 진짜는 Navigation 페이지의 `Sidebar` 입니다. 정리 대상
 
+### EmptyState — 셋의 차이는 “다음에 무엇을 하느냐”
+
+| `type` | 무슨 상황 | 사용자가 할 일 | 버튼 |
+|---|---|---|---|
+| `no-result` | 조회했는데 0건 | **조건을 바꿉니다** | `조건 초기화` (outline) |
+| `no-data` | 데이터 자체가 없음 | **만듭니다** | `추가` (**Primary**) |
+| `error` | 불러오기 실패 | **다시 시도합니다** | `다시 시도` (outline) |
+
+- **`no-data` 만 Primary** 입니다 — 셋 중 유일하게 *새로 만드는* 동작이라 그 화면의 주 액션입니다. 나머지 둘은 되돌리거나 다시 해보는 것이라 outline
+- **문구가 `type` 을 따라옵니다.** Figma 는 TEXT 프로퍼티가 세트 전체 공유라 여섯 변형이 전부 “조회 결과가 없습니다” 로 보입니다 (「변형별 값 vs 프로퍼티」 제약). **코드에는 그 제약이 없어** 제목·설명·버튼 글자를 `type` 별로 채웠습니다
+- **표에서는 헤더 행을 남깁니다** — 헤더까지 지우면 어떤 열을 조회했는지 알 수 없습니다. `TableEmptyRow` 가 `colSpan` 으로 본문만 채웁니다
+- `size="sm"` 은 카드·시트처럼 좁은 영역용 (세로 여백 72 → 40)
+- **`onAction` 을 빼면 버튼이 사라집니다.** 할 수 있는 일이 없을 때만 — 막다른 길에 버튼까지 없으면 더 답답합니다
+- **실패는 Toast 만으로 두지 마세요** — 조회가 실패했으면 화면에도 `type="error"` 를 남깁니다 (`Toast` 규칙과 같음)
+
+### PCFilterBar — PC 조회 조건
+
+- **조회하면 자동으로 접힙니다** (모바일과 같은 규칙). 접으면 **표가 약 150px 넓어집니다** — 펼침 200 · 접힘 56
+- **접힌 줄에 “조건 변경” 버튼을 함께 둡니다.** 화살표만으로는 누를 수 있다는 신호가 약합니다 — 모바일은 줄 전체가 누름 대상이라 필요 없지만, PC 는 마우스로 정확히 겨냥하므로 누를 곳을 눈에 보이게 둡니다
+- **캡션은 늘 `sm/SemiBold`** 입니다. 모바일은 펼치면 커지지만 PC 는 그대로 — 옆에 요약이 붙는 자리라 크기가 바뀌면 줄 높이가 흔들립니다
+- **버튼은 `items-end` 로 필드 바닥에 붙입니다.** 조회·초기화에는 라벨이 없어 그냥 두면 **17px 위로 뜹니다**(라벨 높이). Figma 는 빈 공간을 넣어 맞추지만, 코드는 줄 수가 바뀌어도 따라오게 했습니다
+- **조건은 4개까지.** 넘으면 행을 추가하지 말고 **별도 검색 화면**을 검토하세요 — 두 줄을 넘으면 접기 전에도 표가 몇 줄 안 보입니다
+- 조건 줄은 `PCFilterRow` 로 감쌉니다. **기간(`DateField`)은 넓어서 자기 줄**을 씁니다
+- Figma description 이 "Expanded 206" 이라 적고 있었는데 변형은 **200** 입니다 — 변형에 맞췄습니다 (2026-08-07)
+
 ### Lookup — 열이 여러 개인 드롭다운
 
 - **가르는 축은 한 줄에 무엇이 들어가느냐입니다**
@@ -472,7 +497,7 @@ Screen
 └ Workspace            사이드바를 뺀 작업 영역
    ├ MDI TabBar 36     열린 화면 목록 (TabItem Variant=Line + Close)
    └ Content           선택된 탭의 내용 — 탭을 바꾸면 통째로 갈림
-      ├ FilterBar      PCFilterBar (Expanded 206 / Collapsed 56)
+      ├ FilterBar      PCFilterBar (Expanded 200 / Collapsed 56)
       └ Body           여백 24. 표 블록
 ```
 

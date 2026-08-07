@@ -63,13 +63,15 @@ const preview: Preview = {
           "Display",
           "Data",
           "Feedback",
-          ["Alert", "Dialog", "Loading & Divider", "Toast"],
+          ["Alert", "Dialog", "EmptyState", "Loading & Divider", "Toast"],
           // 조립 부품만 남깁니다 — 완성형 컨트롤(Combobox · Select)은 Controls 로 갑니다
           "Overlay",
           ["ListItem", "Lookup", "Popover", "Tooltip"],
           // Figma 의 Navigation 페이지와 같은 이름입니다
           "Navigation",
           ["Sidebar", "SidebarItem", "Tabs"],
+          // 화면 골격 — 부품이 아니라 자리를 정하는 것들
+          "Layouts",
           // 모바일 전용은 마지막에 모읍니다 — 그룹은 "무엇인가" 로 나누지만
           // 모바일은 "어디서 쓰나" 라는 다른 축이라 섞이면 찾기 어렵습니다
           "Mobile",
