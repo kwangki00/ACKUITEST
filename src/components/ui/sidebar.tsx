@@ -169,7 +169,10 @@ export function Sidebar({
         {/* ── Menu ──── 6개를 넘으면 여기만 스크롤합니다 ─────────────── */}
         <div
           className={cn(
-            "flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pt-2 pb-2",
+            // overflow-x 를 함께 꺼야 합니다 — 한 축이 visible 이 아니면 나머지 축도
+            // auto 로 계산돼서, 세로만 켰는데 가로 스크롤바가 따라 생깁니다.
+            // 접힘 폭 72 안쪽이 정확히 48(아이콘 칸)이라 1px 만 넘쳐도 드러납니다
+            "flex min-h-0 flex-1 flex-col gap-0.5 overflow-x-hidden overflow-y-auto pt-2 pb-2",
             collapsed ? "items-center px-3" : "px-3"
           )}
         >

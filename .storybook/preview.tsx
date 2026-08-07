@@ -38,6 +38,8 @@ const preview: Preview = {
     options: {
       storySort: {
         order: [
+          // 무엇이 있는지 한 장에 모은 카탈로그 — 맨 앞입니다
+          "Overview",
           // Figma Guideline 페이지와 같은 읽기 순서 (Color → Typography → Layout → Icon)
           "Foundation",
           ["Tokens", "Typography", "Layout & Grid", "Icon"],
