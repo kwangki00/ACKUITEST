@@ -47,6 +47,7 @@ DatePickerPanel · DatePicker
 DateRangeTabs · DateRangePickerPanel · DateRangePicker · DateField
 Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
 MobileDateField · MobileFilterBar · MobileListCard
+MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent · SidebarItem
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
@@ -299,6 +300,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | PC                      | 모바일                                      |
 | ----------------------- | ------------------------------------------- |
 | Sidebar 256             | MBottomTabBar + MobileMenuScreen(전체 화면) |
+| Sidebar 안의 메뉴 항목  | SidebarItem — **PC·모바일 같은 부품**       |
 | Table 7열               | MobileListCard — 행 하나가 카드 하나        |
 | TableToolbar 아이콘 4개 | 2개 + `⋯` DropdownMenu                      |
 | Pagination              | 더 보기 / 무한 스크롤                       |
@@ -371,6 +373,33 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 상태가 **2종이면 점, 3종 이상이면 배지** — `Badge` 와 같은 규칙입니다
 - **간격 0 으로 붙여 쌓으세요.** 사이를 띄우면 낱개 카드로 흩어져 보이고, 표를 옮긴 것이라는 감각이 사라집니다
 - 체크박스는 **선택 모드에서만**. 평소에 보이면 누를 것이 둘이 되어 어느 쪽이 상세로 가는지 흐려집니다
+
+### MobileTop — 상단 바
+
+- **세 변형은 왼쪽에 무엇을 두느냐**입니다 — `logo`(앱 첫 화면) · `back`(상세) · `title`(목록). 높이 58 고정
+- **`back` 의 타이틀만 절대 배치로 가운데**를 잡습니다. flex 로 나누면 오른쪽 아이콘이 하나 늘 때마다 제목이 왼쪽으로 밀려서, 같은 화면인데 스크롤할 때마다 제목이 움직이는 것처럼 보입니다
+- **액션은 아이콘 24 · 탭 영역 44** (iOS 44pt). `MobileTopAction` 이 크기·정렬·`aria-label` 을 함께 강제합니다 — 글자가 없는 버튼이라 라벨이 없으면 보조기술이 읽을 것이 없습니다
+- **액션은 2개까지.** 넘으면 `⋯` 로 묶으세요 — 58 안에서 44 짜리가 셋 이상이면 타이틀 자리가 사라집니다
+- 상단 바도 **스크롤 영역 밖**입니다 (탭바 · Table 헤더 행과 같은 이유)
+- Figma 변형 이름은 원래 `Default` · `backStyle` · `e-smartTop` 이었습니다. `e-smartTop` 은 다른 제품에서 넘어온 이름이라 **하는 일로 다시 지었습니다** (2026-08-07). 같은 날 `logo` · `back` 두 변형을 오토레이아웃 · `Surface/White` · `Divider/Gray-Light` · `icons/*` 인스턴스로 다시 만들었습니다 — 전에는 절대 배치에 손으로 그린 벡터였습니다
+  - `title` 변형의 제목도 `title` TEXT 프로퍼티에 묶었습니다. **세트 화면에서는 기본값(“타이틀”)만 보입니다** — TEXT 프로퍼티는 세트 전체가 공유하기 때문입니다. 데모 화면 4곳은 인스턴스에서 “결과조회” 로 되돌렸습니다
+
+### MobileMenuScreen — 전체메뉴
+
+- **시트가 아니라 전체 화면**입니다. 메뉴는 다른 화면으로 떠나는 동작이라 뒤 화면을 남겨둘 이유가 없습니다 — 뒤를 보면서 고르는 날짜·필터만 시트입니다
+  - Figma 의 `MobileMenuContent` description 에 “MobileSheet 안에 올라옵니다” 라고 적혀 있었는데, `MobileMenuScreen` 은 390×844 전체 화면이었습니다. **컴포넌트가 사실에 가까워** 문장을 고쳤습니다 (2026-08-07)
+- **메뉴 구조는 PC 사이드바 그대로** — `SidebarItem` 을 같이 씁니다. PC 로 익힌 위치를 다시 배우지 않아도 됩니다
+- **코드는 탭바를 담지 않습니다.** Figma 는 “화면 하나” 를 그려야 해서 탭바까지 넣었지만, 탭바는 화면이 바뀌어도 남아 있는 것이라 메뉴를 열 때마다 다시 만들어지면 안 됩니다. 코드에서는 **앱 껍데기가 들고** 있고 `MobileMenuScreen` 은 헤더 + 본문까지입니다
+- **닫기(X)는 이전 화면으로.** 탭바로도 나갈 수 있지만 되돌아가는 경로가 따로 있는 편이 안전합니다. `onClose` 를 넘기지 않으면 X 가 없습니다 (Figma 의 `Close` 축)
+- 메뉴가 길면 **본문만 스크롤**합니다 — 헤더와 탭바는 남습니다
+
+### SidebarItem — PC·모바일이 같이 씁니다
+
+- **Active 가 두 가지 뜻입니다.** 1단계는 *현재 페이지가 속한 묶음*, 2단계는 *현재 페이지 그 자체*라 **동시에 켜집니다**. 배경 틴트는 둘 다 같고(`Sidebar/Item-Active` · `-Strong`, 지금은 값이 같습니다) **좌측 3px 인디케이터는 2단계에만** 붙습니다 — 배경을 진하게 해서 구분하면 사이드바 전체가 무거워집니다
+- **하위 메뉴가 없는 1단계는 `chevron` 을 끄세요** — 눌러도 펼쳐지지 않는데 화살표가 있으면 사용자가 눌러 봅니다
+- **2단계에는 아이콘·화살표가 없습니다** (Figma 변형에도 그 노드가 없습니다). 타입이 막습니다 — 화살표를 달면 3단계가 있는 것처럼 보입니다
+- 높이는 1단계 44 · 2단계 36 (들여쓰기 32). `--h-list-item` 을 쓰지 않습니다 — 메뉴는 목록이 아니라 탐색이라 PC 에서도 좁히지 않습니다
+- **Storybook 은 `SidebarItemFlatProps` 로 넘깁니다.** `Meta<typeof SidebarItem>` 이 판별 유니온을 교차시켜 args 를 `never` 로 만들어, 스토리에서 `icon` 조차 못 넘깁니다. 앱 코드는 유니온인 `SidebarItemProps` 를 그대로 씁니다
 
 ### 시트 vs 전체 화면
 
@@ -453,7 +482,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 - [ ] LookupPanel · LookupRow — Popover + ListItem 조합
 - [ ] AccordionItem
-- [~] 모바일 전용 — **MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar 끝** (2026-08-07). 남은 것은 MobileTop · MobileMenuScreen
+- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen. `SidebarItem` 도 함께 만들어 **PC `Sidebar` 를 시작할 준비**가 됐습니다
 - [ ] React Hook Form + Zod 연동 예시
 
 ### 코드 — Radix 프리미티브가 더 필요
