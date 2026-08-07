@@ -40,6 +40,12 @@ export interface SelectProps {
   leadingIcon?: React.ReactNode;
   emptyText?: string;
   className?: string;
+  /**
+   * 붙은 라벨이 없을 때 무엇을 고르는 자리인지 알립니다.
+   * `FormField` 로 감쌌다면 필요 없습니다 — 달력의 년·월처럼 라벨을 둘 자리가
+   * 없는 곳에 씁니다.
+   */
+  "aria-label"?: string;
 }
 
 export function Select({
@@ -54,6 +60,7 @@ export function Select({
   leadingIcon,
   emptyText = "항목이 없습니다.",
   className,
+  "aria-label": ariaLabel,
 }: SelectProps) {
   const [open, setOpen] = React.useState(false);
   const [active, setActive] = React.useState(-1);
@@ -94,6 +101,7 @@ export function Select({
           state={state}
           disabled={disabled}
           open={open}
+          aria-label={ariaLabel}
           leadingIcon={leadingIcon}
           onClear={clearable && value != null ? () => onValueChange("") : undefined}
           className={cn(value == null && !disabled && "text-text-placeholder", className)}

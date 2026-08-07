@@ -42,12 +42,13 @@ CheckMark · ChoiceGroup · ToggleGroup · Badge · FormField · Table
 Skeleton · Spinner · Progress · Separator · Card · CardRow · Alert
 Pagination · PaginationItem · Chip · Avatar · Popover · ListItem
 Select · NativeSelect · SelectTrigger · Combobox · Tooltip
+CalendarCell · CalendarMonth · DatePickerPanel · DatePicker
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
 Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
-**Radix 는 Popover · Tooltip 둘을 들였습니다** (`@radix-ui/react-popover` · `-tooltip`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. 나머지(Lookup · DatePicker · Dialog · Toast · DropdownMenu · Tabs · Accordion)는 아직입니다.
+**Radix 는 Popover · Tooltip 둘을 들였습니다** (`@radix-ui/react-popover` · `-tooltip`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). 나머지(Lookup · Dialog · Toast · DropdownMenu · Tabs · Accordion)는 아직입니다.
 
 Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 설정과 자체 토큰 이름(`bg-popover` 등)을 끌고 오는데, 어차피 색을 전부 갈아끼워야 해서 손해입니다. 프리미티브만 설치하고 컴포넌트는 직접 씁니다.
 
@@ -203,6 +204,24 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - Placement 는 **화살표 방향일 뿐**입니다. 실제 위치와 충돌 회피는 Radix 가 정하고 화면 끝에서는 뒤집힙니다
 - 그림자를 넣지 않습니다 — 어두운 바탕(대비 16.98:1)이 이미 배경과 분리됩니다
 
+### DatePicker
+
+- **달력 격자를 직접 만들었습니다** — `react-day-picker` 를 쓰지 않았습니다. Figma 의 Precision 축 중 Month·Year 그리드는 어차피 라이브러리가 안 해주고, `CalendarCell` 의 9상태가 토큰으로 정의돼 있어 라이브러리 스타일을 전부 덮어야 합니다. 두 벌이 공존하느니 한 벌로 갑니다 (2026-08-07)
+- **그리드는 6주(42칸) 고정**입니다. 필요한 주만 그리면 달을 넘길 때마다 높이가 36px 들썩이고, 팝오버 안에서는 아래 버튼이 손가락 밑에서 움직입니다. Figma 가 5주인 건 대표값이고 description 에도 "정확한 배치는 코드가 정한다" 고 적혀 있습니다
+- **년·월은 `Select`(우리 것)입니다** — Figma 도 `SelectTrigger Size=sm · Render=Text` 를 씁니다. 처음에 `NativeSelect` 로 만들었다가 바로잡았습니다 (2026-08-07): 목록을 OS 가 그려서 달력 안에서 혼자 다른 모양이 됩니다. 패널 안에 패널이 겹치지만 Radix 가 레이어를 쌓아 처리합니다 — 안쪽을 닫아도 달력은 열려 있습니다
+- **오늘은 원이 아니라 날짜 아래 4px 점**입니다. 원을 쓰면 선택과 헷갈립니다. 오늘이면서 선택된 날은 **선택이 이깁니다**
+- **일요일만 빨강**입니다 (`Cal/Text-Weekend`). 토요일은 평일과 같습니다
+- 셀 36 · 안쪽 원 32 — 원이 셀보다 작아야 범위 배경(셀 전체)과 선택 표시(원)가 겹쳐도 서로 먹지 않습니다
+- **입력창을 직접 칠 수 있습니다.** 아는 날짜는 치는 편이 빠릅니다 — 2025년 3월을 달력으로 가려면 년·월을 두 번 고르지만 `20250314` 는 한 번입니다
+  - **숫자만 받고 하이픈은 표시로만 얹습니다.** 하이픈이 상태가 아니라서 그 위에서 Backspace 를 눌러도 멈추지 않고 앞 숫자가 지워집니다. 붙여넣기도 숫자만 걸러냅니다
+  - **여덟 자리를 채우기 전에는 값이 바뀌지 않습니다** — `2022` 만 쳤는데 2022-01-01 로 잡으면 다 치기도 전에 조회 조건이 달라집니다. 못 채웠거나 없는 날짜면 blur 에서 되돌립니다
+- **입력창에서 위·아래는 커서가 놓인 칸만 오르내립니다** — 년에 있으면 년, 월이면 월, 일이면 일. 오르내린 칸은 선택된 채로 남아 연달아 누를 수 있습니다. 값이 바뀌면 커서가 끝으로 튀므로 `useLayoutEffect` 로 되돌립니다 (경계에 걸려 값이 그대로면 리렌더가 없어 즉시도 한 번 맞춥니다)
+- **지우기는 달력 버튼 왼쪽**입니다 (`Input` 의 `clearable` 은 끕니다). 기본 자리인 가장 바깥에 두면 값이 있을 때만 나타나면서 달력 버튼을 안쪽으로 밀어냅니다 — 늘 같은 자리에 있어야 할 것이 값 유무에 따라 움직이면 손이 헛돕니다
+- `PopoverTrigger` 가 아니라 **`PopoverAnchor`** 를 씁니다 — Trigger 는 클릭을 토글로 처리해서 입력창에 커서를 옮기면 패널이 닫힙니다 (Combobox `editable` 과 같은 이유)
+- **그리드 전체가 탭 정지 하나**입니다. 칸마다 멈추면 다음 요소로 가는 데 42번을 눌러야 합니다. 방향키(하루) · PageUp/Down(한 달) · Home/End(주의 처음·끝)로 움직입니다
+- `toISOString()` 을 쓰지 마세요 — UTC 로 바뀌면서 한국 시간 오전 9시 이전이 **전날로 밀립니다.** `src/lib/date.ts` 의 `formatDate` 를 쓰세요
+- 패널 반경만 **12** 입니다. 떠 있는 패널 중 혼자 큽니다 (Popover 계열 6, Card·Dialog 8) — Figma 가 그렇게 정의했습니다
+
 ### 떠 있는 패널
 
 - **반경은 전부 `Radius/md`(6)** — Popover · Tooltip · Toast · ComboboxPanel · LookupPanel. Card·Dialog 처럼 큰 표면만 `Radius/lg`(8) 입니다
@@ -323,7 +342,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 - [x] ~~Tooltip~~ — `@radix-ui/react-tooltip` (2026-08-07)
 - [ ] DropdownMenu · Dialog · Toast · Tabs
-- [ ] DatePicker (Popover 기반, 5종)
+- [~] DatePicker — 단일 날짜(Mode=Single · Precision=Day · Confirm=False)까지 끝. 남은 축은 **Range**(두 달 + DateRangeTabs + 빠른 선택) · **Precision=Month·Year**(CalendarUnitCell · CalendarUnitGrid) · **Confirm=True**
 
 ### Figma
 
