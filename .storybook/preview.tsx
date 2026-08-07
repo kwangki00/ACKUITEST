@@ -66,7 +66,7 @@ const preview: Preview = {
           ["Alert", "Dialog", "Loading & Divider", "Toast"],
           // 조립 부품만 남깁니다 — 완성형 컨트롤(Combobox · Select)은 Controls 로 갑니다
           "Overlay",
-          ["ListItem", "Popover", "Tooltip"],
+          ["ListItem", "Lookup", "Popover", "Tooltip"],
           // Figma 의 Navigation 페이지와 같은 이름입니다
           "Navigation",
           ["Sidebar", "SidebarItem", "Tabs"],

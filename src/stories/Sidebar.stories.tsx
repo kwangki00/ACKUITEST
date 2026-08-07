@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/ui/sidebar";
 import { SidebarItem } from "@/components/ui/sidebar-item";
 import { design, figma } from "./figma";
 
-const USER = { name: "관리자님", email: "admin@scl.co.kr", initial: "관" };
+const USER = { name: "관리자님", email: "admin@ack.co.kr", initial: "관" };
 
 const GROUPS = [
   { name: "검사관리", icon: <ClipboardList />, items: ["통합결과조회", "검사결과", "검사이력"] },

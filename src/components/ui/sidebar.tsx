@@ -94,7 +94,7 @@ function FooterAction({
 }
 
 const DEFAULT_LOGO = (
-  <span className="text-base font-bold tracking-tight text-text-primary">SCL</span>
+  <span className="text-base font-bold tracking-tight text-text-primary">ACK</span>
 );
 
 export function Sidebar({

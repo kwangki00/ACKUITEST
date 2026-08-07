@@ -44,6 +44,8 @@ export const figma = {
   calendarCell: node("689:63"),
   calendarMonth: node("700:2697"),
   comboboxPanel: node("677:7764"),
+  lookupPanel: node("672:243"),
+  lookupRow: node("671:268"),
   chip: node("482:3473"),
   avatar: node("648:208"),
   formField: node("436:2650"),

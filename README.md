@@ -1,6 +1,6 @@
 # ACK UI — 컴포넌트 테스트 프로젝트
 
-SCL DesignSystem(Figma) 컴포넌트가 코드에서 같은 모양으로 나오는지 확인합니다.
+ACK DesignSystem(Figma) 컴포넌트가 코드에서 같은 모양으로 나오는지 확인합니다.
 
 ## 시작하기
 

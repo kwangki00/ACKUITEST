@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Bell, Clipboard, FileText } from "lucide-react";
-import { MBottomTabBar, SCL_TABS } from "@/components/ui/m-bottom-tab-bar";
+import { MBottomTabBar, ACK_TABS } from "@/components/ui/m-bottom-tab-bar";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { MobileFilterBar } from "@/components/ui/mobile-filter-bar";
 import { MobileDateField } from "@/components/ui/mobile-date-field";
@@ -117,7 +117,7 @@ export const 변형: Story = {
   parameters: { layout: "padded" },
   render: () => (
     <div className="ack-mobile flex flex-col gap-4">
-      {SCL_TABS.map((t) => (
+      {ACK_TABS.map((t) => (
         <div key={t.value}>
           <p className="mb-1 text-xs text-text-subtle">메뉴선택={t.label}</p>
           <div className="w-[390px] rounded-2xl border border-border-gray-light">
@@ -146,7 +146,7 @@ export const 전체메뉴: Story = {
   render: function FullMenu() {
     const [tab, setTab] = useState("results");
     const [menu, setMenu] = useState(false);
-    const label = SCL_TABS.find((t) => t.value === tab)?.label ?? "";
+    const label = ACK_TABS.find((t) => t.value === tab)?.label ?? "";
 
     return (
       <Phone>
@@ -175,7 +175,7 @@ export const 전체메뉴: Story = {
                         type="button"
                         // 메뉴에서 화면을 고르면 그때 탭이 옮겨 갑니다
                         onClick={() => {
-                          const hit = SCL_TABS.find((t) => t.label === it);
+                          const hit = ACK_TABS.find((t) => t.label === it);
                           if (hit) setTab(hit.value);
                           setMenu(false);
                         }}
@@ -262,7 +262,7 @@ export const 조회화면: Story = {
           <div className="flex h-full flex-col">
             <div className="border-b border-border-gray-light bg-background-white px-4 py-3">
               <span className="text-base font-semibold text-text-basic">
-                {SCL_TABS.find((t) => t.value === tab)?.label}
+                {ACK_TABS.find((t) => t.value === tab)?.label}
               </span>
             </div>
 
@@ -300,7 +300,7 @@ export const 조회화면: Story = {
               </>
             ) : (
               <div className="flex flex-1 items-center justify-center text-sm text-text-subtle">
-                {SCL_TABS.find((t) => t.value === tab)?.label} 화면
+                {ACK_TABS.find((t) => t.value === tab)?.label} 화면
               </div>
             )}
 

@@ -278,6 +278,24 @@ const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+/**
+ * 문서 페이지는 **`iframe.html` 안에서** 렌더됩니다. 그래서 `?path=...` 같은 상대 주소는
+ * 매니저가 아니라 **iframe 기준**으로 풀려서 아무 데도 가지 않습니다 —
+ * `target="_top"` 은 어느 창을 바꿀지만 정할 뿐 주소 계산에는 관여하지 않습니다.
+ *
+ * 지금 주소에서 `iframe.html` 만 떼어 매니저 주소를 직접 만듭니다.
+ * 하위 경로에 올려도(`/storybook/iframe.html`) 그대로 동작합니다.
+ */
+function docsHref(group: string, name: string) {
+  const id = `${slug(group)}-${slug(name)}--docs`;
+  if (typeof window === "undefined") return `?path=/docs/${id}`;
+  const url = new URL(window.location.href);
+  url.pathname = url.pathname.replace(/iframe\.html$/, "");
+  url.search = "";
+  url.hash = "";
+  return `${url.toString()}?path=/docs/${id}`;
+}
+
 const TOTAL = GROUPS.reduce((n, g) => n + g.rows.length, 0);
 
 /* ------------------------------------------------------------------ 화면 */
@@ -298,7 +316,7 @@ function Catalog() {
         <div>
           <h1 className="text-2xl font-bold text-text-basic">ACK UI — 컴포넌트 목록</h1>
           <p className="mt-1.5 text-sm text-text-subtle">
-            SCL 결과조회 시스템의 디자인 시스템입니다. Figma 라이브러리를 코드로 옮긴 것이고,
+            ACK 결과조회 시스템의 디자인 시스템입니다. Figma 라이브러리를 코드로 옮긴 것이고,
             각 줄의 이름을 누르면 그 컴포넌트 문서로 갑니다.
           </p>
         </div>
@@ -355,9 +373,8 @@ function Catalog() {
                     className="border-t border-table-border bg-background-white align-top hover:bg-table-row-hover"
                   >
                     <td className="px-4 py-3">
-                      {/* 문서는 iframe 안이라 _top 으로 나가야 매니저가 움직입니다 */}
                       <a
-                        href={`?path=/docs/${slug(g.key)}-${slug(r.name)}--docs`}
+                        href={docsHref(g.key, r.name)}
                         target="_top"
                         className="text-sm font-medium text-text-primary underline underline-offset-2"
                       >

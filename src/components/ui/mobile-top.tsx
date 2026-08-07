@@ -97,7 +97,7 @@ export interface MobileTopProps {
 export function MobileTop({
   variant = "title",
   title,
-  logo = <span className="text-lg font-bold tracking-tight text-text-primary">SCL</span>,
+  logo = <span className="text-lg font-bold tracking-tight text-text-primary">ACK</span>,
   onBack,
   backLabel = "뒤로",
   actions,

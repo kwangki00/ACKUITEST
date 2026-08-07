@@ -1,0 +1,63 @@
+# Storybook 을 GitHub Pages 에 올립니다.
+#
+# 주소 — https://kwangki00.github.io/ACKUITEST/
+#
+# 처음 한 번은 저장소 설정에서 켜 줘야 합니다:
+#   Settings → Pages → Source 를 "GitHub Actions" 로
+# (기본값인 "Deploy from a branch" 로 두면 이 워크플로가 올린 결과를 쓰지 않습니다)
+#
+# Storybook 빌드 결과는 상대 경로라 /ACKUITEST/ 같은 하위 경로에서도 그대로 동작합니다.
+# Overview 페이지의 문서 링크도 하위 경로를 계산해서 만듭니다.
+
+name: Storybook
+
+on:
+  push:
+    branches: [master]
+  # 코드를 안 바꾸고 다시 올리고 싶을 때 Actions 탭에서 직접 실행합니다
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 여러 번 밀어 넣어도 마지막 것만 올립니다 — 중간 것을 기다릴 이유가 없습니다
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # package-lock.json 그대로 설치합니다 — 손으로 빌드한 것과 같은 버전이어야 합니다
+      - run: npm ci
+
+      # 타입이 깨진 채로 올라가지 않게 먼저 봅니다
+      - run: npx tsc --noEmit
+
+      - run: npm run build-storybook
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -21,7 +21,7 @@ function Phone({ children }: { children: React.ReactNode }) {
   );
 }
 
-const USER = { name: "관리자님", email: "admin@scl.co.kr", initial: "관" };
+const USER = { name: "관리자님", email: "admin@ack.co.kr", initial: "관" };
 
 const GROUPS = [
   { name: "검사관리", icon: <FileText />, items: ["통합결과조회", "검사결과", "검사이력"] },

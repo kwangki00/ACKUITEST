@@ -1,6 +1,6 @@
 # ACK UI — 프로젝트 맥락
 
-SCL 의료 결과조회 시스템의 디자인 시스템을 Figma 에서 만들고, 그 컴포넌트를 코드로 옮기는 작업입니다.
+ACK 의료 결과조회 시스템의 디자인 시스템을 Figma 에서 만들고, 그 컴포넌트를 코드로 옮기는 작업입니다.
 이 파일은 **왜 그렇게 만들었는지**를 담습니다. 무엇을 만들었는지는 코드와 Figma 를 보면 됩니다.
 
 ---
@@ -26,7 +26,7 @@ Claude Code 는 프로젝트 루트뿐 아니라 **상위 폴더의 `CLAUDE.md` 
 
 ## 지금 상태
 
-**Figma 라이브러리** — 파일 키 `cbV1vpZGUrpJhD1gro6j2m` (SCL_DesignSystem)
+**Figma 라이브러리** — 파일 키 `cbV1vpZGUrpJhD1gro6j2m` — **Figma 파일 이름은 아직 `SCL_DesignSystem`** 입니다. 코드·문서의 제품 이름은 2026-08-07 에 ACK 로 바꿨고, Figma 파일 이름만 남았습니다
 
 ```
 62 컴포넌트 세트 · 961 변형 · 단독 컴포넌트 219(아이콘 201 포함) · 변수 788
@@ -49,6 +49,7 @@ Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
 MobileDateField · MobileFilterBar · MobileListCard
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
+Lookup · LookupPanel · LookupRow
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
@@ -280,7 +281,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 ### 떠 있는 패널
 
 - **반경은 전부 `Radius/md`(6)** — Popover · Tooltip · Toast · ComboboxPanel · LookupPanel. Card·Dialog 처럼 큰 표면만 `Radius/lg`(8) 입니다
-- ComboboxPanel 이 혼자 8이었고 **변수 바인딩도 없었습니다.** 직접 값을 넣으면 토큰을 바꿔도 안 따라옵니다 — 새 패널은 반드시 `Radius/md` 에 바인딩하세요 (2026-08-06 정리)
+- ComboboxPanel 과 LookupPanel 이 8이었고 **변수 바인딩도 없었습니다** (LookupPanel 은 2026-08-07 에야 잡혔습니다). 직접 값을 넣으면 토큰을 바꿔도 안 따라옵니다 — 새 패널은 반드시 `Radius/md` 에 바인딩하세요 (2026-08-06 정리)
 - 표면·테두리는 `Background/White` · `Border/Gray-Light` 를 씁니다. 값이 같은 `Menu/Surface` · `Menu/Border` 가 따로 있지만 **아무도 안 쓰는 상태**입니다 — 미결
 
 ### Badge
@@ -408,6 +409,26 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 오른쪽 작업 영역은 **남는 폭을 쓰게** 두세요 (`flex-1`). 고정 폭을 주면 접을 때 빈칸이 생깁니다
 - **`Sidebar1`(Layouts 페이지)은 옛 목업입니다** — 인스턴스 0개, description 없음, 폭 212, `Color/Primary/500` 같은 **Primitive 를 직접 참조**하고 `SidebarItem` 을 쓰지 않습니다. 진짜는 Navigation 페이지의 `Sidebar` 입니다. 정리 대상
 
+### Lookup — 열이 여러 개인 드롭다운
+
+- **가르는 축은 한 줄에 무엇이 들어가느냐입니다**
+
+  | | 한 줄에 | 언제 |
+  |---|---|---|
+  | `Combobox` | **이름 하나** | 이름만으로 판단됩니다 |
+  | `Lookup` | **열 여러 개** | 코드·단위까지 봐야 어느 것인지 압니다 |
+
+  검사명이 비슷한 항목이 여럿일 때 `CD001` 과 `CD002` 를 나란히 봐야 고를 수 있습니다. **이름만으로 판단되면 `Combobox`** 를 쓰세요 — 열이 늘면 패널이 넓어지고 읽을 것이 많아집니다
+- **`ListItem` 을 쓰지 않습니다.** 남은 작업에는 "Popover + ListItem 조합" 이라 적혀 있었지만 `ListItem` 은 **한 줄에 라벨 하나**를 그리는 부품이라 열을 나눌 수 없습니다. `LookupRow` 가 따로 있는 이유가 그것입니다 (2026-08-07)
+- **열은 4개까지.** Figma 도 Cell 을 4개까지만 둡니다 — 넘으면 패널이 표가 되고, **표는 화면에 놓는 것이지 드롭다운에 담는 것이 아닙니다.** `columns` 는 4개까지 받는 튜플이라 다섯 번째는 컴파일이 안 됩니다
+- **폭을 주지 않은 열이 남는 폭을 채웁니다** (Figma 의 Cell 2). 하나만 비워 두세요
+- **코드 열은 `muted`** (`Lookup/Code`). 코드는 찾을 때 쓰는 값이지 읽는 값이 아니라, 검사명과 같은 색이면 눈이 어디를 봐야 할지 정하지 못합니다
+- **선택된 줄은 코드 열까지 같은 색**(`Lookup/Text-Selected`)입니다 — 한 줄이 통째로 골라진 것이니까요. 굵기는 바꾸지 않습니다(Regular 유지) — 바꾸면 글자 폭이 변해 열이 흔들립니다. Figma description 이 "Medium" 이라 적고 있었는데 **변형이 사실**이라 문장을 고쳤습니다 (2026-08-07)
+- **열 제목은 스크롤 영역 밖**입니다. 내려도 어느 열인지 남아야 합니다 (Table 헤더 행과 같은 이유). 열이 하나뿐이면 `header` 를 끄세요
+- 트리거는 `SelectTrigger` — `Select` · `Combobox` · `NativeSelect` 와 **같은 껍데기**입니다
+- 검색은 **모든 열**을 훑고 초성도 됩니다 (`comboboxMatch` 재사용). 열자마자 첫 줄을 짚지 않습니다 — 검색어가 있을 때만 (`ListItem` 규칙과 같음)
+- **패널 반경이 8 이었습니다.** `ComboboxPanel` 과 똑같이 **변수 바인딩도 없었습니다** — 2026-08-06 정리에서 이 패널이 빠져 있었습니다. `Radius/md`(6)에 바인딩했습니다 (2026-08-07)
+
 ### Tabs · TabItem — Radix 를 쓰지 않았습니다
 
 - **`closable` 때문입니다.** Radix 의 `Tabs.Trigger` 는 `<button>` 인데 탭 안에 닫기 버튼이 들어가야 합니다. **버튼 안의 버튼은 잘못된 HTML** 이라 브라우저가 마크업을 재배치합니다 — `SelectTrigger` 를 `<div role="combobox">` 로 만든 것과 같은 이유입니다. 탭도 **`<div role="tab">`** 이고 Enter·Space 를 직접 처리합니다
@@ -507,7 +528,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 ### 코드 — 새 의존성 없이 가능
 
-- [ ] LookupPanel · LookupRow — Popover + ListItem 조합
+- [x] ~~LookupPanel · LookupRow~~ — 완성형 `Lookup` 까지 (2026-08-07). **ListItem 이 아니라 자체 행**입니다 — 아래 근거
 - [ ] AccordionItem
 - [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen
 - [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다

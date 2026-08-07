@@ -265,7 +265,7 @@ export const PC화면: Story = {
         <Sidebar
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}
-          user={{ name: "관리자님", email: "admin@scl.co.kr", initial: "관" }}
+          user={{ name: "관리자님", email: "admin@ack.co.kr", initial: "관" }}
           onSettings={() => {}}
           onLogout={() => {}}
         >

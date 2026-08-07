@@ -54,7 +54,7 @@ type Items =
   | readonly [MBottomTabItem, MBottomTabItem, MBottomTabItem, MBottomTabItem];
 
 /** Figma 변형과 같은 4개. 전체메뉴는 마지막 자리에 따로 붙습니다. */
-export const SCL_TABS = [
+export const ACK_TABS = [
   { value: "results", label: "결과조회", icon: <Clipboard /> },
   { value: "history", label: "검사이력", icon: <FileText /> },
   { value: "stats", label: "통계조회", icon: <ChartColumn /> },
@@ -119,7 +119,7 @@ function Tab({
 }
 
 export function MBottomTabBar({
-  items = SCL_TABS,
+  items = ACK_TABS,
   value,
   onValueChange,
   onMenuOpen,
