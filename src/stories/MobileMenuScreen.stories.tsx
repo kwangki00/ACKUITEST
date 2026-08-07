@@ -107,6 +107,16 @@ function MenuTree({
  *
  * 탭바로도 나갈 수 있지만, **메뉴를 열기 전 화면으로 되돌아가는 경로**가 따로 있는 편이
  * 안전합니다. `onClose` 를 넘기지 않으면 X 가 사라지고 탭바로만 나갑니다.
+ *
+ * ### 오른쪽에서 밀려 들어옵니다
+ *
+ * `open` 을 넘기면 컴포넌트가 여닫는 움직임을 맡습니다 — 모바일에서 화면이 바뀌는
+ * 표준 움직임입니다. 나갈 때 오른쪽으로 되돌아가므로 **뒤로 가기와 방향이 맞습니다.**
+ *
+ * 시트의 아래→위와 **일부러 다릅니다** — 같은 움직임을 쓰면 전체 화면인지 시트인지가
+ * 흐려집니다. 나감(180ms)이 들어옴(220ms)보다 조금 빠릅니다.
+ *
+ * 부모를 `relative overflow-hidden` 으로 두세요. `앱 껍데기` 스토리에서 눌러 보세요.
  */
 const meta = {
   title: "Mobile/MobileMenuScreen",
@@ -174,6 +184,7 @@ export const 닫기없음: Story = {
  * - 메뉴를 **열었다 그냥 닫으면** 활성 탭이 그대로입니다
  * - 메뉴에서 **화면을 고르면** 그때 탭이 옮겨 갑니다
  * - 상단 바와 탭바는 스크롤 영역 밖이라 목록만 움직입니다
+ * - 메뉴는 **오른쪽에서 밀려 들어와** 오른쪽으로 나갑니다 — 그동안 탭바는 자리를 지킵니다
  */
 export const 껍데기: Story = {
   name: "앱 껍데기 (전체 조립)",
@@ -201,8 +212,48 @@ export const 껍데기: Story = {
     return (
       <Phone>
         <div className="flex h-full flex-col">
-          {menu ? (
+          {/*
+            본문 영역입니다. 전체메뉴가 이 자리를 덮으므로 relative + overflow-hidden 이고,
+            탭바는 밖에 있어 메뉴가 들어와도 그대로 남습니다
+          */}
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+            <MobileTop
+              variant="title"
+              title={page}
+              actions={
+                <>
+                  <MobileTopAction label="검색">
+                    <Search />
+                  </MobileTopAction>
+                  <MobileTopAction label="알림" dot>
+                    <Bell />
+                  </MobileTopAction>
+                </>
+              }
+            />
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {ROWS.map((r) => (
+                <MobileListCard
+                  key={r.chart}
+                  title={r.name}
+                  meta={`차트 ${r.chart} · ${r.test}`}
+                  badge={
+                    <Badge tone={r.tone} size="sm">
+                      {r.status}
+                    </Badge>
+                  }
+                  values={[
+                    { label: "결과", value: r.value },
+                    { label: "보고일", value: r.date },
+                  ]}
+                  onClick={() => {}}
+                />
+              ))}
+            </div>
+
+            {/* 오른쪽에서 밀려 들어와 오른쪽으로 나갑니다 */}
             <MobileMenuScreen
+              open={menu}
               user={USER}
               onClose={() => setMenu(false)}
               onSettings={() => {}}
@@ -210,43 +261,7 @@ export const 껍데기: Story = {
             >
               <MenuTree page={page} onPage={pick} />
             </MobileMenuScreen>
-          ) : (
-            <>
-              <MobileTop
-                variant="title"
-                title={page}
-                actions={
-                  <>
-                    <MobileTopAction label="검색">
-                      <Search />
-                    </MobileTopAction>
-                    <MobileTopAction label="알림" dot>
-                      <Bell />
-                    </MobileTopAction>
-                  </>
-                }
-              />
-              <div className="min-h-0 flex-1 overflow-y-auto">
-                {ROWS.map((r) => (
-                  <MobileListCard
-                    key={r.chart}
-                    title={r.name}
-                    meta={`차트 ${r.chart} · ${r.test}`}
-                    badge={
-                      <Badge tone={r.tone} size="sm">
-                        {r.status}
-                      </Badge>
-                    }
-                    values={[
-                      { label: "결과", value: r.value },
-                      { label: "보고일", value: r.date },
-                    ]}
-                    onClick={() => {}}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          </div>
 
           {/* 탭바는 메뉴가 열려도 갈리지 않습니다 — 껍데기가 들고 있습니다 */}
           <MBottomTabBar

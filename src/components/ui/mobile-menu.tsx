@@ -124,21 +124,85 @@ export interface MobileMenuScreenProps extends MobileMenuContentProps {
   title?: string;
   /** 넘기지 않으면 X 가 없고 탭바로만 나갑니다. */
   onClose?: () => void;
+  /**
+   * 열림 여부. **넘기면 컴포넌트가 여닫는 움직임을 맡습니다** (오른쪽에서 밀려 들어옴) —
+   * 부모를 `relative overflow-hidden` 으로 두세요. 본문 영역(`inset-0`)을 덮고
+   * 탭바는 그대로 남습니다.
+   *
+   * 넘기지 않으면 그냥 자리를 차지하는 블록입니다 (문서·미리보기용).
+   */
+  open?: boolean;
 }
 
 /**
  * 헤더 + 본문입니다. **탭바는 껍데기가 따로 붙입니다** — 위 설명 참고.
- * 세로 flex 안에서 `flex-1` 로 쓰세요.
+ *
+ * ### 오른쪽에서 밀려 들어옵니다
+ *
+ * 전체메뉴는 **다른 화면으로 떠나는 것**이라, 모바일에서 화면이 바뀌는 표준 움직임인
+ * *오른쪽에서 들어와 오른쪽으로 나가기*를 씁니다 (`--animate-push-in` · `-out`).
+ * 나갈 때 오른쪽으로 되돌아가므로 **뒤로 가기와 방향이 맞습니다.**
+ *
+ * 시트의 아래→위(`--animate-slide-up`)와 일부러 다릅니다 — 같은 움직임을 쓰면
+ * 전체 화면인지 시트인지가 흐려집니다. **움직임이 무엇인지를 먼저 말합니다.**
+ *
+ * 나감(180ms)이 들어옴(220ms)보다 **조금 빠릅니다.** 떠나는 것을 오래 보고 있을 이유가
+ * 없습니다. 나가는 동안에는 `pointer-events` 를 꺼서 사라지는 중인 화면을 못 누르게 합니다.
+ *
+ * `prefers-reduced-motion` 에서는 페이드로 바뀝니다 — 화면 폭만큼 움직이는 것은
+ * 어지럼을 만들기 쉽습니다 (`MobileSheet` 와 같은 규칙).
  */
 export function MobileMenuScreen({
   title = "전체메뉴",
   onClose,
+  open,
   className,
   children,
   ...content
 }: MobileMenuScreenProps) {
+  // open 을 넘기지 않으면 그냥 블록입니다 — 문서·미리보기에서 그대로 쓰던 방식
+  const animated = open !== undefined;
+  const [mounted, setMounted] = React.useState(open ?? true);
+  const [closing, setClosing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!animated) return;
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+    } else if (mounted) {
+      // 바로 지우면 나가는 모습이 안 보입니다 — 애니메이션이 끝나야 지웁니다
+      setClosing(true);
+    }
+  }, [open, animated, mounted]);
+
+  if (animated && !mounted) return null;
+
   return (
-    <div className={cn("flex min-h-0 flex-1 flex-col bg-background-white", className)}>
+    <div
+      onAnimationEnd={
+        animated
+          ? (e) => {
+              // 자식(항목 hover 등)의 애니메이션까지 올라옵니다
+              if (e.target !== e.currentTarget) return;
+              if (closing) {
+                setClosing(false);
+                setMounted(false);
+              }
+            }
+          : undefined
+      }
+      className={cn(
+        "flex min-h-0 flex-col bg-background-white",
+        animated
+          ? cn(
+              "absolute inset-0 z-10",
+              closing ? "animate-push-out pointer-events-none" : "animate-push-in"
+            )
+          : "flex-1",
+        className
+      )}
+    >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-4 py-3.5">
         <span className="min-w-0 truncate text-lg font-bold text-sidebar-text-active">
           {title}

@@ -38,6 +38,8 @@ export const figma = {
   mobileMenuScreen: node("833:865"),
   sidebarItem: node("635:554"),
   sidebar: node("637:645"),
+  tabs: node("571:59"),
+  tabItem: node("570:23"),
   datePickerPanel: node("692:552"),
   calendarCell: node("689:63"),
   calendarMonth: node("700:2697"),

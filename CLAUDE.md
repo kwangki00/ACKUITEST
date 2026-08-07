@@ -47,7 +47,8 @@ DatePickerPanel · DatePicker
 DateRangeTabs · DateRangePickerPanel · DateRangePicker · DateField
 Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
 MobileDateField · MobileFilterBar · MobileListCard
-MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent · SidebarItem
+MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
+Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
@@ -392,6 +393,32 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **코드는 탭바를 담지 않습니다.** Figma 는 “화면 하나” 를 그려야 해서 탭바까지 넣었지만, 탭바는 화면이 바뀌어도 남아 있는 것이라 메뉴를 열 때마다 다시 만들어지면 안 됩니다. 코드에서는 **앱 껍데기가 들고** 있고 `MobileMenuScreen` 은 헤더 + 본문까지입니다
 - **닫기(X)는 이전 화면으로.** 탭바로도 나갈 수 있지만 되돌아가는 경로가 따로 있는 편이 안전합니다. `onClose` 를 넘기지 않으면 X 가 없습니다 (Figma 의 `Close` 축)
 - 메뉴가 길면 **본문만 스크롤**합니다 — 헤더와 탭바는 남습니다
+- **오른쪽에서 밀려 들어와 오른쪽으로 나갑니다** (`--animate-push-in` 220ms · `--animate-push-out` 180ms). 모바일에서 화면이 바뀌는 표준 움직임이고, 나갈 때 오른쪽으로 되돌아가므로 뒤로 가기와 방향이 맞습니다. **시트의 아래→위와 일부러 다릅니다** — 같은 움직임을 쓰면 전체 화면인지 시트인지가 흐려집니다
+  - `open` 을 넘기면 컴포넌트가 여닫는 움직임을 맡습니다. 부모를 `relative overflow-hidden` 으로 두세요. 나가는 동안에는 `pointer-events` 를 꺼서 사라지는 중인 화면을 못 누르게 합니다. `prefers-reduced-motion` 에서는 페이드
+
+### Sidebar — PC 좌측 GNB
+
+- **Header · Menu · Footer** 세 영역. 펼침 **256** · 접힘 **72**
+- **접힘은 항목이 스스로 압니다** — `SidebarCollapsedContext` 로 내려줍니다. 항목마다 `collapsed` 를 넘기게 하면 하나만 빠뜨려도 그 줄만 라벨이 남습니다
+- 접히면 **2단계는 통째로 사라집니다.** 아이콘도 라벨도 없어 그릴 것이 없습니다
+- **접힘 상태의 이름은 툴팁입니다** (`side="right"` + `aria-label`). Figma 문서에 "Tooltip 이 필요합니다 (미구현)" 이라 적혀 있던 자리를 채웠습니다 — 앱 루트에 `TooltipProvider` 가 필요합니다
+- **접으면 로고 자리가 토글입니다.** Figma 의 `Collapsed` 는 토글 아이콘을 숨겨 두어 한 번 접으면 **다시 펼 방법이 없습니다.** 겉모습은 그대로 두고 로고를 버튼으로 만들었습니다 (2026-08-07, Figma 는 아직 그림만)
+- **메뉴가 6개를 넘으면** 슬롯을 늘리지 말고 Menu 영역만 스크롤합니다 — Header·Footer 는 남습니다
+- Header 높이는 **둘 다 52**. Figma 가 40·52 로 갈려 있어 접을 때 로고가 튀었습니다 (2026-08-07 Figma 도 52 로 맞춤). Header 테두리도 `Border/Gray-Light` → **`Sidebar/Border`** 로 바꿔 Footer 와 같은 토큰을 씁니다
+- 오른쪽 작업 영역은 **남는 폭을 쓰게** 두세요 (`flex-1`). 고정 폭을 주면 접을 때 빈칸이 생깁니다
+- **`Sidebar1`(Layouts 페이지)은 옛 목업입니다** — 인스턴스 0개, description 없음, 폭 212, `Color/Primary/500` 같은 **Primitive 를 직접 참조**하고 `SidebarItem` 을 쓰지 않습니다. 진짜는 Navigation 페이지의 `Sidebar` 입니다. 정리 대상
+
+### Tabs · TabItem — Radix 를 쓰지 않았습니다
+
+- **`closable` 때문입니다.** Radix 의 `Tabs.Trigger` 는 `<button>` 인데 탭 안에 닫기 버튼이 들어가야 합니다. **버튼 안의 버튼은 잘못된 HTML** 이라 브라우저가 마크업을 재배치합니다 — `SelectTrigger` 를 `<div role="combobox">` 로 만든 것과 같은 이유입니다. 탭도 **`<div role="tab">`** 이고 Enter·Space 를 직접 처리합니다
+- **목록 전체가 탭 정지 하나**입니다. 좌우 방향키로 옮기고 그때 바로 전환됩니다(자동 활성) · `Home`·`End` 는 처음·끝 · **`Delete` 는 닫기**(`closable` 인 탭만)
+- **`pill` 의 그림자는 장식이 아닙니다** — 활성 알약(흰색)과 `Tab/List-Surface` 의 대비가 1.24:1 이라 빼면 어느 것이 켜져 있는지 구분되지 않습니다
+- **굵기는 `line` 만 바뀝니다** (Medium → SemiBold). 알약은 배경이 이미 말하고 있어 굵기까지 바꾸면 **글자 폭이 변해 옆 탭이 밀립니다**
+- **밑줄은 목록이 긋습니다.** Figma 는 탭마다 1px 을 두지만 코드는 목록에 한 줄을 긋고 활성 탭만 2px 를 얹습니다 — 탭이 끝난 뒤에도 줄이 이어져야 헤더처럼 보입니다. 겉모습은 같습니다
+- 높이는 `--h-input-*` 이라 Input·Button 과 맞고 **모바일에서 자동으로 커집니다** (xs 24→28 · sm 32→36 · default 36→40 · lg 48→52). **`line` 은 `xs`·`sm` 을 피하세요** — 밑줄과 라벨 사이가 좁아 답답합니다
+- **`closable` 은 문서 탭(MDI) 전용**입니다. 고정된 화면 탭에 달면 돌아올 수 없는 탭을 닫게 됩니다. 닫는 탭이 현재 탭이면 **옆 탭으로 옮기세요** — 빈 화면을 보여주지 않습니다
+- **Hover 12변형이 Default 와 완전히 같았습니다** — 마우스를 올려도 아무 반응이 없었습니다. 전용 배경 토큰을 새로 만들지 않고 **라벨을 `Tab/Text-Active` 로** 바꿨습니다 (2026-08-07, Figma 도 함께)
+- `TabPanel` 은 **코드에만** 있습니다 (Figma 는 탭 목록까지만). MDI 처럼 열어둔 화면을 살려둬야 하면 쓰지 말고 바깥에서 직접 다루세요
 
 ### SidebarItem — PC·모바일이 같이 씁니다
 
@@ -482,7 +509,8 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 - [ ] LookupPanel · LookupRow — Popover + ListItem 조합
 - [ ] AccordionItem
-- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen. `SidebarItem` 도 함께 만들어 **PC `Sidebar` 를 시작할 준비**가 됐습니다
+- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen
+- [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다
 - [ ] React Hook Form + Zod 연동 예시
 
 ### 코드 — Radix 프리미티브가 더 필요
@@ -492,7 +520,8 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [x] ~~Tooltip~~ — `@radix-ui/react-tooltip` (2026-08-07)
 - [x] ~~Dialog~~ — `@radix-ui/react-dialog` (2026-08-07)
 - [x] ~~Toast~~ — `@radix-ui/react-toast` (2026-08-07)
-- [ ] DropdownMenu · Tabs
+- [x] ~~Tabs~~ — **Radix 없이 만들었습니다** (2026-08-07). 근거는 아래 Tabs 절
+- [ ] DropdownMenu
 - [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **PC 는 끝**입니다. 남은 건 모바일(MobileCalendar · MobileDateField)
 
 ### Figma
