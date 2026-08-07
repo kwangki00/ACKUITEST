@@ -106,9 +106,9 @@ export function ListItem({
         >
           {!disabled &&
             (indeterminate ? (
-              <Minus className="size-3 text-text-basic-inverse [--icon-stroke:3]" />
+              <Minus className="size-3 text-text-basic-inverse" />
             ) : selected ? (
-              <CheckMark size="sm" className="size-3 text-text-basic-inverse [--icon-stroke:3]" />
+              <CheckMark size="sm" className="size-3 text-text-basic-inverse" />
             ) : null)}
         </span>
       )}

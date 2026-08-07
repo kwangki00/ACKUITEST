@@ -17,6 +17,10 @@ const meta = {
   argTypes: {
     variant: { control: "inline-radio", options: ["outline", "filled"] },
     size: { control: "inline-radio", options: ["sm", "default", "lg"] },
+    // ReactNode 는 컨트롤을 끕니다 — 켜두면 object 편집기가 붙고,
+    // 건드리는 순간 빈 객체 {} 가 children 으로 들어가 렌더가 깨집니다
+    // (action 은 Card 가 아니라 CardHeader 의 prop 이라 여기 없습니다)
+    children: { control: false },
   },
   args: { variant: "outline", size: "default" },
 } satisfies Meta<typeof Card>;

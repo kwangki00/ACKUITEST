@@ -196,7 +196,8 @@ export const 스트로크: Story = {
             ["스트로크", "1.5px · 끝단 ROUND — Figma 568개 벡터 전부"],
             ["constraints", "SCALE / SCALE — 인스턴스를 줄이면 글리프도 축소"],
             ["이름", "icons/lucide-이름 — 코드 import 이름과 동일"],
-            ["예외 지정", "[--icon-stroke:3] — 체크박스처럼 12px 안에 들어갈 때"],
+            ["작게 그릴 때", "non-scaling-stroke 로 굵기를 고정 — 12px 아이콘도 화면 1.5px"],
+            ["예외 지정", "[--icon-stroke:2] — 지금 쓰는 곳은 없습니다"],
           ].map(([k, v]) => (
             <tr key={k} className="border-b border-table-border">
               <td className="w-28 py-2 font-medium text-text-basic">{k}</td>

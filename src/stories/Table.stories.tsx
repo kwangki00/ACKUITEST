@@ -60,7 +60,7 @@ function ResultTable({ withToolbar = true }: { withToolbar?: boolean }) {
             </span>
           )}
           <Button size="sm" variant="outline">
-            <Plus className="size-4" />
+            <Plus />
             추가
           </Button>
           {selected.length > 0 && (
@@ -70,13 +70,13 @@ function ResultTable({ withToolbar = true }: { withToolbar?: boolean }) {
           )}
           <span className="mx-1 h-4 w-px bg-table-border" aria-hidden />
           <Button size="icon-sm" variant="ghost" aria-label="다운로드">
-            <Download className="size-4" />
+            <Download />
           </Button>
           <Button size="icon-sm" variant="ghost" aria-label="인쇄">
-            <Printer className="size-4" />
+            <Printer />
           </Button>
           <Button size="icon-sm" variant="ghost" aria-label="공유">
-            <Share2 className="size-4" />
+            <Share2 />
           </Button>
         </TableToolbar>
       )}
@@ -164,7 +164,7 @@ export const 빈결과: Story = {
           <p className="mt-1 text-sm text-text-subtle">조건을 바꿔 다시 조회해 보세요.</p>
         </div>
         <Button variant="outline">
-          <RefreshCw className="size-4" />
+          <RefreshCw />
           조건 초기화
         </Button>
       </div>
@@ -204,11 +204,11 @@ export const 결과조회화면: Story = {
           <Checkbox label="병원 출력금지 항목 제외" className="mb-2.5" />
           <div className="ml-auto mb-0.5 flex gap-2">
             <Button variant="outline">
-              <RefreshCw className="size-4" />
+              <RefreshCw />
               초기화
             </Button>
             <Button>
-              <Search className="size-4" />
+              <Search />
               조회
             </Button>
           </div>

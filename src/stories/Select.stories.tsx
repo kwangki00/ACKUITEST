@@ -41,6 +41,9 @@ const meta = {
     placeholder: { control: "text" },
     clearable: { control: "boolean" },
     disabled: { control: "boolean" },
+    // ReactNode 는 컨트롤을 끕니다 — 켜두면 object 편집기가 붙고,
+    // 건드리는 순간 빈 객체 {} 가 children 으로 들어가 렌더가 깨집니다
+    leadingIcon: { control: false, description: "트리거 앞 아이콘" },
   },
   args: { size: "default", state: "default", options: [], onValueChange: () => {} },
   decorators: [(S) => <div className="w-56">{S()}</div>],

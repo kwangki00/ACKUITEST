@@ -1,7 +1,18 @@
 import type { Preview } from "@storybook/react";
+import { TooltipProvider } from "../src/components/ui/tooltip";
 import "../src/index.css";
 
 const preview: Preview = {
+  // Radix Tooltip 은 Provider 없이 쓰면 던집니다. 앱 루트와 같은 자리입니다.
+  // JSX 를 쓰려고 이 파일만 .tsx 입니다 — .ts 로 되돌리지 마세요.
+  decorators: [
+    (Story) => (
+      <TooltipProvider>
+        <Story />
+      </TooltipProvider>
+    ),
+  ],
+
   parameters: {
     layout: "centered",
 
@@ -49,7 +60,7 @@ const preview: Preview = {
           "Feedback",
           // 조립 부품만 남깁니다 — 완성형 컨트롤(Combobox · Select)은 Controls 로 갑니다
           "Overlay",
-          ["ListItem", "Popover"],
+          ["ListItem", "Popover", "Tooltip"],
         ],
       },
     },

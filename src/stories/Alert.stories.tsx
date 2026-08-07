@@ -18,6 +18,9 @@ const meta = {
     tone: { control: "inline-radio", options: ["info", "success", "warning", "danger"] },
     title: { control: "text" },
     description: { control: "text" },
+    // ReactNode 는 컨트롤을 끕니다 — 켜두면 object 편집기가 붙고,
+    // 건드리는 순간 빈 객체 {} 가 children 으로 들어가 렌더가 깨집니다
+    action: { control: false, description: "우측 버튼. 되돌릴 수 있는 동작만" },
   },
   args: {
     tone: "info",

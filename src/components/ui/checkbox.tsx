@@ -43,6 +43,33 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const boxSize = s === "sm" ? "size-[14px]" : "size-4";
     // 체크 표시도 박스를 따라갑니다 — sm 10 · default 12 (박스 안쪽 여백 2)
     const mark = s === "sm" ? "size-2.5" : "size-3";
+
+    /**
+     * 박스 색 — Figma 의 Checked × State 조합 그대로입니다.
+     *
+     * | | Unchecked | Checked · Indeterminate |
+     * |---|---|---|
+     * | Default | 흰 배경 + Input/Border | Button/Primary-Fill 채움 |
+     * | Error | 흰 배경 + Input/Border-Error | **Button/Destructive-Fill 채움** (테두리는 Border-Error 유지) |
+     * | Disabled | Input/Surface-Disabled | Button/Disabled-Fill |
+     *
+     * 에러인데 체크까지 된 상태는 필수 동의를 껐다 켠 순간처럼 실제로 생깁니다.
+     * 그때 파란 채움이면 무엇이 잘못됐는지 테두리만으로 말해야 합니다.
+     */
+    const boxTone = isError
+      ? "border-input-border-error peer-checked:bg-button-destructive-fill"
+      : "border-input-border peer-checked:border-button-primary-fill peer-checked:bg-button-primary-fill";
+
+    // 체크된 채로 비활성이면 채움이 한 단계 진합니다 — 빈 칸과 구분되어야 합니다.
+    // peer variant 를 두 개 겹칠 수 없어 셀렉터를 직접 씁니다
+    const disabledTone = cn(
+      "peer-disabled:border-input-border-disabled peer-disabled:bg-input-surface-disabled",
+      "[.peer:checked:disabled~&]:bg-button-disabled-fill",
+      indeterminate && isDisabled && "bg-button-disabled-fill"
+    );
+
+    // 비활성의 표식은 흰색이 아닙니다 — 회색 채움 위의 흰 체크는 거의 안 보입니다
+    const markTone = isDisabled ? "text-icon-disabled-on" : "text-text-basic-inverse";
     const autoId = React.useId();
     const inputId = id ?? autoId;
 
@@ -89,22 +116,25 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               boxSize,
               "grid place-items-center rounded-sm border transition-colors",
               "bg-input-surface",
-              isError ? "border-input-border-error" : "border-input-border",
-              "peer-checked:border-button-primary-fill peer-checked:bg-button-primary-fill",
+              boxTone,
               // 체크 표시의 노출은 여기서 정합니다. peer-* 는 형제만 고를 수 있어
               // (`.peer:checked ~ *`) 박스 안의 아이콘에는 직접 걸리지 않습니다.
               "peer-checked:[&_svg]:opacity-100",
               "peer-focus-visible:ring-[3px] peer-focus-visible:ring-action-focus-ring",
-              "peer-disabled:border-input-border-disabled peer-disabled:bg-button-disabled-fill",
-              indeterminate && "border-button-primary-fill bg-button-primary-fill"
+              disabledTone,
+              indeterminate &&
+                !isDisabled &&
+                (isError
+                  ? "bg-button-destructive-fill"
+                  : "border-button-primary-fill bg-button-primary-fill")
             )}
           >
-            {/* 12px 안에 들어가는 글리프라 기본 1.5 로는 흐립니다.
-                strokeWidth prop 은 전역 .lucide 규칙에 덮이므로 변수로 지정합니다. */}
+            {/* 스트로크는 지정하지 않습니다 — index.css 의 .lucide 규칙이 1.5 로 맞춥니다.
+                한때 2~3 으로 굵혔지만 눈으로 보니 과했습니다 (2026-08-07). */}
             {indeterminate ? (
-              <Minus className={cn(mark, "text-text-basic-inverse [--icon-stroke:3]")} />
+              <Minus className={cn(mark, markTone)} />
             ) : (
-              <Check className={cn(mark, "text-text-basic-inverse opacity-0 [--icon-stroke:3]")} />
+              <Check className={cn(mark, markTone, "opacity-0")} />
             )}
           </span>
         </span>

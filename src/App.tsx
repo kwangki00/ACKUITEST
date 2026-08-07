@@ -8,6 +8,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/ui/form-field";
 import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import {
   Table,
   TableBody,
   TableCell,
@@ -66,6 +72,8 @@ export default function App() {
     setSelected((prev) => (prev.includes(chart) ? prev.filter((c) => c !== chart) : [...prev, chart]));
 
   return (
+    // Radix Tooltip 은 Provider 없이 쓰면 던집니다. 앱에 하나만 둡니다
+    <TooltipProvider>
     <div className="mx-auto max-w-5xl px-6 py-10">
       <header className="mb-8 border-b border-divider-gray-light pb-6">
         <h1 className="text-2xl font-bold text-text-basic">ACK UI</h1>
@@ -92,19 +100,35 @@ export default function App() {
               </Button>
             </Row>
           ))}
+          {/* 아이콘 버튼에는 Tooltip 을 함께 답니다 — aria-label 은 보조기술만 읽습니다 */}
           <Row label="icon">
-            <Button size="icon-sm" variant="outline" aria-label="검색">
-              <Search className="size-4" />
-            </Button>
-            <Button size="icon" variant="outline" aria-label="다운로드">
-              <Download className="size-4" />
-            </Button>
-            <Button size="icon-lg" variant="outline" aria-label="인쇄">
-              <Printer className="size-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon-sm" variant="outline" aria-label="검색">
+                  <Search />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>검색</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="outline" aria-label="다운로드">
+                  <Download />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>다운로드</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon-lg" variant="outline" aria-label="인쇄">
+                  <Printer />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>인쇄</TooltipContent>
+            </Tooltip>
             <Button shape="pill">둥근 버튼</Button>
             <Button variant="outline">
-              <Plus className="size-4" />
+              <Plus />
               추가
             </Button>
           </Row>
@@ -249,19 +273,24 @@ export default function App() {
                 <span className="text-xs text-text-primary-strong">{selected.length}건 선택됨</span>
               )}
               <Button size="sm" variant="outline">
-                <Plus className="size-4" />
+                <Plus />
                 추가
               </Button>
               <span className="mx-1 h-4 w-px bg-table-border" aria-hidden />
-              <Button size="icon-sm" variant="ghost" aria-label="다운로드">
-                <Download className="size-4" />
-              </Button>
-              <Button size="icon-sm" variant="ghost" aria-label="인쇄">
-                <Printer className="size-4" />
-              </Button>
-              <Button size="icon-sm" variant="ghost" aria-label="공유">
-                <Share2 className="size-4" />
-              </Button>
+              {[
+                { icon: <Download />, label: "엑셀 내려받기" },
+                { icon: <Printer />, label: "인쇄" },
+                { icon: <Share2 />, label: "공유" },
+              ].map(({ icon, label }) => (
+                <Tooltip key={label}>
+                  <TooltipTrigger asChild>
+                    <Button size="icon-sm" variant="ghost" aria-label={label}>
+                      {icon}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{label}</TooltipContent>
+                </Tooltip>
+              ))}
             </TableToolbar>
             <Table>
               <TableHeader>
@@ -333,11 +362,11 @@ export default function App() {
               <Checkbox label="병원 출력금지 항목 제외" className="mb-2" />
               <div className="ml-auto flex gap-2">
                 <Button variant="outline">
-                  <RefreshCw className="size-4" />
+                  <RefreshCw />
                   초기화
                 </Button>
                 <Button>
-                  <Search className="size-4" />
+                  <Search />
                   조회
                 </Button>
               </div>
@@ -351,5 +380,6 @@ export default function App() {
         Figma Variables 에서 추출한 값이라 이름이 그대로 대응합니다.
       </footer>
     </div>
+    </TooltipProvider>
   );
 }

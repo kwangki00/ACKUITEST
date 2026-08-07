@@ -22,6 +22,9 @@ const meta = {
     selected: { control: "boolean" },
     disabled: { control: "boolean" },
     query: { control: "text", description: 'type="match" 에서 진하게 표시할 부분' },
+    // ReactNode 는 컨트롤을 끕니다 — 켜두면 object 편집기가 붙고,
+    // 건드리는 순간 빈 객체 {} 가 children 으로 들어가 렌더가 깨집니다
+    leadingIcon: { control: false },
   },
   args: { children: "일반혈액검사", type: "text" },
   decorators: [

@@ -115,7 +115,6 @@ export function ComboboxPanel({
             autoFocus
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            onClear={query ? () => onQueryChange("") : undefined}
             leadingIcon={<Search />}
             placeholder={placeholder}
             aria-label="검색"

@@ -23,6 +23,7 @@ export const figma = {
   badge: node("555:104"),
   popover: node("499:36"),
   listItem: node("515:47"),
+  tooltip: node("643:243"),
   comboboxPanel: node("677:7764"),
   chip: node("482:3473"),
   avatar: node("648:208"),
