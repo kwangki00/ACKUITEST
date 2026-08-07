@@ -46,7 +46,7 @@ CalendarCell · CalendarMonth · CalendarUnitCell · CalendarUnitGrid
 DatePickerPanel · DatePicker
 DateRangeTabs · DateRangePickerPanel · DateRangePicker · DateField
 Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
-MobileDateField · MobileFilterBar · MobileListCard
+MobileDateField · MobileFilterBar · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 Lookup · LookupPanel · LookupRow · PCFilterBar · EmptyState
@@ -304,6 +304,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | Sidebar 256             | MBottomTabBar + MobileMenuScreen(전체 화면) |
 | Sidebar 안의 메뉴 항목  | SidebarItem — **PC·모바일 같은 부품**       |
 | Table 7열               | MobileListCard — 행 하나가 카드 하나        |
+| TableToolbar 제목·건수  | MobileListHeader — 정렬은 필터 시트로       |
 | TableToolbar 아이콘 4개 | 2개 + `⋯` DropdownMenu                      |
 | Pagination              | 더 보기 / 무한 스크롤                       |
 | Dialog                  | MobileSheet                                 |
@@ -358,6 +359,15 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 활성은 **색 + 굵기 두 가지**로 알립니다. 색만으로는 색각 이상에서 안 보입니다
 - **탭바는 스크롤 영역 밖에** 두세요. 안에 넣으면 목록과 함께 밀려 올라갑니다 — Table 헤더 행과 같은 이유입니다
 - `homeIndicator` 는 문서·데모용 장식입니다. 실제 기기에서는 OS 가 그리므로 끄세요. 아래 24px 여백은 그 자리(Safe Area)라 항상 둡니다
+
+### MobileListHeader — 표 헤더가 없어서 생긴 줄
+
+- **카드 목록에는 표 헤더가 없습니다.** PC 는 헤더 행이 열 이름을 알려주고 거기서 정렬까지 하는데, `MobileListCard` 를 쌓으면 그 자리가 통째로 없어집니다. 이 줄이 **무엇의 목록인지 · 몇 건인지 · 어떻게 고를지**를 대신합니다
+- **건수는 `MobileFilterBar` 의 배지와 같은 값**입니다 (조회 결과 전체 수, 화면에 보이는 카드 수가 아님). 한 화면에 두 곳에 나오므로 다르면 어느 쪽이 맞는지 판단할 수 없습니다
+- **`onFilter` 를 안 넘기면 버튼이 사라집니다.** 눌러도 아무 일이 없는 버튼은 두지 마세요
+- **스크롤 영역 밖**에 두세요 — 목록과 함께 밀려 올라가면 몇 건인지 다시 확인할 수 없습니다
+- 제목은 `base/Bold`, 아래 카드 제목은 `base/SemiBold` — **굵기 한 단계**로 위계를 만듭니다
+- 필터 버튼은 **ghost** 입니다. Figma description 은 "outline" 이라 적고 있었지만 컴포넌트가 ghost 였고, 목록 위에 테두리가 하나 더 생기면 카드와 경계가 겹쳐 보입니다 — **컴포넌트가 맞아** 문장을 고쳤습니다 (2026-08-07)
 
 ### MobileListCard — 표를 카드로
 
