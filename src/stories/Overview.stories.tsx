@@ -262,12 +262,12 @@ const GROUPS: Group[] = [
       {
         name: "MobileSelect",
         what: "목록 선택 — PC 와 같은 ComboboxPanel",
-        rule: "목록을 다시 만들지 않습니다. 감싸는 컨테이너만 시트로 분기합니다",
+        rule: "**보통은 `Select` · `Combobox` 를 쓰세요** — 손가락이면 이게 알아서 뜹니다. 목록은 PC 와 같은 `ComboboxPanel` 입니다",
       },
       {
         name: "MobileDateField",
         what: "기간 입력 — 한 달 달력",
-        rule: "년 · 월이 Select 가 아니라 화살표입니다 — 시트 위에 시트를 겹치지 않으려고",
+        rule: "**보통은 `DateField` 를 쓰세요** — 손가락이면 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
       },
       {
         name: "MobileListCard",

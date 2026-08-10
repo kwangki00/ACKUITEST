@@ -36,7 +36,16 @@ import {
  * | 다중 | 켬 | 여러 개를 다 고른 뒤 확정해야 합니다 |
  *
  * PC 의 `Select`(확인 없음) · `DateRangePicker`(확인 있음)와 같은 기준입니다.
- */
+ *
+ * ### 보통은 이걸 직접 쓰지 않습니다
+ *
+ * **`Select`(값 하나) 또는 `Combobox`(값 배열)를 쓰세요.** 손가락이면 이 컴포넌트를,
+ * 마우스면 팝오버를 알아서 고릅니다 (`PointerModeProvider`). 강제하려면
+ * `overlay="sheet"` 를 넘기면 됩니다.
+ *
+ * 이 페이지는 *시트로 열면 무엇이 달라지는지*를 설명하는 자리입니다.
+ * Figma 에 같은 이름의 컴포넌트가 있어 이름도 그대로 둡니다.
+*/
 
 export interface MobileSelectProps {
   type?: "single" | "multi";

@@ -218,8 +218,10 @@ export const 두폭: Story = {
 };
 
 /**
- * Figma 의 Mobile Screen Demo 입니다. 조건 안에는 **시트로 여는 컨트롤**을 넣었습니다
- * (`MobileDateField` · `MobileSelect`) — 껍데기는 같아도 이건 CSS 로 못 고릅니다.
+ * Figma 의 Mobile Screen Demo 입니다.
+ *
+ * 조건 안의 컨트롤은 **PC 스토리와 글자 하나까지 같습니다** — `<DateField/>` · `<Select/>`.
+ * 390 틀이 `touch` 로 감싸져 있어 시트로 열릴 뿐입니다.
  *
  * 조회를 누르면 접히고, 접힌 줄에 요약과 건수 배지가 나옵니다.
  */

@@ -357,6 +357,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **앱 루트에 하나** — `TooltipProvider` · `ToastProvider` 와 같은 자리입니다. 여기서 한 번 정하면 조건이 네 개라고 네 번 적을 일이 없고, 하나를 빠뜨려 데스크톱에 시트가 뜨는 일도 없습니다
 - **문서·데모에서는 값을 고정합니다.** Storybook 은 전역 `mode="mouse"`, 390 틀 안은 `mode="touch"`. 컴포넌트가 스스로 `matchMedia` 를 부르게 두면 **창**을 재게 되어 틀 안에서 흉내낼 수단이 없어집니다 — `.ack-mobile` 이 유틸리티 variant 를 못 막는 것과 같은 함정입니다
 - Provider 가 없어도 동작은 합니다 (브라우저에 직접 묻습니다). 다만 값을 고정할 수 있어야 해서 **루트에 두는 쪽을 권합니다**
+- **`MobileDateField` · `MobileSelect` 는 이제 “시트 쪽 구현” 입니다.** 지우지 않습니다 — `DateField` · `Select` · `Combobox` 가 시트일 때 렌더하는 것이 이들이고, Figma 에도 같은 이름의 컴포넌트가 있습니다. 다만 **호출부에서 직접 부를 자리는 없어졌습니다** (강제하려면 `overlay="sheet"`)
 - **`DateField` · `Select` · `Combobox` 가 이 규칙을 씁니다.** 조회 조건에 쓰는 세 컨트롤이 전부 한 벌입니다 — 호출부는 `<Select/>` 만 쓰고 시트인지 팝오버인지 모릅니다
   - `MobileSelect` 는 `Select` 가 아니라 **`Combobox` 의 짝**입니다 (둘 다 `value: string[]` · `type` · `searchable`). `Select` 는 값이 하나라 `단일 · 검색 없음` 으로 고정해 넘기고 배열 ↔ 문자열만 바꿔 끼웁니다
   - **시트로 열면 트리거 표현이 안 쓰입니다** — `render` · `maxChips` · `clearable` · `leadingIcon`. 시트 쪽 트리거는 글자 한 줄이고, `editable` 처럼 트리거에 직접 치는 방식은 시트와 맞지 않습니다

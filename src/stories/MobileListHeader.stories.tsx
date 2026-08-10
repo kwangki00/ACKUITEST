@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
-import { MobileDateField } from "@/components/ui/mobile-date-field";
+import { DateField } from "@/components/ui/date-field";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { MBottomTabBar } from "@/components/ui/m-bottom-tab-bar";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
@@ -275,7 +275,7 @@ export const 조회화면: Story = {
               onSearch={() => setEmpty((v) => !v)}
             >
               <FilterRow>
-                <MobileDateField
+                <DateField
                   container={el}
                   label="기간"
                   value={period}
