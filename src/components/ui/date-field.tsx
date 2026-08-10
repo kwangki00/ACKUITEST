@@ -35,7 +35,16 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  * 하나만 켜지는 배타 선택이라 세그먼트 컨트롤이 맞습니다 — `Chip` 은 삭제할 수 있는
  * 태그이고, 여기서는 지우는 개념이 없습니다.
  *
- * 모바일은 세로로 쌓습니다 (`MobileDateField`). 규칙은 같습니다.
+ * ### 좁아지면 스스로 쌓입니다
+ *
+ * 입력창 256 + 칩 넷은 한 줄에 **512 쯤** 필요합니다. 그보다 좁아지면 세로로 쌓고
+ * 칩이 폭을 나눠 가집니다 (`MobileDateField` 와 같은 규칙).
+ *
+ * 판단 기준은 브라우저 창이 아니라 **자기 폭**입니다 — `FilterBar` 안에서는 조건 칸이
+ * 얼마나 넓은지가 기준이지 창이 아닙니다. 경계는 Tailwind 기본 `@lg`(512).
+ *
+ * 시트로 열어야 하면 여전히 `MobileDateField` 입니다 — 팝오버냐 시트냐는
+ * CSS 로 고를 수 없습니다.
  */
 
 export interface DateFieldProps {
@@ -86,13 +95,23 @@ export function DateField({
     })?.label ?? "";
 
   return (
-    <div className={cn("flex items-start gap-2", className)}>
+    // 좁아지면 세로로 쌓습니다 — 입력창 256 + 칩이 한 줄에 안 들어갑니다.
+    // 창이 아니라 **자기 폭**을 재야 합니다: FilterBar 안에서는 조건 칸이 얼마나
+    // 넓은지가 기준이지 브라우저 창이 아닙니다 (FilterBar 와 같은 규칙).
+    // 경계는 Tailwind 기본 @lg(512) — 입력창 256 + 칩 4개가 겨우 들어가는 폭입니다
+    <div
+      className={cn(
+        "@container/datefield flex flex-col gap-2",
+        "@lg/datefield:flex-row @lg/datefield:items-start",
+        className
+      )}
+    >
       <FormField
         label={label}
         required={required}
         description={description}
         error={error}
-        className="w-64"
+        className="w-full @lg/datefield:w-64"
       >
         <DateRangePicker
           value={value}
@@ -106,12 +125,16 @@ export function DateField({
         />
       </FormField>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         {/* 라벨 자리를 비워 입력창과 아래를 맞춥니다.
             빈 div 에 높이를 박지 않고 라벨과 같은 글자를 숨겨 둡니다 —
-            글꼴이나 라벨 크기가 바뀌어도 저절로 따라옵니다 */}
+            글꼴이나 라벨 크기가 바뀌어도 저절로 따라옵니다.
+            세로로 쌓일 때는 옆에 맞출 것이 없으므로 이 자리도 필요 없습니다 */}
         {label && (
-          <span aria-hidden className="invisible text-sm font-medium">
+          <span
+            aria-hidden
+            className="invisible hidden text-sm font-medium @lg/datefield:block"
+          >
             &nbsp;
           </span>
         )}
@@ -124,9 +147,15 @@ export function DateField({
           }}
           disabled={disabled}
           aria-label="빠른 선택"
+          // 세로로 쌓이면 칩이 폭을 나눠 가집니다 — MobileDateField 와 같은 규칙
+          className="w-full @lg/datefield:w-auto"
         >
           {quick.map((p) => (
-            <ToggleItem key={p.label} value={p.label}>
+            <ToggleItem
+              key={p.label}
+              value={p.label}
+              className="flex-1 @lg/datefield:flex-none"
+            >
               {p.label}
             </ToggleItem>
           ))}
