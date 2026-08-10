@@ -127,12 +127,16 @@ export function MobileFilterBar({
         <div id={panelId} className="flex flex-col gap-3.5 px-4 pb-4">
           {children}
 
+          {/*
+            Figma 는 Size=default 입니다 — 모바일에서 --h-input-default 가 40 이라
+            lg(52)로 올리면 조건 영역이 그만큼 높아져 목록이 밀립니다.
+            둘 다 flex-1 로 화면을 반씩 나눠 씁니다
+          */}
           <div className="flex gap-2 pt-1">
-            <Button variant="outline" size="lg" className="flex-1" onClick={onReset}>
+            <Button variant="outline" className="flex-1" onClick={onReset}>
               {resetLabel}
             </Button>
             <Button
-              size="lg"
               className="flex-1"
               onClick={() => {
                 onSearch?.();
