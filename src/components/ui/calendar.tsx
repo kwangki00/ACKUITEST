@@ -166,9 +166,12 @@ export interface CalendarMonthProps {
   /**
    * 달을 옮기는 방식.
    *
-   * - `select` — 년·월 Select (PC). 먼 달로 한 번에 갑니다
-   * - `nav` — ‹ 2026년 7월 › 화살표 (모바일). Select 를 열면 시트 위에 또 레이어가
-   *   생기는데, **시트를 두 개 겹치지 말라**는 규칙과 부딪힙니다
+   * - `select` — 년·월 Select 만 (PC). 먼 달로 한 번에 갑니다
+   * - `nav` — **‹ 년·월 Select ›** — 화살표를 양옆에 더합니다 (모바일)
+   *
+   * 모바일에 화살표가 필요한 이유는 **옆 달로 가는 것이 가장 잦은 이동**이기
+   * 때문입니다. 그때마다 Select 를 열고 고르고 닫는 건 손이 많이 갑니다.
+   * Select 도 남겨 둡니다 — 먼 달로 갈 길이 화살표뿐이면 수십 번 눌러야 합니다.
    */
   header?: "select" | "nav";
   className?: string;
@@ -309,7 +312,19 @@ export function CalendarMonth({
         패널 안에 패널이 겹치는 구조라 Radix 가 레이어를 쌓아 처리합니다 (안쪽을 닫아도
         달력은 열려 있습니다).
       */}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        {/* 옆 달로 가는 것이 가장 잦은 이동입니다 — 그때마다 Select 를 열게 하지 않습니다 */}
+        {header === "nav" && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="이전 달"
+            onClick={() => onMonthChange(addMonths(month, -1))}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
+
         <Select
           size="sm"
           aria-label="연도"
@@ -329,6 +344,17 @@ export function CalendarMonth({
           onValueChange={(v) => onMonthChange(new Date(year, Number(v), 1))}
           className="flex-1"
         />
+
+        {header === "nav" && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="다음 달"
+            onClick={() => onMonthChange(addMonths(month, 1))}
+          >
+            <ChevronRight />
+          </Button>
+        )}
       </div>
 
       <div
