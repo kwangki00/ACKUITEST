@@ -153,6 +153,27 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 에러는 `State=Error` 일 때만 — React Hook Form + Zod 의 검증 결과로 자동 결정됩니다
 - **래퍼에 `size` 는 없습니다.** Figma 의 Size 축은 래퍼가 아니라 **안쪽 컨트롤의 높이**라 `<Input size="lg" />` 처럼 컨트롤에 줍니다. 받기만 하고 아무 데도 안 쓰던 prop 을 지웠습니다 (2026-08-07)
 
+#### 라벨은 누가 갖나 — 안에 컨트롤이 몇 개냐로 갈립니다
+
+| | 안에 든 것 | 라벨 |
+|---|---|---|
+| `Input` · `Select` · `Combobox` · `Lookup` | **컨트롤 하나** | **호출부가 `FormField` 로 감쌉니다** |
+| `DateField` · `MobileDateField` | 입력창 + 빠른 선택 칩 | **컴포넌트가 `FormField` 를 안고 있습니다** |
+
+`DateField` 가 예외인 이유는 **두 컨트롤이 한 값을 공유**하기 때문입니다 — 「칩은 거짓말을 하면 안 됩니다」 규칙이 그 동기화 위에서만 성립합니다. 호출부가 조립하면 쓸 때마다 그걸 다시 짜야 하고, 한 곳만 빠뜨려도 화면이 거짓말을 합니다. Figma 도 `PCDateField` 를 **한 컴포넌트**로 그립니다.
+
+그래서 호출부가 이렇게 갈리는 것은 **의도한 것**입니다.
+
+```tsx
+<FilterRow><DateField label="기간 선택" … /></FilterRow>
+<FilterRow>
+  <FormField label="검사 항목"><Select … /></FormField>
+</FilterRow>
+```
+
+- **컨트롤 하나에 `label` prop 을 달지 마세요** — `FormField` 가 하는 일이 두 벌이 됩니다
+- `Checkbox` · `Radio` · `Switch` 의 `label` 은 **다른 것**입니다. 네모 칸 옆에 붙는 글자지 필드 위의 라벨이 아닙니다
+
 ### Table
 
 - **헤더·본문 글자 모두 14** — 굵기로만 구분합니다
