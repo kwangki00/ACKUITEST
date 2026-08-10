@@ -17,9 +17,44 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  *
  * 조회 조건의 기간 입력 **한 묶음**입니다 — 라벨 + 입력창 + 빠른 선택.
  *
- * 빠른 선택이 패널 안에도 있고 여기 바깥에도 있는 이유는, 조회 화면에서
- * **가장 많이 하는 일이 "최근 N일"** 이기 때문입니다. 패널을 열지 않고 끝나는
- * 경로를 한 번 더 앞에 둡니다.
+ * ### 왜 `Input` · `Select` 처럼 조립하지 않고 따로 만들었나
+ *
+ * 다른 컨트롤은 **하나짜리**라 호출부가 `FormField` 로 감싸면 끝입니다.
+ *
+ * ```tsx
+ * <FormField label="검사 항목"><Select … /></FormField>
+ * ```
+ *
+ * 기간은 **컨트롤이 둘**입니다 — 입력창과 빠른 선택 칩. 그리고 그 둘이
+ * **한 값을 공유**해야 합니다. 조립해서 쓰면 호출부가 이걸 매번 다시 짭니다.
+ *
+ * ```tsx
+ * // 조립했다면 — 쓸 때마다 반복될 것들
+ * const active = presets.find((p) => {          // ← 값과 칩을 맞춰 보는 계산
+ *   const r = p.range();                        //   저장한 라벨을 믿으면 안 됩니다
+ *   return isSameDay(r.start, value.start)      //   어제 누른 "7일" 은 오늘 열면
+ *       && isSameDay(r.end, value.end);         //   최근 7일이 아니니까요
+ * })?.label ?? "";
+ *
+ * <FormField label="기간">
+ *   <DateRangePicker value={value} onValueChange={setValue} presets={presets} />
+ * </FormField>
+ * <ToggleGroup value={active} onValueChange={…}>…</ToggleGroup>
+ * ```
+ *
+ * 한 곳만 빠뜨려도 **화면이 거짓말을 합니다** — 칩은 "최근 7일" 이라 말하는데 실제
+ * 조회 조건은 3월인 상태. 조회 조건은 화면마다 다시 짜는 자리라 반드시 어긋납니다.
+ *
+ * 그래서 이 컴포넌트만 **`FormField` 를 안에서 씁니다.** 안에 든 컨트롤이 하나뿐인
+ * `Input` · `Select` · `Combobox` · `Lookup` 에는 `label` prop 을 달지 마세요 —
+ * `FormField` 가 하는 일이 두 벌이 됩니다.
+ *
+ * Figma 도 같은 판단입니다 — 이걸 `PCDateField` **한 컴포넌트**로 그립니다.
+ *
+ * ### 빠른 선택이 패널 안에도, 바깥에도 있는 이유
+ *
+ * 조회 화면에서 **가장 많이 하는 일이 "최근 N일"** 이기 때문입니다.
+ * 패널을 열지 않고 끝나는 경로를 한 번 더 앞에 둡니다.
  *
  * ### 연동 규칙 — 칩은 거짓말을 하면 안 됩니다
  *
