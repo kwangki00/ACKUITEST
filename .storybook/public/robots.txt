@@ -1,0 +1,9 @@
+# 검색 엔진에 올리지 않습니다.
+#
+# 주소를 아는 사람에게만 공유하려는 문서입니다. 저장소가 공개라 접근 자체를
+# 막지는 못하지만, 검색으로 흘러들어오는 경로는 없앱니다.
+# 짝이 되는 `noindex` 메타 태그가 manager-head.html · preview-head.html 에 있습니다
+# — robots.txt 는 크롤링을 막고, noindex 는 이미 색인된 것을 내리게 합니다.
+
+User-agent: *
+Disallow: /
