@@ -1,18 +1,25 @@
 import type { Preview } from "@storybook/react";
 import { TooltipProvider } from "../src/components/ui/tooltip";
 import { ToastProvider } from "../src/components/ui/toast";
+import { PointerModeProvider } from "../src/components/ui/pointer-mode";
 import "../src/index.css";
 
 const preview: Preview = {
   // Radix Tooltip 은 Provider 없이 쓰면 던집니다. 앱 루트와 같은 자리입니다.
   // JSX 를 쓰려고 이 파일만 .tsx 입니다 — .ts 로 되돌리지 마세요.
+  //
+  // PointerMode 는 문서에서 **mouse 로 고정**합니다. auto 로 두면 보는 기기에 따라
+  // 같은 스토리가 다르게 나와서 문서가 설명이 안 됩니다. 손가락 화면을 보여주는
+  // 스토리는 390 틀 안에서 mode="touch" 로 다시 감쌉니다.
   decorators: [
     (Story) => (
-      <TooltipProvider>
-        <ToastProvider>
-          <Story />
-        </ToastProvider>
-      </TooltipProvider>
+      <PointerModeProvider mode="mouse">
+        <TooltipProvider>
+          <ToastProvider>
+            <Story />
+          </ToastProvider>
+        </TooltipProvider>
+      </PointerModeProvider>
     ),
   ],
 

@@ -7,6 +7,7 @@ import { MBottomTabBar } from "@/components/ui/m-bottom-tab-bar";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { Badge } from "@/components/ui/badge";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /** 390×844 틀. `ack-mobile` 이 반응형 변수를 모바일 값으로 고정합니다. */
@@ -16,7 +17,7 @@ function Phone({ children }: { children: React.ReactNode }) {
       style={{ transform: "translateZ(0)" }}
       className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
     >
-      {children}
+      <PointerModeProvider mode="touch">{children}</PointerModeProvider>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { MobileDateField } from "@/components/ui/mobile-date-field";
 import { Badge } from "@/components/ui/badge";
 import type { DateRange } from "@/components/ui/calendar";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /** 390×844 틀. `ack-mobile` 이 반응형 변수를 모바일 값으로 고정합니다. */
@@ -19,7 +20,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
       style={{ transform: "translateZ(0)" }}
       className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
     >
-      {children(el)}
+      <PointerModeProvider mode="touch">{children(el)}</PointerModeProvider>
     </div>
   );
 }

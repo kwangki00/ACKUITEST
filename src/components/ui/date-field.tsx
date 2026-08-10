@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { FormField } from "@/components/ui/form-field";
+import { MobileDateField } from "@/components/ui/mobile-date-field";
+import { usePointerMode } from "@/components/ui/pointer-mode";
 import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
 import {
   DateRangePicker,
@@ -44,8 +46,16 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  * 자리(내용만큼 넓어지는 flex 항목)에 놓으면 **조용히 무너집니다.** `flex-wrap` 은
  * 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
- * 시트로 열어야 하면 여전히 `MobileDateField` 입니다 — 팝오버냐 시트냐는
- * CSS 로 고를 수 없고, 거기서는 칩이 **폭을 나눠 갖습니다**.
+ * ### 시트로 열지 팝오버로 열지는 앱 루트가 정합니다
+ *
+ * `PointerModeProvider` — **손가락이면 시트, 마우스면 팝오버**입니다.
+ * 호출부는 `<DateField/>` 만 쓰고 아무 판단도 하지 않습니다.
+ *
+ * **폭이 아니라 포인터**가 기준입니다. 좁은 데스크톱 창에는 팝오버가, 넓은
+ * 태블릿에는 시트가 맞습니다 — 폭으로 정하면 둘 다 틀립니다.
+ *
+ * 화면 하나만 예외로 두고 싶으면 `overlay` 를 직접 넘기세요.
+ * 시트 쪽 구현은 `MobileDateField` 이고 거기서는 칩이 **폭을 나눠 갖습니다**.
  *
  * `error` 를 쓰면 에러 줄만큼 필드가 길어져 칩이 그 바닥에 맞습니다 —
  * 조회 조건에서는 잘 쓰지 않는 조합입니다.
@@ -61,11 +71,19 @@ export interface DateFieldProps {
   /** 고르는 단위. 빠른 선택 목록도 여기에 맞춰 바뀝니다. */
   precision?: DatePrecision;
   /** 화면마다 다릅니다. 항목이 6개를 넘으면 가로가 좁아지니 줄이세요. */
-  presets?: DatePreset[];
+  /** 끄면 입력창만 남습니다 — 생년월일처럼 정해진 기간 묶음이 없는 경우. */
+  presets?: DatePreset[] | false;
   min?: Date;
   max?: Date;
   disabled?: boolean;
   className?: string;
+  /**
+   * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
+   * 마우스면 팝오버. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
+   */
+  overlay?: "popover" | "sheet";
+  /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
+  container?: HTMLElement | null;
 }
 
 export function DateField({
@@ -81,10 +99,39 @@ export function DateField({
   max,
   disabled,
   className,
+  overlay,
+  container,
 }: DateFieldProps) {
+  /*
+    시트냐 팝오버냐는 **폭이 아니라 포인터**의 문제라 CSS 로 고를 수 없습니다 —
+    시트가 아래에서 올라오는 건 엄지가 닿는 곳이라서고, 팝오버가 트리거에 붙는 건
+    마우스가 이미 거기 있어서입니다. 좁은 데스크톱 창에는 팝오버가, 넓은 태블릿에는
+    시트가 맞습니다. 그래서 앱 루트에서 한 번 정하고 여기서는 받아만 씁니다.
+  */
+  const pointer = usePointerMode();
+  if ((overlay ?? (pointer === "touch" ? "sheet" : "popover")) === "sheet") {
+    return (
+      <MobileDateField
+        label={label}
+        required={required}
+        description={description}
+        error={error}
+        value={value}
+        onValueChange={onValueChange}
+        precision={precision}
+        presets={presets}
+        min={min}
+        max={max}
+        disabled={disabled}
+        className={className}
+        container={container}
+      />
+    );
+  }
+
   // 단위가 바뀌면 빠른 선택도 바뀝니다 — 월 화면에 "3일" 이 붙어 있으면
   // 눌러도 월 하나로 뭉개져서 무엇을 고른 것인지 설명되지 않습니다
-  const quick = presets ?? PRESETS_BY_PRECISION[precision];
+  const quick = presets === false ? [] : (presets ?? PRESETS_BY_PRECISION[precision]);
   /**
    * 지금 값과 맞아떨어지는 칩을 찾습니다.
    *
@@ -124,22 +171,24 @@ export function DateField({
         />
       </FormField>
 
-      <ToggleGroup
-        variant="outline"
-        value={active}
-        onValueChange={(next: string) => {
-          const p = quick.find((x) => x.label === next);
-          if (p) onValueChange(p.range());
-        }}
-        disabled={disabled}
-        aria-label="빠른 선택"
-      >
-        {quick.map((p) => (
-          <ToggleItem key={p.label} value={p.label}>
-            {p.label}
-          </ToggleItem>
-        ))}
-      </ToggleGroup>
+      {quick.length > 0 && (
+        <ToggleGroup
+          variant="outline"
+          value={active}
+          onValueChange={(next: string) => {
+            const p = quick.find((x) => x.label === next);
+            if (p) onValueChange(p.range());
+          }}
+          disabled={disabled}
+          aria-label="빠른 선택"
+        >
+          {quick.map((p) => (
+            <ToggleItem key={p.label} value={p.label}>
+              {p.label}
+            </ToggleItem>
+          ))}
+        </ToggleGroup>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { MobileSelect } from "@/components/ui/mobile-select";
 import { Combobox } from "@/components/ui/combobox";
 import { FormField } from "@/components/ui/form-field";
 import type { ComboboxOption } from "@/components/ui/combobox";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /**
@@ -19,7 +20,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
       style={{ transform: "translateZ(0)" }}
       className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
     >
-      <div className="flex flex-col gap-3 p-4 pt-10">{children(el)}</div>
+      <PointerModeProvider mode="touch"><div className="flex flex-col gap-3 p-4 pt-10">{children(el)}</div></PointerModeProvider>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { CalendarMonth, type DateRange } from "@/components/ui/calendar";
 import {
@@ -57,6 +58,10 @@ import {
 
 export interface MobileDateFieldProps {
   label?: string;
+  /** PC 와 같은 `FormField` 를 씁니다 — 라벨·설명·에러 규칙이 한 벌입니다. */
+  required?: boolean;
+  description?: string;
+  error?: string;
   value: DateRange;
   onValueChange: (range: DateRange) => void;
   precision?: DatePrecision;
@@ -72,6 +77,9 @@ export interface MobileDateFieldProps {
 
 export function MobileDateField({
   label = "기간",
+  required,
+  description,
+  error,
   value,
   onValueChange,
   precision = "day",
@@ -128,25 +136,27 @@ export function MobileDateField({
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      {label && <span className="text-sm font-medium text-text-basic">{label}</span>}
-
-      <Input
-        readOnly
-        value={text}
-        placeholder="기간을 선택해 주세요"
-        disabled={disabled}
-        onChange={() => {}}
-        onClick={openSheet}
-        clearable={false}
-        // readOnly 는 키보드를 막으려고 준 것입니다 — 값은 시트로 바꿉니다.
-        // 그대로 두면 Readonly 회색이 칠해져 못 만지는 칸으로 보입니다
-        className="cursor-pointer border-input-border bg-input-surface"
-        trailingIcon={
-          <span className="grid place-items-center text-icon-muted-foreground">
-            <Calendar />
-          </span>
-        }
-      />
+      {/* 라벨·설명·에러는 PC 와 같은 FormField 에서 나옵니다 — 칩은 형제입니다 */}
+      <FormField label={label} required={required} description={description} error={error}>
+        <Input
+          readOnly
+          value={text}
+          placeholder="기간을 선택해 주세요"
+          disabled={disabled}
+          onChange={() => {}}
+          onClick={openSheet}
+          clearable={false}
+          state={error ? "error" : undefined}
+          // readOnly 는 키보드를 막으려고 준 것입니다 — 값은 시트로 바꿉니다.
+          // 그대로 두면 Readonly 회색이 칠해져 못 만지는 칸으로 보입니다
+          className="cursor-pointer border-input-border bg-input-surface"
+          trailingIcon={
+            <span className="grid place-items-center text-icon-muted-foreground">
+              <Calendar />
+            </span>
+          }
+        />
+      </FormField>
 
       {quick.length > 0 && (
         // 칩은 균등 분할입니다 — 폭을 나눠 가져야 한 줄에 들어갑니다

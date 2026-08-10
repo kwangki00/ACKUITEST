@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Bell, ChartColumn, ClipboardList, Mail, Search, Settings } from "lucide-react";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { DateField } from "@/components/ui/date-field";
-import { MobileDateField } from "@/components/ui/mobile-date-field";
 import { Select } from "@/components/ui/select";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { FormField } from "@/components/ui/form-field";
@@ -28,6 +27,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { DatePreset } from "@/components/ui/date-range-picker";
 import type { DateRange } from "@/components/ui/calendar";
 import { addDays, addMonths, formatDate, startOfDay } from "@/lib/date";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /** 390×844 틀. `ack-mobile` 이 반응형 **변수**를 모바일 값으로 고정합니다. */
@@ -39,7 +39,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
       style={{ transform: "translateZ(0)" }}
       className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
     >
-      {children(el)}
+      <PointerModeProvider mode="touch">{children(el)}</PointerModeProvider>
     </div>
   );
 }
@@ -117,11 +117,16 @@ const ROWS = [
  * | 버튼 | 화면을 반씩 | 우측에 내용 폭만큼 |
  * | 누르는 곳 | **줄 전체** | 버튼만 |
  *
- * ### 껍데기는 한 벌, 안에 넣는 컨트롤은 아직 갈립니다
+ * ### 기간 입력도 한 벌입니다
  *
- * 시트로 열지 팝오버로 열지는 **CSS 로 고를 수 없습니다.** 좁은 화면은
- * `MobileDateField` · `MobileSelect`, 넓은 화면은 `DateField` · `Select` 를 넣으세요.
- * 자리를 정하는 껍데기만 한 벌이 됐습니다.
+ * 아래 두 스토리는 **같은 `<DateField/>`** 를 씁니다. 모바일 쪽은 시트로, PC 쪽은
+ * 팝오버로 열리는데 **호출부는 아무 판단도 하지 않습니다** — 앱 루트의
+ * `PointerModeProvider` 가 정합니다 (손가락이면 시트, 마우스면 팝오버).
+ *
+ * 이건 폭이 아니라 **포인터**의 문제라 CSS 로는 못 고릅니다. 좁은 데스크톱 창에는
+ * 팝오버가, 넓은 태블릿에는 시트가 맞습니다.
+ *
+ * 목록 선택(`MobileSelect`)은 아직 갈립니다.
  *
  * ### 그 밖
  *
@@ -262,8 +267,12 @@ export const 모바일화면: Story = {
                 setTest(["all"]);
               }}
             >
+              {/*
+                PC 스토리와 **같은 `DateField`** 입니다. 390 틀이 touch 로 감싸져 있어
+                시트로 열립니다 — 호출부는 아무 판단도 하지 않습니다
+              */}
               <FilterRow>
-                <MobileDateField
+                <DateField
                   container={el}
                   label="기간 선택"
                   value={period}

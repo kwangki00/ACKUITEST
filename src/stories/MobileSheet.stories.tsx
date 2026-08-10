@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ListItem } from "@/components/ui/list-item";
 import { CalendarMonth } from "@/components/ui/calendar";
 import { startOfDay, startOfMonth } from "@/lib/date";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /**
@@ -27,7 +28,9 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
       style={{ transform: "translateZ(0)" }}
       className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
     >
-      <div className="flex flex-col items-center gap-3 p-4 pt-10">{children(el)}</div>
+      <PointerModeProvider mode="touch">
+        <div className="flex flex-col items-center gap-3 p-4 pt-10">{children(el)}</div>
+      </PointerModeProvider>
     </div>
   );
 }
