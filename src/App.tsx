@@ -19,6 +19,7 @@ import { DateField } from "@/components/ui/date-field";
 import type { DateRange } from "@/components/ui/calendar";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { ToastProvider, useToast } from "@/components/ui/toast";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { addDays, startOfDay, startOfMonth } from "@/lib/date";
 import {
   Table,
@@ -467,10 +468,13 @@ function Gallery() {
  */
 export default function App() {
   return (
-    <TooltipProvider>
-      <ToastProvider>
-        <Gallery />
-      </ToastProvider>
-    </TooltipProvider>
+    // 앱 루트에 셋을 나란히 둡니다 — PointerMode 가 시트/팝오버를 정합니다
+    <PointerModeProvider>
+      <TooltipProvider>
+        <ToastProvider>
+          <Gallery />
+        </ToastProvider>
+      </TooltipProvider>
+    </PointerModeProvider>
   );
 }

@@ -321,6 +321,39 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 ---
 
+## 한 벌로 되는 것 · 갈리는 것
+
+**조회 조건은 한 벌입니다.** 앱 루트에 `PointerModeProvider` 하나만 두면 호출부에 모바일용 코드를 더할 게 없습니다.
+
+```tsx
+<PointerModeProvider>{/* TooltipProvider · ToastProvider 와 같은 자리 */}
+  …
+  <FilterBar summary={…}>
+    <FilterRow><DateField label="기간" value={v} onValueChange={setV} /></FilterRow>
+    <FilterRow>
+      <FormField label="검사 항목"><Select options={…} … /></FormField>
+    </FilterRow>
+  </FilterBar>
+</PointerModeProvider>
+```
+
+| | 무엇이 알아서 되나 | 기준 |
+|---|---|---|
+| `DateField` · `Select` · `Combobox` | 팝오버 ↔ **시트** | 포인터 (`PointerModeProvider`) |
+| `FilterBar` · `FilterRow` | 가로 한 줄 ↔ **세로** | **자기 폭** (`--container-pc` 880) |
+| `DateField` 안 | 칩이 옆 ↔ **다음 줄** | `flex-wrap` (≈460) |
+| 컨트롤·행·달력 칸 높이 | PC ↔ 모바일 | **창 폭** (`--h-*`, 1024px) |
+
+**아직 갈리는 것** — 구조가 다른 것들입니다. 이건 반응형으로 못 합니다.
+
+| PC | 모바일 |
+|---|---|
+| `Sidebar` + MDI 탭바 | `MobileTop` + `MBottomTabBar` + `MobileMenuScreen` |
+| `Table` | `MobileListCard` + `MobileListHeader` |
+| `Pagination` | 더 보기 / 무한 스크롤 |
+
+`MobileDateField` · `MobileSelect` 는 **직접 부르지 않습니다** — 위 컨트롤들이 시트일 때 렌더하는 구현입니다.
+
 ## 모바일 대응 규칙
 
 **코드에서 모바일 전용은 `Mobile` 접두사로 구분하고 파일은 `ui/` 에 그대로 둡니다** — Figma 도 따로 모으지 않고 성격에 맞는 페이지(Layouts · Overlay · DatePicker)에 이름으로 구분합니다. 다만 **Storybook 그룹만 `Mobile/`** 로 모읍니다. 그룹은 "무엇인가" 로 나누는 축이고 모바일은 "어디서 쓰나" 라는 다른 축이라, 섞으면 찾기 어렵습니다.
