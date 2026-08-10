@@ -98,6 +98,18 @@ const preview: Preview = {
         desktop: { name: "Desktop 1440", styles: { width: "1440px", height: "900px" } },
       },
     },
+
+    /**
+     * **Show code 는 렌더 결과가 아니라 스토리 소스를 보여줍니다.**
+     *
+     * 기본값(`dynamic`)은 그려진 JSX 를 되돌려 적는 방식인데, 이 저장소는 스토리
+     * 48개 중 47개가 `render` 함수입니다 — 상태를 쥐고 여러 컴포넌트를 조립하는
+     * 스토리라 되돌려 적을 수가 없어 코드 패널이 거의 비어 나옵니다.
+     *
+     * `code` 는 파일에 쓴 그대로를 보여줍니다. 조립 방법을 읽으러 오는 문서라
+     * 이쪽이 맞습니다 — 어차피 복사해 가는 것은 그 코드입니다.
+     */
+    docs: { source: { type: "code" } },
   },
   tags: ["autodocs"],
 };
