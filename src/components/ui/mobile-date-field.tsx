@@ -210,23 +210,34 @@ export function MobileDateField({
           precision={precision}
         />
 
-        <CalendarMonth
-          month={month}
-          onMonthChange={setMonth}
-          range={draft}
-          onSelect={pick}
-          focusDate={focusReq}
-          min={min}
-          max={max}
-          header="nav"
-          className="w-full p-0"
-        />
+        {/*
+          달력은 **가운데**입니다. 격자가 7칸 × 44 = 308 이라 시트 폭(358)보다 좁은데,
+          w-full 로 늘리면 격자는 그대로고 오른쪽에만 빈자리가 생겨 왼쪽으로 쏠려 보입니다.
+        */}
+        <div className="flex justify-center">
+          <CalendarMonth
+            month={month}
+            onMonthChange={setMonth}
+            range={draft}
+            onSelect={pick}
+            focusDate={focusReq}
+            min={min}
+            max={max}
+            header="nav"
+            className="p-0"
+          />
+        </div>
 
-        {/* 보조 동작은 둘 다 link 로 같은 무게입니다 — 어느 쪽도 주 액션이 아닙니다 */}
+        {/*
+          보조 동작은 둘 다 link 로 같은 무게입니다 — 어느 쪽도 주 액션이 아닙니다.
+          시트에서는 **폭을 반씩 나눠** 씁니다. 손가락으로 누르는 자리라 글자만큼만
+          잡아두면 표적이 작고, 왼쪽에 몰려 있으면 오른쪽이 비어 보입니다.
+        */}
         <div className="flex gap-2">
           <Button
             variant="link"
             size="sm"
+            className="flex-1"
             disabled={!draft.start && !draft.end}
             onClick={reset}
           >
@@ -235,6 +246,7 @@ export function MobileDateField({
           <Button
             variant="link"
             size="sm"
+            className="flex-1"
             disabled={isDisabled(today, min, max)}
             onClick={goToday}
           >
