@@ -32,6 +32,20 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
 
 const today = startOfDay(new Date());
 
+/**
+ * Figma 데모의 `List Area` → `List` 구조입니다 — 회색 바탕 위에 흰 라운드 박스
+ * (`Card/Surface`, 반경 12). **헤더도 박스 안**입니다.
+ */
+function ListBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-background-gray-subtle p-4">
+      <div className="rounded-xl bg-card-surface px-4 py-1 [&>*:last-child]:border-b-0">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 const ROWS = [
   { chart: "2312345", name: "김진영", test: "White Blood Cell (WBC)", value: "6.5 10³/μL", date: "2025-06-05", status: "완료", tone: "success" },
   { chart: "2312346", name: "이수정", test: "Hemoglobin", value: "13.2 g/dL", date: "2025-06-05", status: "완료", tone: "success" },
@@ -156,7 +170,8 @@ export const 정렬시트: Story = {
       <Phone>
         {(el) => (
           <div className="flex h-full flex-col">
-            <div className="px-2 pt-2">
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <ListBox>
               <MobileListHeader
                 title="환자리스트"
                 count={`총 ${ROWS.length}명`}
@@ -165,9 +180,6 @@ export const 정렬시트: Story = {
                   setOpen(true);
                 }}
               />
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-y-auto">
               {sorted.map((r) => (
                 <MobileListCard
                   key={r.chart}
@@ -185,6 +197,7 @@ export const 정렬시트: Story = {
                   onClick={() => {}}
                 />
               ))}
+              </ListBox>
             </div>
 
             <MobileSheet
@@ -268,38 +281,37 @@ export const 조회화면: Story = {
               />
             </MobileFilterBar>
 
-            {/* 목록과 함께 밀려 올라가지 않게 스크롤 영역 밖입니다 */}
-            <div className="px-2 pt-2">
-              <MobileListHeader
-                title="환자리스트"
-                // 필터 바의 배지와 같은 값입니다
-                count={`총 ${rows.length}명`}
-                onFilter={() => {}}
-              />
-            </div>
-
+            {/* 목록 전체가 흰 라운드 박스 안에 들어갑니다 — 헤더도 함께 */}
             <div className="min-h-0 flex-1 overflow-y-auto">
-              {rows.length ? (
-                rows.map((r) => (
-                  <MobileListCard
-                    key={r.chart}
-                    title={r.name}
-                    meta={`차트 ${r.chart} · ${r.test}`}
-                    badge={
-                      <Badge tone={r.tone} size="sm">
-                        {r.status}
-                      </Badge>
-                    }
-                    values={[
-                      { label: "결과", value: r.value },
-                      { label: "보고일", value: r.date },
-                    ]}
-                    onClick={() => {}}
-                  />
-                ))
-              ) : (
-                <EmptyState size="sm" type="no-result" onAction={() => setEmpty(false)} />
-              )}
+              <ListBox>
+                <MobileListHeader
+                  title="환자리스트"
+                  // 필터 바의 배지와 같은 값입니다
+                  count={`총 ${rows.length}명`}
+                  onFilter={() => {}}
+                />
+                {rows.length ? (
+                  rows.map((r) => (
+                    <MobileListCard
+                      key={r.chart}
+                      title={r.name}
+                      meta={`차트 ${r.chart} · ${r.test}`}
+                      badge={
+                        <Badge tone={r.tone} size="sm">
+                          {r.status}
+                        </Badge>
+                      }
+                      values={[
+                        { label: "결과", value: r.value },
+                        { label: "보고일", value: r.date },
+                      ]}
+                      onClick={() => {}}
+                    />
+                  ))
+                ) : (
+                  <EmptyState size="sm" type="no-result" onAction={() => setEmpty(false)} />
+                )}
+              </ListBox>
             </div>
 
             <MBottomTabBar value={tab} onValueChange={setTab} homeIndicator />

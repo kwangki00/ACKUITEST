@@ -110,7 +110,7 @@ export function MobileListCard({
           : undefined
       }
       className={cn(
-        "flex items-start gap-3 border-b border-divider-gray-light py-3.5 pr-3 pl-4",
+        "flex items-start gap-3 border-b border-card-border py-3.5 pr-3 pl-4",
         "outline-hidden transition-colors",
         selected ? "bg-table-row-selected" : "bg-card-surface",
         onClick && "cursor-pointer active:bg-table-row-hover",
