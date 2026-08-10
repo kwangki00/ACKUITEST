@@ -240,8 +240,9 @@ export const 조회조건묶음: Story = {
   parameters: { layout: "padded" },
   render: function Field() {
     const [v, setV] = useState<DateRange>({ start: addDays(today, -6), end: today });
+    // w-fit — DateField 는 부모가 준 폭을 채웁니다. 여기서는 내용만큼만 보여줍니다
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex w-fit flex-col gap-4">
         <DateField label="조회 기간" required value={v} onValueChange={setV} />
         <p className="text-2xs text-text-muted-foreground">
           {v.start && v.end ? `${formatDate(v.start)} ~ ${formatDate(v.end)}` : "(기간 없음)"}

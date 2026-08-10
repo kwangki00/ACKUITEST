@@ -40,7 +40,14 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  * ### 자리가 모자라면 칩이 다음 줄로 내려갑니다
  *
  * 입력창 256 + 칩 넷은 한 줄에 **460 쯤** 필요합니다. 그보다 좁으면 `flex-wrap` 이
- * 칩을 다음 줄로 내립니다.
+ * 칩을 다음 줄로 내리고, **각 줄이 폭을 꽉 채웁니다** — 입력창을 256 으로 박아두면
+ * 좁은 화면에서 오른쪽이 남습니다.
+ *
+ * ### 폭은 부모가 정합니다
+ *
+ * `Input` 과 같은 규칙입니다 — **폭을 고정하지 않습니다.** flex 항목으로 놓으면
+ * 내용만큼(≈460), `flex-col` 안에 놓으면 부모 폭을 채웁니다.
+ * 채우고 싶지 않으면 감싸는 쪽에 `w-fit` 이나 폭을 주세요.
  *
  * **컨테이너 쿼리를 쓰지 않습니다.** 그건 폭을 부모에서 받아야만 성립해서, 폭 없는
  * 자리(내용만큼 넓어지는 flex 항목)에 놓으면 **조용히 무너집니다.** `flex-wrap` 은
@@ -156,7 +163,12 @@ export function DateField({
         required={required}
         description={description}
         error={error}
-        className="w-64"
+        /*
+          basis 256 · grow — 한 줄에 들어가면 256 이고(남는 자리가 없으니 grow 가
+          할 일이 없습니다), 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 찹니다.
+          w-64 로 박아두면 좁은 화면에서 오른쪽이 100px 남습니다.
+        */
+        className="min-w-0 grow basis-64"
       >
         <DateRangePicker
           value={value}
@@ -180,9 +192,12 @@ export function DateField({
           }}
           disabled={disabled}
           aria-label="빠른 선택"
+          // 줄바꿈되면 이 줄도 혼자 쓰므로 채웁니다. 한 줄일 때는 남는 자리가 없어
+          // grow 가 아무 일도 하지 않습니다 — PC 배치는 그대로입니다
+          className="grow"
         >
           {quick.map((p) => (
-            <ToggleItem key={p.label} value={p.label}>
+            <ToggleItem key={p.label} value={p.label} className="flex-1">
               {p.label}
             </ToggleItem>
           ))}
