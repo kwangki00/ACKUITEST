@@ -35,16 +35,20 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  * 하나만 켜지는 배타 선택이라 세그먼트 컨트롤이 맞습니다 — `Chip` 은 삭제할 수 있는
  * 태그이고, 여기서는 지우는 개념이 없습니다.
  *
- * ### 좁아지면 스스로 쌓입니다
+ * ### 자리가 모자라면 칩이 다음 줄로 내려갑니다
  *
- * 입력창 256 + 칩 넷은 한 줄에 **512 쯤** 필요합니다. 그보다 좁아지면 세로로 쌓고
- * 칩이 폭을 나눠 가집니다 (`MobileDateField` 와 같은 규칙).
+ * 입력창 256 + 칩 넷은 한 줄에 **460 쯤** 필요합니다. 그보다 좁으면 `flex-wrap` 이
+ * 칩을 다음 줄로 내립니다.
  *
- * 판단 기준은 브라우저 창이 아니라 **자기 폭**입니다 — `FilterBar` 안에서는 조건 칸이
- * 얼마나 넓은지가 기준이지 창이 아닙니다. 경계는 Tailwind 기본 `@lg`(512).
+ * **컨테이너 쿼리를 쓰지 않습니다.** 그건 폭을 부모에서 받아야만 성립해서, 폭 없는
+ * 자리(내용만큼 넓어지는 flex 항목)에 놓으면 **조용히 무너집니다.** `flex-wrap` 은
+ * 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
  * 시트로 열어야 하면 여전히 `MobileDateField` 입니다 — 팝오버냐 시트냐는
- * CSS 로 고를 수 없습니다.
+ * CSS 로 고를 수 없고, 거기서는 칩이 **폭을 나눠 갖습니다**.
+ *
+ * `error` 를 쓰면 에러 줄만큼 필드가 길어져 칩이 그 바닥에 맞습니다 —
+ * 조회 조건에서는 잘 쓰지 않는 조합입니다.
  */
 
 export interface DateFieldProps {
@@ -95,27 +99,18 @@ export function DateField({
     })?.label ?? "";
 
   return (
-    // 좁아지면 세로로 쌓습니다 — 입력창 256 + 칩이 한 줄에 안 들어갑니다.
-    // 창이 아니라 **자기 폭**을 재야 합니다: FilterBar 안에서는 조건 칸이 얼마나
-    // 넓은지가 기준이지 브라우저 창이 아닙니다 (FilterBar 와 같은 규칙).
-    // 경계는 Tailwind 기본 @lg(512) — 입력창 256 + 칩 4개가 겨우 들어가는 폭입니다
-    <div
-      className={cn(
-        // w-full 이 **꼭 필요합니다.** container-type: inline-size 는 내용이 폭을
-        // 정하면 성립하지 않습니다 — 가로 줄 안에서 내용만큼 넓어지는 flex 항목이면
-        // 브라우저가 폭을 못 정해 0 으로 무너집니다. 폭을 부모에서 받아야 합니다.
-        // (FilterBar 는 세로 흐름의 블록이라 이 문제가 없습니다)
-        "@container/datefield w-full min-w-0",
-        className
-      )}
-    >
-      <div className="flex flex-col gap-2 @lg/datefield:flex-row @lg/datefield:items-start">
+    // 컨테이너 쿼리를 쓰지 않습니다 — 그건 폭을 부모에서 받아야만 성립해서,
+    // 폭 없는 자리에 놓으면 조용히 무너집니다. flex-wrap 은 그런 조건이 없습니다:
+    // 자리가 모자라면 칩이 알아서 다음 줄로 내려갑니다 (입력창 256 + 칩 ≈ 464).
+    // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다 — 빈 라벨 자리를
+    // 넣어 맞추던 것을 대신합니다 (줄바꿈되면 그 빈 자리가 유령 여백으로 남습니다)
+    <div className={cn("flex flex-wrap items-end gap-2", className)}>
       <FormField
         label={label}
         required={required}
         description={description}
         error={error}
-        className="w-full @lg/datefield:w-64"
+        className="w-64"
       >
         <DateRangePicker
           value={value}
@@ -129,43 +124,22 @@ export function DateField({
         />
       </FormField>
 
-      <div className="flex min-w-0 flex-col gap-1.5">
-        {/* 라벨 자리를 비워 입력창과 아래를 맞춥니다.
-            빈 div 에 높이를 박지 않고 라벨과 같은 글자를 숨겨 둡니다 —
-            글꼴이나 라벨 크기가 바뀌어도 저절로 따라옵니다.
-            세로로 쌓일 때는 옆에 맞출 것이 없으므로 이 자리도 필요 없습니다 */}
-        {label && (
-          <span
-            aria-hidden
-            className="invisible hidden text-sm font-medium @lg/datefield:block"
-          >
-            &nbsp;
-          </span>
-        )}
-        <ToggleGroup
-          variant="outline"
-          value={active}
-          onValueChange={(next: string) => {
-            const p = quick.find((x) => x.label === next);
-            if (p) onValueChange(p.range());
-          }}
-          disabled={disabled}
-          aria-label="빠른 선택"
-          // 세로로 쌓이면 칩이 폭을 나눠 가집니다 — MobileDateField 와 같은 규칙
-          className="w-full @lg/datefield:w-auto"
-        >
-          {quick.map((p) => (
-            <ToggleItem
-              key={p.label}
-              value={p.label}
-              className="flex-1 @lg/datefield:flex-none"
-            >
-              {p.label}
-            </ToggleItem>
-          ))}
-        </ToggleGroup>
-        </div>
-      </div>
+      <ToggleGroup
+        variant="outline"
+        value={active}
+        onValueChange={(next: string) => {
+          const p = quick.find((x) => x.label === next);
+          if (p) onValueChange(p.range());
+        }}
+        disabled={disabled}
+        aria-label="빠른 선택"
+      >
+        {quick.map((p) => (
+          <ToggleItem key={p.label} value={p.label}>
+            {p.label}
+          </ToggleItem>
+        ))}
+      </ToggleGroup>
     </div>
   );
 }
