@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Bell, ChartColumn, ClipboardList, Mail, Search, Settings } from "lucide-react";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
-import { DateField } from "@/components/ui/date-field";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Select } from "@/components/ui/select";
 import { FormField } from "@/components/ui/form-field";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
@@ -118,7 +118,9 @@ const ROWS = [
  *
  * ### 기간 입력도 한 벌입니다
  *
- * 아래 두 스토리는 **같은 `<DateField/>`** 를 씁니다. 모바일 쪽은 시트로, PC 쪽은
+ * 아래 두 스토리는 **같은 `<FormField label="기간">
+  <DateRangePicker quickSelect/>
+</FormField>`** 를 씁니다. 모바일 쪽은 시트로, PC 쪽은
  * 팝오버로 열리는데 **호출부는 아무 판단도 하지 않습니다** — 앱 루트의
  * `PointerModeProvider` 가 정합니다 (손가락이면 시트, 마우스면 팝오버).
  *
@@ -161,7 +163,7 @@ type Story = StoryObj<typeof meta>;
  * **위는 계속 모바일 배치**입니다 — 창이 아니라 자기 폭을 재기 때문입니다.
  * 미디어쿼리였다면 둘 다 창을 따라 함께 바뀌었을 것입니다.
  *
- * 안에 든 `DateField` 는 **`flex-wrap`** 으로 접힙니다 — 입력창 256 + 칩 넷은 한 줄에
+ * 안에 든 `DateRangePicker` 는 **`flex-wrap`** 으로 접힙니다 — 입력창 256 + 칩 넷은 한 줄에
  * 460 쯤 필요해서, 그보다 좁으면 칩이 다음 줄로 내려갑니다. 컨테이너 쿼리가 아닌 이유는
  * 그건 폭을 부모에서 받아야만 성립해서 폭 없는 자리에 놓으면 조용히 무너지기 때문입니다.
  */
@@ -184,7 +186,9 @@ export const 두폭: Story = {
           <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
             <FilterBar {...args} summary={summary} count={ROWS.length}>
               <FilterRow>
-                <DateField label="기간 선택" value={a} onValueChange={setA} presets={DEMO_PRESETS} />
+                <FormField label="기간 선택">
+                  <DateRangePicker quickSelect value={a} onValueChange={setA} presets={DEMO_PRESETS} />
+                </FormField>
               </FilterRow>
               <FilterRow>
                 <FormField label="검사 항목" className="@pc/filter:w-50">
@@ -202,7 +206,9 @@ export const 두폭: Story = {
           <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
             <FilterBar {...args} summary={summary} count={ROWS.length}>
               <FilterRow>
-                <DateField label="기간 선택" value={b} onValueChange={setB} presets={DEMO_PRESETS} />
+                <FormField label="기간 선택">
+                  <DateRangePicker quickSelect value={b} onValueChange={setB} presets={DEMO_PRESETS} />
+                </FormField>
               </FilterRow>
               <FilterRow>
                 <FormField label="검사 항목" className="@pc/filter:w-50">
@@ -220,7 +226,9 @@ export const 두폭: Story = {
 /**
  * Figma 의 Mobile Screen Demo 입니다.
  *
- * 조건 안의 컨트롤은 **PC 스토리와 글자 하나까지 같습니다** — `<DateField/>` · `<Select/>`.
+ * 조건 안의 컨트롤은 **PC 스토리와 글자 하나까지 같습니다** — `<FormField label="기간">
+  <DateRangePicker quickSelect/>
+</FormField>` · `<Select/>`.
  * 390 틀이 `touch` 로 감싸져 있어 시트로 열릴 뿐입니다.
  *
  * 조회를 누르면 접히고, 접힌 줄에 요약과 건수 배지가 나옵니다.
@@ -269,17 +277,13 @@ export const 모바일화면: Story = {
               }}
             >
               {/*
-                PC 스토리와 **같은 `DateField`** 입니다. 390 틀이 touch 로 감싸져 있어
+                PC 스토리와 **같은 `DateRangePicker`** 입니다. 390 틀이 touch 로 감싸져 있어
                 시트로 열립니다 — 호출부는 아무 판단도 하지 않습니다
               */}
               <FilterRow>
-                <DateField
-                  container={el}
-                  label="기간 선택"
-                  value={period}
-                  onValueChange={setPeriod}
-                  presets={DEMO_PRESETS}
-                />
+                <FormField label="기간 선택">
+                  <DateRangePicker quickSelect container={el} value={period} onValueChange={setPeriod} presets={DEMO_PRESETS} />
+                </FormField>
               </FilterRow>
               {/* 여기도 PC 스토리와 같은 `Select` 입니다 — 시트로 열립니다 */}
               <FilterRow>
@@ -449,7 +453,9 @@ export const PC화면: Story = {
             }}
           >
             <FilterRow>
-              <DateField label="기간설정" value={period} onValueChange={setPeriod} />
+              <FormField label="기간설정">
+                <DateRangePicker quickSelect value={period} onValueChange={setPeriod} />
+              </FormField>
             </FilterRow>
             <FilterRow>
               <FormField label="검사 항목" className="@pc/filter:w-50">
@@ -516,14 +522,18 @@ export const 접힘: Story = {
         <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
           <FilterBar {...args} defaultOpen={false} summary={summary} count={128}>
             <FilterRow>
-              <DateField label="기간 선택" value={a} onValueChange={setA} />
+              <FormField label="기간 선택">
+                <DateRangePicker quickSelect value={a} onValueChange={setA} />
+              </FormField>
             </FilterRow>
           </FilterBar>
         </div>
         <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
           <FilterBar {...args} defaultOpen={false} summary={summary} count={128}>
             <FilterRow>
-              <DateField label="기간 선택" value={b} onValueChange={setB} />
+              <FormField label="기간 선택">
+                <DateRangePicker quickSelect value={b} onValueChange={setB} />
+              </FormField>
             </FilterRow>
           </FilterBar>
         </div>
@@ -545,7 +555,9 @@ export const 건수없음: Story = {
       <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
         <FilterBar {...args} summary="조건을 선택해 주세요">
           <FilterRow>
-            <DateField label="검사 시행일" value={v} onValueChange={setV} />
+            <FormField label="검사 시행일">
+              <DateRangePicker quickSelect value={v} onValueChange={setV} />
+            </FormField>
           </FilterRow>
         </FilterBar>
       </div>

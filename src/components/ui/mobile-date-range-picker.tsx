@@ -3,7 +3,7 @@ import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/ui/form-field";
+import { useFormFieldLabel } from "@/components/ui/form-field";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { CalendarMonth, type DateRange } from "@/components/ui/calendar";
 import {
@@ -22,25 +22,21 @@ import {
 } from "@/lib/date";
 
 /**
- * Figma: MobileDateField (3 변형 — Precision 3) + MobileCalendar (6 변형)
+ * Figma: MobileDateRangeField (3 변형 — Precision 3) + MobileCalendar (6 변형)
  *
- * 기간 입력의 **시트 쪽 구현**입니다.
+ * `DateRangePicker` 의 **시트 쪽 구현**입니다.
  *
  * ### 보통은 이걸 직접 쓰지 않습니다
  *
- * **`DateField` 를 쓰세요.** 손가락이면 이 컴포넌트를, 마우스면 팝오버를
+ * **`DateRangePicker` 를 쓰세요.** 손가락이면 이 컴포넌트를, 마우스면 팝오버를
  * 알아서 고릅니다 (`PointerModeProvider`). 강제로 시트를 띄우고 싶으면
- * `<DateField overlay="sheet" />` 면 됩니다.
+ * `<DateRangePicker overlay="sheet" />` 면 됩니다.
  *
- * 여기 직접 손을 뻗을 자리는 **모바일 전용 화면**뿐입니다 — 그때도 `DateField` 로
- * 충분하니, 이 페이지는 *시트로 열면 무엇이 달라지는지*를 설명하는 자리로 보세요.
- * Figma 에 같은 이름의 컴포넌트가 있어 이름도 그대로 둡니다.
+ * 여기 직접 손을 뻗을 자리는 없습니다 — 이 페이지는 *시트로 열면 무엇이 달라지는지*를
+ * 설명하는 자리로 보세요. Figma 의 `MobileDateRangeField` 가 그리는 그림에서
+ * **라벨을 뺀 만큼**이 이 컴포넌트입니다 (라벨은 `FormField` 가 답니다).
  *
  * 가로로 놓는 대신 **세로로 쌓습니다.**
- *
- * `Input` · `Select` 처럼 `FormField` 로 조립하지 않고 한 묶음인 이유는 `DateField`
- * 와 같습니다 — **입력창과 칩이 한 값을 공유**해야 하고, 조립하면 그 계산을 쓸 때마다
- * 다시 짜게 됩니다. 자세한 근거는 `date-field.tsx` 머리말에 있습니다.
  *
  * ### 달력은 한 달만
  *
@@ -73,12 +69,7 @@ import {
  * 껍데기(시트 vs 팝오버)는 여전히 갈립니다 — 그건 CSS 로 고를 수 없습니다.
  */
 
-export interface MobileDateFieldProps {
-  label?: string;
-  /** PC 와 같은 `FormField` 를 씁니다 — 라벨·설명·에러 규칙이 한 벌입니다. */
-  required?: boolean;
-  description?: string;
-  error?: string;
+export interface MobileDateRangePickerProps {
   value: DateRange;
   onValueChange: (range: DateRange) => void;
   precision?: DatePrecision;
@@ -87,16 +78,15 @@ export interface MobileDateFieldProps {
   min?: Date;
   max?: Date;
   disabled?: boolean;
+  state?: "default" | "error";
   className?: string;
+  /** 시트 머리글. 안 넘기면 감싸고 있는 `FormField` 의 라벨을 씁니다. */
+  title?: string;
   /** 문서·데모에서 시트를 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
   container?: HTMLElement | null;
 }
 
-export function MobileDateField({
-  label = "기간",
-  required,
-  description,
-  error,
+export function MobileDateRangePicker({
   value,
   onValueChange,
   precision = "day",
@@ -104,10 +94,19 @@ export function MobileDateField({
   min,
   max,
   disabled,
+  state,
   className,
+  title,
   container,
-}: MobileDateFieldProps) {
+}: MobileDateRangePickerProps) {
   const [open, setOpen] = React.useState(false);
+  /*
+    시트 머리글은 감싸고 있는 FormField 가 알려줍니다 — 안 그러면 같은 글자를 두 번
+    적어야 하고, 빠뜨리면 머리글이 “기간” 이라는 기본값으로 조용히 밋밋해집니다.
+    MobileSelect 와 같은 규칙입니다
+  */
+  const fieldLabel = useFormFieldLabel();
+  const heading = title ?? fieldLabel ?? "기간";
   /*
     범위를 고르는 규칙은 **PC 패널과 같은 훅**에서 옵니다 — 겉모습만 다르지
     "언제 시작이 되고 언제 종료가 되는지" 는 하나여야 합니다.
@@ -153,27 +152,24 @@ export function MobileDateField({
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      {/* 라벨·설명·에러는 PC 와 같은 FormField 에서 나옵니다 — 칩은 형제입니다 */}
-      <FormField label={label} required={required} description={description} error={error}>
-        <Input
-          readOnly
-          value={text}
-          placeholder="기간을 선택해 주세요"
-          disabled={disabled}
-          onChange={() => {}}
-          onClick={openSheet}
-          clearable={false}
-          state={error ? "error" : undefined}
-          // readOnly 는 키보드를 막으려고 준 것입니다 — 값은 시트로 바꿉니다.
-          // 그대로 두면 Readonly 회색이 칠해져 못 만지는 칸으로 보입니다
-          className="cursor-pointer border-input-border bg-input-surface"
-          trailingIcon={
-            <span className="grid place-items-center text-icon-muted-foreground">
-              <Calendar />
-            </span>
-          }
-        />
-      </FormField>
+      <Input
+        readOnly
+        value={text}
+        placeholder="기간을 선택해 주세요"
+        disabled={disabled}
+        onChange={() => {}}
+        onClick={openSheet}
+        clearable={false}
+        state={state}
+        // readOnly 는 키보드를 막으려고 준 것입니다 — 값은 시트로 바꿉니다.
+        // 그대로 두면 Readonly 회색이 칠해져 못 만지는 칸으로 보입니다
+        className="cursor-pointer border-input-border bg-input-surface"
+        trailingIcon={
+          <span className="grid place-items-center text-icon-muted-foreground">
+            <Calendar />
+          </span>
+        }
+      />
 
       {quick.length > 0 && (
         // 칩은 균등 분할입니다 — 폭을 나눠 가져야 한 줄에 들어갑니다
@@ -199,7 +195,7 @@ export function MobileDateField({
       <MobileSheet
         open={open}
         onOpenChange={setOpen}
-        title={label}
+        title={heading}
         container={container}
         confirmLabel="선택"
         confirmDisabled={!complete}

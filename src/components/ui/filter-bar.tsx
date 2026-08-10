@@ -46,11 +46,11 @@ import { Button } from "@/components/ui/button";
  * - **조건은 4개까지.** 넘으면 좁을 때는 별도 필터 시트로, 넓을 때는 별도 검색
  *   화면으로 옮기세요 — 요약 줄이 길어져 못 읽고, 두 줄을 넘으면 결과가 몇 줄 안 보입니다
  * - 조건 줄은 `FilterRow` 로 감싸세요. **좁으면 세로, 넓으면 가로**로 알아서 바뀝니다.
- *   기간(`DateField`)은 넓어서 자기 줄을 쓰는 편이 좋습니다
- * - **안에 넣는 컨트롤도 한 벌입니다** — `<DateField/>` · `<Select/>` · `<Combobox/>`
+ *   기간(`DateRangePicker quickSelect`)은 넓어서 자기 줄을 쓰는 편이 좋습니다
+ * - **안에 넣는 컨트롤도 한 벌입니다** — `<DateRangePicker/>` · `<Select/>` · `<Combobox/>`
  *   를 그대로 쓰세요. 시트로 열지 팝오버로 열지는 CSS 로 못 고르지만
  *   **`PointerModeProvider` 가 정하므로** 호출부는 판단하지 않습니다.
- *   조회 조건에서 `MobileDateField` · `MobileSelect` 를 직접 부를 자리는 없습니다
+ *   조회 조건에서 `MobileDateRangePicker` · `MobileSelect` 를 직접 부를 자리는 없습니다
  *   (2026-08-10 — 그전에는 폭에 따라 갈아 끼우라고 적혀 있었습니다)
  * - 버튼은 `default` 크기입니다 — `--h-input-default` 가 40/36 으로 알아서 갈립니다
  * - 요약은 걸린 조건을 `·` 로 이어 씁니다
@@ -130,7 +130,7 @@ export function FilterBar({
       바깥은 **컨테이너 역할만** 합니다. 컨테이너 쿼리는 컨테이너 자신에게는
       적용되지 않고 **자손에게만** 걸리기 때문입니다 — 같은 요소에 @container 와
       @pc/filter:px-6 을 함께 주면 그 여백은 조용히 죽습니다.
-      배치를 바꾸는 클래스는 전부 한 겹 안쪽에 둡니다 (DateField 와 같은 구조).
+      배치를 바꾸는 클래스는 전부 한 겹 안쪽에 둡니다 (DateRangePicker 와 같은 구조).
     */
     <div className={cn("@container/filter", className)}>
       <div

@@ -3,6 +3,9 @@ import { Calendar, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
+import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
+import { MobileDateRangePicker } from "@/components/ui/mobile-date-range-picker";
+import { useOverlay, type OverlayMode } from "@/components/ui/pointer-mode";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { CalendarMonth, type DateRange } from "@/components/ui/calendar";
 import { CalendarUnitGrid } from "@/components/ui/calendar-unit";
@@ -17,6 +20,7 @@ import {
   formatDate,
   formatDigitsByPrecision,
   isDisabled,
+  isSameDay,
   isSameMonth,
   parseByPrecision,
   PRECISION_DIGITS,
@@ -204,7 +208,7 @@ export interface DateRangePickerPanelProps {
 /**
  * 범위를 고르는 **규칙 한 벌**입니다. 화면은 안 그리고 상태와 판단만 쥡니다.
  *
- * PC 패널(`DateRangePickerPanel`)과 모바일 시트(`MobileDateField`)가 **같이 씁니다.**
+ * PC 패널(`DateRangePickerPanel`)과 모바일 시트(`MobileDateRangePicker`)가 **같이 씁니다.**
  * 겉모습은 다르지만 — 두 달이냐 한 달이냐, 사이드 레일이 있냐 — *언제 시작이 되고
  * 언제 종료가 되는지*는 하나여야 합니다. 예전에는 두 벌이었고, 한쪽만 고치면
  * 아무도 모르는 상태였습니다.
@@ -566,7 +570,21 @@ export interface DateRangePickerProps
   precision?: DatePrecision;
   min?: Date;
   max?: Date;
+  /** 빠른 선택 목록. 안 넘기면 `precision` 에 맞는 기본 묶음입니다. */
   presets?: DatePreset[];
+  /**
+   * 입력창 **옆(모바일은 아래)** 에 빠른 선택 칩을 답니다. 조회 조건에서는 켜세요 —
+   * 가장 많이 하는 일이 "최근 N일" 이라 달력을 열지 않고 끝나는 경로입니다.
+   * 정해진 기간 묶음이 없으면(생년월일 · 검사 시행일) 끕니다.
+   */
+  quickSelect?: boolean;
+  /**
+   * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
+   * 마우스면 팝오버. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
+   */
+  overlay?: OverlayMode;
+  /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
+  container?: HTMLElement | null;
 }
 
 const RANGE_PLACEHOLDER: Record<DatePrecision, string> = {
@@ -575,7 +593,8 @@ const RANGE_PLACEHOLDER: Record<DatePrecision, string> = {
   year: "YYYY ~ YYYY",
 };
 
-export function DateRangePicker({
+/** 마우스일 때 — 입력창 + 팝오버 달력. */
+function PopoverDateRangePicker({
   value,
   onValueChange,
   precision = "day",
@@ -587,6 +606,9 @@ export function DateRangePicker({
   readOnly,
   className,
   onKeyDown,
+  quickSelect: _quickSelect,
+  overlay: _overlay,
+  container: _container,
   ...props
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false);
@@ -773,5 +795,127 @@ export function DateRangePicker({
         />
       </PopoverContent>
     </Popover>
+  );
+}
+
+/**
+ * 기간을 받는 자리에 쓰는 **완성형**입니다 — 입력창 + 달력, `quickSelect` 면 칩까지.
+ *
+ * ```tsx
+ * <FormField label="조회 기간">
+ *   <DateRangePicker quickSelect value={v} onValueChange={setV} />
+ * </FormField>
+ * ```
+ *
+ * ### 라벨은 `FormField` 가 답니다 (2026-08-10)
+ *
+ * 그전에는 `DateRangeField` 가 라벨까지 안고 있었습니다. 이유는 **입력창과 칩이 한 값을
+ * 공유**해야 하는데 호출부가 조립하면 그 계산을 매번 다시 짜야 한다는 것이었습니다.
+ *
+ * 칩을 이 안으로 들이면서 **호출부에서는 컨트롤이 하나**가 되었고, 그 근거가 사라졌습니다.
+ * 이제 `Input` · `Select` · `Combobox` 와 같은 규칙입니다 — 감싸기만 하면 됩니다.
+ *
+ * | 안에 든 것 | 라벨을 어떻게 받나 |
+ * |---|---|
+ * | 입력창(`Input`) | `FormField` 의 `controlId` — `<label for>` 가 걸립니다 |
+ * | 칩(`ToggleGroup`) | **스스로 `aria-label="빠른 선택"`** 이라 컨텍스트를 안 씁니다 |
+ *
+ * 덤으로 설명·에러가 필드 전체에 붙습니다. 예전 구조는 입력창만 감싸서 **메시지가
+ * 생기면 칩이 그 높이까지 내려갔고**, 그걸 막으려고 줄 전체를 다시 감싸야 했습니다.
+ *
+ * ### 칩은 값과 어긋나면 안 됩니다
+ *
+ * | | |
+ * |---|---|
+ * | 칩을 누름 | 입력창 값이 채워집니다 |
+ * | 달력에서 임의 기간을 고름 | **칩 선택이 풀립니다** |
+ *
+ * 활성 칩은 저장하지 않고 **매번 값과 맞춰 계산**합니다 — 어제 누른 "7일" 은 오늘 열면
+ * 최근 7일이 아닙니다.
+ *
+ * ### 자리가 모자라면 칩이 다음 줄로 (`flex-wrap`)
+ *
+ * 입력창 256 + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** —
+ * 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에
+ * 놓으면 조용히 무너집니다. `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다.
+ *
+ * 줄바꿈되면 각 줄이 폭을 꽉 채웁니다 (`w-64 grow`). `basis-64` 로 주면 **재는 값과 놓는
+ * 값이 달라져** 넓은 화면에서도 칩이 밀립니다.
+ *
+ * ### 팝오버냐 시트냐는 포인터가 정합니다
+ *
+ * 앱 루트의 `PointerModeProvider` — 손가락이면 `MobileDateRangePicker`(시트),
+ * 마우스면 팝오버. 호출부는 아무 판단도 하지 않습니다.
+ *
+ * **시트로 열면 입력창을 직접 칠 수 없습니다** — `readOnly` 이고 값은 시트로 바꿉니다.
+ */
+export function DateRangePicker(props: DateRangePickerProps) {
+  const {
+    quickSelect,
+    presets,
+    precision = "day",
+    value,
+    onValueChange,
+    disabled,
+    className,
+    overlay,
+    container,
+  } = props;
+
+  const quick = presets ?? PRESETS_BY_PRECISION[precision];
+  const sheet = useOverlay(overlay) === "sheet";
+
+  /*
+    저장해둔 라벨을 믿지 않고 **매번 값과 맞춰 봅니다** — 프리셋은 누를 때마다 오늘
+    기준으로 다시 계산되므로, 어제 누른 "7일" 은 오늘 열면 최근 7일이 아닙니다
+  */
+  const active =
+    quick.find((p) => {
+      const r = p.range();
+      return isSameDay(r.start, value.start) && isSameDay(r.end, value.end);
+    })?.label ?? "";
+
+  const chips = quickSelect && quick.length > 0 && (
+    <ToggleGroup
+      variant="outline"
+      value={active}
+      onValueChange={(next: string) => {
+        const p = quick.find((x) => x.label === next);
+        if (p) onValueChange(p.range());
+      }}
+      disabled={disabled}
+      // 스스로 이름을 대므로 FormField 의 라벨을 집어가지 않습니다
+      aria-label="빠른 선택"
+      className={sheet ? "w-full" : "grow"}
+    >
+      {quick.map((p) => (
+        <ToggleItem key={p.label} value={p.label} className="flex-1">
+          {p.label}
+        </ToggleItem>
+      ))}
+    </ToggleGroup>
+  );
+
+  if (sheet) {
+    // 시트는 세로로 쌓습니다 — 칩이 폭을 나눠 가져 한 줄에 들어갑니다
+    return (
+      <MobileDateRangePicker
+        {...props}
+        state={props.state === "error" ? "error" : "default"}
+        // 칩은 시트 구현이 자기 규칙(균등 분할)으로 그립니다
+        presets={quickSelect ? quick : false}
+        container={container}
+      />
+    );
+  }
+
+  if (!chips) return <PopoverDateRangePicker {...props} />;
+
+  return (
+    // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
+    <div className={cn("flex flex-wrap items-end gap-2", className)}>
+      <PopoverDateRangePicker {...props} className="w-64 grow" />
+      {chips}
+    </div>
   );
 }

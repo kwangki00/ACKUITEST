@@ -4,7 +4,8 @@ import { Bell, Clipboard, FileText } from "lucide-react";
 import { MBottomTabBar, ACK_TABS } from "@/components/ui/m-bottom-tab-bar";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
-import { DateField } from "@/components/ui/date-field";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { FormField } from "@/components/ui/form-field";
 import { Badge } from "@/components/ui/badge";
 import type { DateRange } from "@/components/ui/calendar";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
@@ -242,7 +243,7 @@ export const 탭3개: Story = {
 
 /**
  * 오늘까지 만든 모바일 컴포넌트가 **한 화면에 다 모인 모습**입니다 —
- * `MBottomTabBar` + `FilterBar` + `DateField` + `MobileListCard`.
+ * `MBottomTabBar` + `FilterBar` + `DateRangePicker` + `MobileListCard`.
  *
  * 탭바는 **스크롤 영역 밖**에 있습니다. 안에 넣으면 목록과 함께 밀려 올라갑니다.
  */
@@ -271,12 +272,9 @@ export const 조회화면: Story = {
               <>
                 <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
                   <FilterRow>
-                    <DateField
-                      container={el}
-                      label="기간"
-                      value={period}
-                      onValueChange={setPeriod}
-                    />
+                    <FormField label="기간">
+                      <DateRangePicker quickSelect container={el} value={period} onValueChange={setPeriod} />
+                    </FormField>
                   </FilterRow>
                 </FilterBar>
 

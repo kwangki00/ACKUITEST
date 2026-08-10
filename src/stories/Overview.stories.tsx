@@ -98,19 +98,14 @@ const GROUPS: Group[] = [
         codeOnly: ["NativeSelect"],
       },
       {
-        name: "DateField",
-        what: "기간 입력 한 묶음 — 라벨 + 입력창 + 빠른 선택",
-        rule: "**기간을 받는 자리에는 이걸 쓰세요.** 칩과 입력창이 한 값을 봐야 해서 라벨까지 안고 있습니다. PC·모바일 한 벌",
-      },
-      {
         name: "DatePicker",
         what: "단일 날짜 — 일 · 월 · 연 단위",
-        rule: "입력창을 직접 칠 수 있습니다. 여덟 자리를 채우기 전에는 값이 바뀌지 않습니다",
+        rule: "**컨트롤 하나라 `FormField` 로 감쌉니다.** 입력창을 직접 칠 수 있고, 여덟 자리를 채우기 전에는 값이 바뀌지 않습니다",
       },
       {
         name: "DateRangePicker",
-        what: "기간 — 두 달이 늘 이웃합니다",
-        rule: "빠른 선택이 주인공입니다. 칩은 값과 어긋나면 안 됩니다 — 달력을 만지면 칩 선택이 풀립니다",
+        what: "기간 — 두 달이 늘 이웃합니다 (`quickSelect` 면 칩까지)",
+        rule: "**기간을 받는 자리에는 이걸 쓰세요.** `quickSelect` 로 칩까지 답니다 — 라벨은 `FormField` 가. 날짜 하나는 `DatePicker`",
       },
     ],
   },
@@ -270,9 +265,9 @@ const GROUPS: Group[] = [
         rule: "**보통은 `Select` · `Combobox` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 목록은 PC 와 같은 `ComboboxPanel` 입니다",
       },
       {
-        name: "MobileDateField",
+        name: "MobileDateRangePicker",
         what: "기간 입력 — 한 달 달력",
-        rule: "**보통은 `DateField` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
+        rule: "**보통은 `DateRangePicker` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
       },
       {
         name: "MobileListCard",

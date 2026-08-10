@@ -8,10 +8,21 @@ import {
 } from "@/components/ui/date-range-picker";
 import type { DateRange } from "@/components/ui/calendar";
 import { FormField } from "@/components/ui/form-field";
-import { addDays, formatDate, startOfDay } from "@/lib/date";
+import { Input } from "@/components/ui/input";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
+import type { DatePreset } from "@/components/ui/date-range-picker";
+import { addDays, addMonths, formatDate, startOfDay } from "@/lib/date";
 import { design, figma } from "./figma";
 
 const today = startOfDay(new Date());
+const week = (): DateRange => ({ start: addDays(today, -6), end: today });
+
+/** 화면마다 자주 쓰는 기간이 다르니 갈아끼웁니다 — 기본은 `1일·3일·7일·1개월`. */
+const DEMO_PRESETS: DatePreset[] = [
+  { label: "오늘", range: () => ({ start: today, end: today }) },
+  { label: "1주일", range: () => ({ start: addDays(today, -6), end: today }) },
+  { label: "1개월", range: () => ({ start: addDays(addMonths(today, -1), 1), end: today }) },
+];
 
 /**
  * Figma: DatePickerPanel — Mode=Range · Confirm=True · Precision=Day
@@ -66,8 +77,9 @@ const today = startOfDay(new Date());
  * 시작은 종료를 넘지 못하고 종료는 시작보다 앞서지 못합니다.
  */
 /*
-  라벨 + 입력창 + 빠른 선택을 한 묶음으로 쓰려면 `Controls/DateField` 를 보세요 —
-  조회 조건에 넣을 때는 그쪽이고, 여기는 그 안에 든 입력창과 패널입니다.
+  2026-08-10 까지는 `DateRangePicker` 가 라벨 + 입력창 + 칩을 한 묶음으로 들고 있었습니다.
+  칩이 이 컴포넌트 안으로 들어오면서 호출부에서는 컨트롤이 하나가 되어, 라벨은 다른
+  컨트롤과 똑같이 `FormField` 가 답니다 — 그 스토리들도 여기로 옮겼습니다.
 */
 const meta = {
   title: "Controls/DateRangePicker",
@@ -81,6 +93,9 @@ const meta = {
     min: { control: false },
     max: { control: false },
     presets: { control: false },
+    quickSelect: { control: "boolean" },
+    overlay: { control: "inline-radio", options: [undefined, "popover", "sheet"] },
+    container: { control: false },
     onValueChange: { control: false },
   },
   // value 가 필수 prop 이라 meta 에 있어야 스토리마다 args 를 쓰지 않아도 됩니다.
@@ -248,6 +263,163 @@ export const 월연범위: Story = {
           <p className="mt-1.5 text-2xs text-text-muted-foreground">
             {y.start && y.end ? `${formatDate(y.start)} ~ ${formatDate(y.end)}` : "(없음)"}
           </p>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * 화면마다 자주 쓰는 기간이 다릅니다. `presets` 로 갈아끼우고,
+ * 정해진 묶음이 없으면 **`quickSelect` 를 끄세요** (생년월일 · 검사 시행일).
+ */
+export const 빠른선택: Story = {
+  name: "빠른 선택 바꾸기",
+  render: function Presets(args) {
+    const [a, setA] = useState<DateRange>(week());
+    const [b, setB] = useState<DateRange>({ start: null, end: null });
+    return (
+      <div className="flex w-fit flex-col gap-5">
+        <div>
+          <p className="mb-1.5 text-xs text-text-subtle">
+            화면 전용 목록 — <code>오늘 · 1주일 · 1개월</code>
+          </p>
+          <FormField label="기간">
+            <DateRangePicker quickSelect {...args} presets={DEMO_PRESETS} value={a} onValueChange={setA} />
+          </FormField>
+        </div>
+        <div>
+          <p className="mb-1.5 text-xs text-text-subtle">
+            <code>quickSelect</code> 끔 — 입력창만
+          </p>
+          <FormField label="검사 시행일">
+            <DateRangePicker {...args} value={b} onValueChange={setB} />
+          </FormField>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * **같은 코드가 두 가지로 열립니다.** 왼쪽은 마우스, 오른쪽은 손가락 —
+ * 앱 루트의 `PointerModeProvider` 가 정합니다.
+ *
+ * 여기서는 보여주려고 스토리가 직접 감쌌습니다. 실제 앱에서는 루트에 한 번만 둡니다.
+ */
+export const 오버레이: Story = {
+  name: "팝오버 · 시트",
+  render: function Overlay(args) {
+    const [a, setA] = useState<DateRange>(week());
+    const [b, setB] = useState<DateRange>(week());
+    return (
+      <div className="flex flex-wrap items-start gap-8">
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">마우스 — 팝오버가 트리거에 붙습니다</p>
+          <PointerModeProvider mode="mouse">
+            <div className="w-fit">
+              <FormField label="기간">
+                <DateRangePicker quickSelect {...args} value={a} onValueChange={setA} />
+              </FormField>
+            </div>
+          </PointerModeProvider>
+        </div>
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            손가락 — 시트가 아래에서 올라옵니다 (390 틀)
+          </p>
+          <PointerModeProvider mode="touch">
+            <div
+              style={{ transform: "translateZ(0)" }}
+              className="ack-mobile relative h-[560px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+            >
+              <FormField label="기간">
+                <DateRangePicker quickSelect {...args} value={b} onValueChange={setB} />
+              </FormField>
+            </div>
+          </PointerModeProvider>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * 폭을 고정하지 않습니다 (`Input` 과 같은 규칙).
+ *
+ * 자리가 모자라면 칩이 다음 줄로 내려가고 **각 줄이 꽉 찹니다** —
+ * 입력창을 256 으로 박아두면 좁은 화면에서 오른쪽이 남습니다.
+ */
+export const 폭: Story = {
+  name: "폭 — 부모가 정합니다",
+  render: function Widths(args) {
+    const [a, setA] = useState<DateRange>(week());
+    const [b, setB] = useState<DateRange>(week());
+    const [c, setC] = useState<DateRange>(week());
+    return (
+      <div className="flex flex-col gap-5">
+        <div>
+          <p className="mb-1.5 text-xs text-text-subtle">
+            flex 항목 (<code>w-fit</code>) — 내용만큼 ≈460
+          </p>
+          <div className="w-fit">
+            <FormField label="기간">
+              <DateRangePicker quickSelect {...args} value={a} onValueChange={setA} />
+            </FormField>
+          </div>
+        </div>
+        <div>
+          <p className="mb-1.5 text-xs text-text-subtle">360 — 칩이 다음 줄로, 각 줄이 꽉 참</p>
+          <div className="w-90">
+            <FormField label="기간">
+              <DateRangePicker quickSelect {...args} value={b} onValueChange={setB} />
+            </FormField>
+          </div>
+        </div>
+        <div>
+          <p className="mb-1.5 text-xs text-text-subtle">
+            720 — 한 줄에 들어가므로 입력창은 256 그대로
+          </p>
+          <div className="w-180">
+            <FormField label="기간">
+              <DateRangePicker quickSelect {...args} value={c} onValueChange={setC} />
+            </FormField>
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * 다른 조건과 나란히 놓은 모습입니다. **기간은 넓어서 자기 줄**을 씁니다.
+ * 에러·설명은 `FormField` 가 받습니다 — 다른 컨트롤과 같습니다. 컨트롤에는 `state="error"` 만 줍니다.
+ */
+export const 조건줄: Story = {
+  name: "다른 조건과 나란히",
+  render: function InRow(args) {
+    const [a, setA] = useState<DateRange>(week());
+    const [b, setB] = useState<DateRange>({ start: null, end: null });
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-end gap-4">
+          <FormField label="기간">
+            <DateRangePicker quickSelect {...args} value={a} onValueChange={setA} />
+          </FormField>
+          <FormField label="검색" className="w-56">
+            <Input placeholder="성명 또는 차트번호" />
+          </FormField>
+        </div>
+        {/* 설명·에러가 붙어도 칩은 입력창과 같은 줄에 남습니다 */}
+        <div className="flex flex-wrap items-start gap-4">
+          <FormField label="기간" required description="최대 3개월까지 조회할 수 있습니다">
+            <DateRangePicker quickSelect {...args} value={b} onValueChange={setB} />
+          </FormField>
+        </div>
+        <div className="flex flex-wrap items-start gap-4">
+          <FormField label="기간" error="기간을 선택해 주세요">
+            <DateRangePicker quickSelect {...args} state="error" value={b} onValueChange={setB} />
+          </FormField>
         </div>
       </div>
     );

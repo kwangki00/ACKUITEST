@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
-import { DateField } from "@/components/ui/date-field";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { FormField } from "@/components/ui/form-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DateRange } from "@/components/ui/calendar";
@@ -230,12 +231,9 @@ export const 조회화면: Story = {
           <div className="flex h-full flex-col">
             <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
               <FilterRow>
-                <DateField
-                  container={el}
-                  label="기간"
-                  value={period}
-                  onValueChange={setPeriod}
-                />
+                <FormField label="기간">
+                  <DateRangePicker quickSelect container={el} value={period} onValueChange={setPeriod} />
+                </FormField>
               </FilterRow>
             </FilterBar>
 

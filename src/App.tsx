@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/tooltip";
 import { DatePicker } from "@/components/ui/date-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { DateField } from "@/components/ui/date-field";
 import type { DateRange } from "@/components/ui/calendar";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { ToastProvider, useToast } from "@/components/ui/toast";
@@ -390,8 +389,10 @@ function Gallery() {
         <Section title="조회 조건 바" note="위 컴포넌트만으로 실제 화면 조각을 조립해 봅니다.">
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-end gap-4">
-              {/* 라벨 + 입력 + 빠른 선택이 한 묶음입니다 (Figma 의 PCDateField) */}
-              <DateField label="기간설정" value={period} onValueChange={setPeriod} />
+              {/* Figma 의 PCDateRangeField — 코드에서는 FormField + DateRangePicker 조립입니다 */}
+              <FormField label="기간설정">
+                <DateRangePicker quickSelect value={period} onValueChange={setPeriod} />
+              </FormField>
               <div className="w-56">
                 <FormField label="검색">
                   <Input leadingIcon={<Search />} placeholder="성명 또는 차트번호" />

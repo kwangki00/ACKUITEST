@@ -44,9 +44,9 @@ Pagination · PaginationItem · Chip · Avatar · Popover · ListItem
 Select · NativeSelect · SelectTrigger · Combobox · Tooltip
 CalendarCell · CalendarMonth · CalendarUnitCell · CalendarUnitGrid
 DatePickerPanel · DatePicker
-DateRangeTabs · DateRangePickerPanel · DateRangePicker · DateField
+DateRangeTabs · DateRangePickerPanel · DateRangePicker
 Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
-MobileDateField · MobileListCard · MobileListHeader
+MobileDateRangePicker · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
@@ -157,26 +157,36 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
   - **`SelectTrigger` 계열은 `aria-labelledby` 로 묶습니다** — `<label for>` 는 labelable 요소(`input`·`textarea`·`select`)에만 걸립니다. `Select` · `Combobox` · `Lookup` · `MobileSelect` 가 껍데기를 공유하므로 한 곳만 고쳐 넷이 따라왔습니다
   - **직접 준 것이 이깁니다** — `aria-label` · `aria-labelledby` 로 스스로 이름을 대면 설명(`aria-describedby`)까지 컨텍스트를 쓰지 않습니다. **이 규칙이 패널 안 검색창의 오염을 막습니다**: React 컨텍스트는 Portal 을 통과해서 `ComboboxPanel` · `LookupPanel` 의 검색창과 달력의 년·월 `Select` 가 바깥 필드의 id 를 집어갈 수 있는데, 셋 다 이미 `aria-label` 을 갖고 있어 걸러집니다. 안 그러면 검색창이 "검색, 여러 항목은 쉼표로 구분합니다" 로 읽힙니다
   - **`id` 를 직접 주면 `aria-labelledby` 로 갈아탑니다** — `<label for>` 는 필드가 만든 id 를 가리키고 있어서 헛돕니다. 판단은 `useFieldBinding()` 한 곳에 모았습니다 — 네 갈래가 있고 하나만 어긋나도 그 칸만 조용히 이름을 잃습니다
-  - **`XxxField` 를 만들 이유가 없어졌습니다** — 이전 프로젝트에서 `InputField` · `SelectField` 처럼 라벨을 컨트롤에 넣어 쓴 이유가 "안 그러면 연결이 빠져서" 였습니다. 원인이 조립 방식이 아니라 **연결을 손으로 시키는 것**이었으므로 조립을 유지합니다. `DateField` 가 `FormField` 를 안고 있는 건 다른 이유입니다 — 입력창과 칩이 **같은 값을 봐야** 해서지 라벨 때문이 아닙니다
+  - **`XxxField` 를 만들 이유가 없어졌습니다** — 이전 프로젝트에서 `InputField` · `SelectField` 처럼 라벨을 컨트롤에 넣어 쓴 이유가 "안 그러면 연결이 빠져서" 였습니다. 원인이 조립 방식이 아니라 **연결을 손으로 시키는 것**이었으므로 조립을 유지합니다. 2026-08-10 에는 마지막 예외였던 `DateRangeField` 마저 없앴습니다 — 칩을 `DateRangePicker` 안으로 들여 호출부의 컨트롤을 하나로 만들었습니다
   - `Checkbox` · `Radio` · `Switch` 는 **자기 라벨을 스스로** 답니다 (박스 옆 글자). 이 컨텍스트를 읽지 않습니다
 
-#### 라벨은 누가 갖나 — 안에 컨트롤이 몇 개냐로 갈립니다
+#### 라벨은 전부 `FormField` 가 답니다 (2026-08-10)
 
-| | 안에 든 것 | 라벨 |
-|---|---|---|
-| `Input` · `Select` · `Combobox` · `Lookup` | **컨트롤 하나** | **호출부가 `FormField` 로 감쌉니다** |
-| `DateField` · `MobileDateField` | 입력창 + 빠른 선택 칩 | **컴포넌트가 `FormField` 를 안고 있습니다** |
-
-`DateField` 가 예외인 이유는 **두 컨트롤이 한 값을 공유**하기 때문입니다 — 「칩은 값과 어긋나면 안 됩니다」 규칙이 그 동기화 위에서만 성립합니다. 호출부가 조립하면 쓸 때마다 그걸 다시 짜야 하고, 한 곳만 빠뜨려도 화면이 실제 조회 조건과 다른 것을 가리킵니다. Figma 도 `PCDateField` 를 **한 컴포넌트**로 그립니다.
-
-그래서 호출부가 이렇게 갈리는 것은 **의도한 것**입니다.
+**예외가 없습니다.** 조회 조건에 쓰는 컨트롤은 모두 이 모양입니다.
 
 ```tsx
-<FilterRow><DateField label="기간 선택" … /></FilterRow>
+<FilterRow>
+  <FormField label="기간 선택"><DateRangePicker quickSelect … /></FormField>
+</FilterRow>
 <FilterRow>
   <FormField label="검사 항목"><Select … /></FormField>
 </FilterRow>
 ```
+
+##### 전에는 `DateRangeField` 가 라벨까지 안고 있었습니다
+
+근거는 **입력창과 칩이 한 값을 공유**해야 한다는 것이었습니다 — 「칩은 값과 어긋나면 안 됩니다」 규칙이 그 동기화 위에서만 성립하는데, 호출부가 조립하면 쓸 때마다 그 계산을 다시 짜야 하고 한 곳만 빠뜨려도 화면이 실제 조회 조건과 다른 것을 가리킵니다.
+
+**칩을 `DateRangePicker` 안으로 들이면서 호출부에서는 컨트롤이 하나가 되었고, 그 근거가 사라졌습니다** (2026-08-10). 동기화 계산은 그대로 있고 한 겹 아래로 내려갔을 뿐입니다.
+
+- **접근성이 그냥 맞습니다** — 입력창(`Input`)은 `FormField` 의 `controlId` 를 집어가고, 칩(`ToggleGroup`)은 `aria-label="빠른 선택"` 으로 스스로 이름을 대서 컨텍스트를 쓰지 않습니다. 「직접 준 것이 이깁니다」 규칙이 여기서도 작동합니다
+- **설명·에러 배치가 오히려 나아졌습니다** — 예전에는 입력창만 감싸면 메시지 높이만큼 **칩이 내려가서**, 그걸 막으려고 줄 전체를 다시 감싸는 구조를 따로 만들어야 했습니다. 지금은 `FormField` 가 한 덩어리를 감쌉니다
+- **컨트롤에는 `state="error"` 만** 줍니다. `required` · `description` · `error` 는 `FormField` 쪽입니다 — `Input` 과 같습니다
+- **Figma 는 그대로 둡니다** — `PCDateRangeField` · `MobileDateRangeField` 는 라벨까지 포함한 그림이라 이름이 맞습니다. 코드 대응은 **`FormField` + `DateRangePicker`** 이고, 이건 이미 있는 패턴입니다 (Figma `FormField Control=Select` ↔ 코드 `FormField + Select`)
+
+##### 단일 날짜에는 칩이 없습니다
+
+`DatePicker` 도 컨트롤 하나라 같은 규칙입니다. "최근 7일" 같은 빠른 선택은 전부 기간이고, 단일에서 자주 쓰는 "오늘" 은 이미 패널 푸터 버튼입니다.
 
 - **컨트롤 하나에 `label` prop 을 달지 마세요** — `FormField` 가 하는 일이 두 벌이 됩니다
 - `Checkbox` · `Radio` · `Switch` 의 `label` 은 **다른 것**입니다. 네모 칸 옆에 붙는 글자지 필드 위의 라벨이 아닙니다
@@ -268,16 +278,17 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **종료를 고르는 중에는 마우스가 지나가는 데까지 띠를 미리 보여줍니다.** 없으면 눌러 보고 되돌리기를 반복합니다
 - **시작보다 앞을 고르면 그쪽이 시작이 됩니다** — 되돌리라고 하는 것보다 낫습니다. 시작을 바꿔서 기존 종료보다 늦어지면 종료를 비웁니다
 - **빠른 선택은 고르는 단위를 따라갑니다** — day 는 `1일·3일·7일·1개월`, month 는 `1개월·3개월·6개월·1년`, year 는 `1년·3년·5년` (`PRESETS_BY_PRECISION`). 월 화면에 "3일" 이 붙어 있으면 눌러도 월 하나로 뭉개져 무엇을 고른 것인지 설명되지 않습니다 (2026-08-07 수정 — 처음엔 day 목록이 전 단위에 그대로 붙었습니다)
-- **빠른 선택은 두 곳에 있습니다** — 패널 안, 그리고 입력창 **옆**(`DateField` = Figma 의 PCDateField). 조회 화면에서 가장 많이 하는 일이 "최근 N일" 이라 패널을 열지 않고 끝나는 경로를 한 번 더 앞에 둡니다
+- **`DateRangeField` 는 2026-08-10 에 없어졌습니다.** 하루에 두 번 움직였습니다 — 먼저 `DateField` → `DateRangeField` 로 이름을 바꿨고(값이 처음부터 `DateRange` 인데 이름만 보면 단일 날짜에도 쓸 수 있는 것처럼 보여서), 이어 **칩을 `DateRangePicker` 안으로 들이면서 컴포넌트를 지웠습니다.** 라벨은 `FormField` 가 답니다 — 위 「라벨은 전부 `FormField` 가 답니다」 참고. 날짜 하나를 받는 자리는 `FormField` + `DatePicker`
+- **빠른 선택은 두 곳에 있습니다** — 패널 안, 그리고 입력창 **옆**(`DateRangePicker quickSelect` = Figma 의 PCDateRangeField). 조회 화면에서 가장 많이 하는 일이 "최근 N일" 이라 패널을 열지 않고 끝나는 경로를 한 번 더 앞에 둡니다
 - **칩은 값과 어긋나면 안 됩니다** — 7일을 눌러둔 채로 달력에서 3월을 고르면 **칩 선택이 풀립니다.** 안 그러면 화면이 "최근 7일" 이라 말하면서 3월을 조회합니다. 활성 칩은 저장하지 않고 **매번 값과 맞춰 계산**합니다 — 어제 누른 "7일" 은 오늘 열면 최근 7일이 아닙니다
-- **`DateField` 는 자리가 모자라면 칩이 다음 줄로 내려갑니다** (`flex-wrap`). 입력창 256 + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** — 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에 놓으면 **조용히 무너집니다.** `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다 (2026-08-07)
+- **`quickSelect` 는 자리가 모자라면 칩이 다음 줄로 내려갑니다** (`flex-wrap`). 입력창 256 + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** — 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에 놓으면 **조용히 무너집니다.** `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다 (2026-08-07)
   - **줄바꿈되면 각 줄이 폭을 꽉 채웁니다** — `w-64 grow`. 한 줄에 들어갈 때는 남는 자리가 없어 256 그대로이고, 칩이 다음 줄로 내려가면 그 줄을 혼자 써서 채웁니다 (2026-08-07)
   - **`basis-64` 로 주면 안 됩니다.** `FormField` 의 기본이 `w-full` 이라 둘이 남는데, **최대 폭을 잴 때는 퍼센트가 `auto` 로 취급돼 입력창 내용 폭**이 잡히고 **배치할 때는 `basis` 256** 이 쓰입니다 — 그 차이만큼 칩이 넓은 화면에서도 다음 줄로 밀립니다. `w-64` 는 tailwind-merge 가 `w-full` 을 걷어내서 두 계산이 같아집니다
   - **폭은 부모가 정합니다** — `Input` 과 같은 규칙입니다. flex 항목이면 내용만큼(≈460), `flex-col` 안이면 부모 폭을 채웁니다. 채우고 싶지 않으면 감싸는 쪽에 `w-fit` 이나 폭을 주세요
   - 한 줄일 때 칩 바닥은 `items-end` 로 입력창 바닥과 맞춥니다 — 빈 라벨 자리를 넣어 맞추던 것을 대신합니다. 그 빈 자리는 줄바꿈되면 유령 여백으로 남습니다
-  - 시트로 열어야 하면 여전히 `MobileDateField` 입니다 — 팝오버냐 시트냐는 CSS 로 못 고릅니다
-  - **컨테이너 쿼리는 컨테이너 자신에게 적용되지 않습니다 — 자손에게만 걸립니다.** 같은 요소에 `@container/x` 와 `@pc/x:px-6` 을 함께 주면 그 여백은 **조용히 죽습니다** (에러도 경고도 없습니다). 바깥은 컨테이너 역할만 하고 **배치를 바꾸는 클래스는 한 겹 안쪽**에 두세요 — `FilterBar` · `DateField` 둘 다 그렇게 되어 있습니다 (2026-08-07)
-  - **컨테이너 쿼리를 다는 요소는 폭을 부모에서 받아야 합니다.** `container-type: inline-size` 는 내용이 폭을 정하면 성립하지 않습니다 — 가로 줄 안에서 내용만큼 넓어지는 flex 항목에 걸면 브라우저가 폭을 못 정해 **0 으로 무너집니다.** `FilterBar` 는 세로 흐름의 블록이라 폭이 부모에서 와서 안전합니다. 그 조건을 못 지키는 자리에는 `flex-wrap` 을 쓰세요 (`DateField` 가 그렇습니다)
+  - 시트로 열어야 하면 여전히 `MobileDateRangePicker` 입니다 — 팝오버냐 시트냐는 CSS 로 못 고릅니다
+  - **컨테이너 쿼리는 컨테이너 자신에게 적용되지 않습니다 — 자손에게만 걸립니다.** 같은 요소에 `@container/x` 와 `@pc/x:px-6` 을 함께 주면 그 여백은 **조용히 죽습니다** (에러도 경고도 없습니다). 바깥은 컨테이너 역할만 하고 **배치를 바꾸는 클래스는 한 겹 안쪽**에 두세요 — `FilterBar` · `DateRangePicker` 둘 다 그렇게 되어 있습니다 (2026-08-07)
+  - **컨테이너 쿼리를 다는 요소는 폭을 부모에서 받아야 합니다.** `container-type: inline-size` 는 내용이 폭을 정하면 성립하지 않습니다 — 가로 줄 안에서 내용만큼 넓어지는 flex 항목에 걸면 브라우저가 폭을 못 정해 **0 으로 무너집니다.** `FilterBar` 는 세로 흐름의 블록이라 폭이 부모에서 와서 안전합니다. 그 조건을 못 지키는 자리에는 `flex-wrap` 을 쓰세요 (`DateRangePicker` 의 칩이 그렇습니다)
 - 바깥 빠른 선택은 `Chip` 이 아니라 **`ToggleGroup(Outline)`** 입니다. Figma description 은 "칩" 이라 부르지만 하나만 켜지는 배타 선택이라 세그먼트 컨트롤이 맞습니다 — Chip 은 삭제할 수 있는 태그이고 여기엔 지우는 개념이 없습니다
 - **빠른 선택이 주인공입니다** — 달력을 만지지 않고 끝나는 경로입니다. 조회 화면에서는 이것만으로 끝나는 경우가 많습니다. 기간은 오늘을 포함해 셉니다("3일" = 그저께~오늘). **"전체" 는 넣지 않습니다** — 나머지가 전부 기간인데 혼자만 조건을 지우는 동작이라 같은 줄에서 무엇을 고르는 자리인지 흐려집니다. 기간을 비우는 일은 입력창의 지우기(X)가 맡습니다 (2026-08-07 제거, Figma 12변형도 함께)
 - **범위 입력창도 직접 칩니다** — 숫자 16자리를 이어 치면 `2026-01-07 ~ 2026-04-15` 가 됩니다. 8자리에서 시작, 16자리에서 종료가 정해지고, 뒤집어 쳐도 바로잡습니다. 16자리를 못 채우고 나가면 되돌립니다 (반쪽 기간은 조회 조건이 설명되지 않습니다). 방향키는 여섯 칸(시작 년월일 · 종료 년월일)을 각각 오르내리고, 시작은 종료를 넘지 못합니다 (2026-08-07 추가. 그전에는 읽기 전용이었습니다)
@@ -336,7 +347,9 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 <PointerModeProvider>{/* TooltipProvider · ToastProvider 와 같은 자리 */}
   …
   <FilterBar summary={…}>
-    <FilterRow><DateField label="기간" value={v} onValueChange={setV} /></FilterRow>
+    <FilterRow>
+      <FormField label="기간"><DateRangePicker quickSelect value={v} onValueChange={setV} /></FormField>
+    </FilterRow>
     <FilterRow>
       <FormField label="검사 항목"><Select options={…} … /></FormField>
     </FilterRow>
@@ -346,9 +359,9 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 | | 무엇이 알아서 되나 | 기준 |
 |---|---|---|
-| `DateField` · `Select` · `Combobox` | 팝오버 ↔ **시트** | 포인터 (`PointerModeProvider`) |
+| `DateRangePicker` · `Select` · `Combobox` | 팝오버 ↔ **시트** | 포인터 (`PointerModeProvider`) |
 | `FilterBar` · `FilterRow` | 가로 한 줄 ↔ **세로** | **자기 폭** (`--container-pc` 880) |
-| `DateField` 안 | 칩이 옆 ↔ **다음 줄** | `flex-wrap` (≈460) |
+| `DateRangePicker` 의 칩 | 옆 ↔ **다음 줄** | `flex-wrap` (≈460) |
 | 컨트롤·행·달력 칸 높이 | PC ↔ 모바일 | **창 폭** (`--h-*`, 1024px) |
 
 **아직 갈리는 것** — 구조가 다른 것들입니다. 이건 반응형으로 못 합니다.
@@ -359,7 +372,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | `Table` | `MobileListCard` + `MobileListHeader` |
 | `Pagination` | 더 보기 / 무한 스크롤 |
 
-`MobileDateField` · `MobileSelect` 는 **직접 부르지 않습니다** — 위 컨트롤들이 시트일 때 렌더하는 구현입니다.
+`MobileDateRangePicker` · `MobileSelect` 는 **직접 부르지 않습니다** — 위 컨트롤들이 시트일 때 렌더하는 구현입니다.
 
 ## 모바일 대응 규칙
 
@@ -402,12 +415,12 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 다중은 **확정 전까지 draft 로만** 바뀝니다. 취소하면 시트를 열기 전 값으로 돌아갑니다
 - **`ack-mobile` 클래스** — 데모·문서에서 모바일 환경을 흉내낼 때 씁니다. 미디어쿼리는 **브라우저 창**을 재기 때문에, 390 틀 안에 넣어도 창이 넓으면 목록이 PC 높이(32)로 나옵니다. 실제 앱에서는 쓰지 마세요
 
-### MobileDateField · 모바일 달력
+### MobileDateRangePicker · 모바일 달력
 
 - **달력은 한 벌입니다.** `CalendarMonth` 에 `header` 축(`select` ↔ `nav`)만 더해 재사용합니다 — 날짜 계산·범위 띠·미리보기를 두 번 만들지 않습니다
 - **범위 규칙도 한 벌입니다** — `useDateRangeDraft`(`date-range-picker.tsx`). 언제 시작이 되고 언제 종료가 되는지 · 시작보다 앞을 고르면 어떻게 되는지 · 탭을 누르면 달을 옮길지를 PC 패널과 **같은 훅**에서 가져옵니다. `monthsVisible` 만 1·2 로 다릅니다
-  - **2026-08-07 이전에는 `MobileDateField` 가 그 규칙을 다시 구현하고 있었습니다.** `MobileSelect` 는 “목록을 다시 만들지 않고 감싸는 컨테이너만 분기” 를 지켰는데 여기서는 알맹이까지 복사돼 있어, 한쪽만 고치면 아무도 모르는 상태였습니다
-  - **껍데기(시트 vs 팝오버)는 `PointerModeProvider` 가 정합니다** — 손가락이면 시트, 마우스면 팝오버. 호출부는 `<DateField/>` 만 쓰고 아무 판단도 하지 않습니다 (2026-08-07)
+  - **2026-08-07 이전에는 이 컴포넌트가 그 규칙을 다시 구현하고 있었습니다.** `MobileSelect` 는 “목록을 다시 만들지 않고 감싸는 컨테이너만 분기” 를 지켰는데 여기서는 알맹이까지 복사돼 있어, 한쪽만 고치면 아무도 모르는 상태였습니다
+  - **껍데기(시트 vs 팝오버)는 `PointerModeProvider` 가 정합니다** — 손가락이면 시트, 마우스면 팝오버. 호출부는 `<DateRangePicker/>` 만 쓰고 아무 판단도 하지 않습니다 (2026-08-07)
 
 ### PointerModeProvider — 손가락이냐 마우스냐
 
@@ -422,8 +435,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **앱 루트에 하나** — `TooltipProvider` · `ToastProvider` 와 같은 자리입니다. 여기서 한 번 정하면 조건이 네 개라고 네 번 적을 일이 없고, 하나를 빠뜨려 데스크톱에 시트가 뜨는 일도 없습니다
 - **문서·데모에서는 값을 고정합니다.** Storybook 은 전역 `mode="mouse"`, 390 틀 안은 `mode="touch"`. 컴포넌트가 스스로 `matchMedia` 를 부르게 두면 **창**을 재게 되어 틀 안에서 흉내낼 수단이 없어집니다 — `.ack-mobile` 이 유틸리티 variant 를 못 막는 것과 같은 함정입니다
 - Provider 가 없어도 동작은 합니다 (브라우저에 직접 묻습니다). 다만 값을 고정할 수 있어야 해서 **루트에 두는 쪽을 권합니다**
-- **`MobileDateField` · `MobileSelect` 는 이제 “시트 쪽 구현” 입니다.** 지우지 않습니다 — `DateField` · `Select` · `Combobox` 가 시트일 때 렌더하는 것이 이들이고, Figma 에도 같은 이름의 컴포넌트가 있습니다. 다만 **호출부에서 직접 부를 자리는 없어졌습니다** (강제하려면 `overlay="sheet"`)
-- **`DateField` · `Select` · `Combobox` 가 이 규칙을 씁니다.** 조회 조건에 쓰는 세 컨트롤이 전부 한 벌입니다 — 호출부는 `<Select/>` 만 쓰고 시트인지 팝오버인지 모릅니다
+- **`MobileDateRangePicker` · `MobileSelect` 는 이제 “시트 쪽 구현” 입니다.** 지우지 않습니다 — `DateRangePicker` · `Select` · `Combobox` 가 시트일 때 렌더하는 것이 이들이고, Figma 에도 같은 이름의 컴포넌트가 있습니다. 다만 **호출부에서 직접 부를 자리는 없어졌습니다** (강제하려면 `overlay="sheet"`)
+- **`DateRangePicker` · `Select` · `Combobox` 가 이 규칙을 씁니다.** 조회 조건에 쓰는 세 컨트롤이 전부 한 벌입니다 — 호출부는 `<Select/>` 만 쓰고 시트인지 팝오버인지 모릅니다
   - `MobileSelect` 는 `Select` 가 아니라 **`Combobox` 의 짝**입니다 (둘 다 `value: string[]` · `type` · `searchable`). `Select` 는 값이 하나라 `단일 · 검색 없음` 으로 고정해 넘기고 배열 ↔ 문자열만 바꿔 끼웁니다
   - **시트로 열면 트리거 표현이 안 쓰입니다** — `render` · `maxChips` · `clearable` · `leadingIcon`. 시트 쪽 트리거는 글자 한 줄이고, `editable` 처럼 트리거에 직접 치는 방식은 시트와 맞지 않습니다
   - `Combobox` · `Select` 가 `MobileSelect` 를 부르면서 **순환 import** 가 생겨(`combobox → mobile-select → combobox`) 패널을 `combobox-panel.tsx` 로 뽑았습니다. 예전 경로도 그대로 동작하도록 `combobox.tsx` 가 다시 내보냅니다 (2026-08-07)
@@ -556,9 +569,9 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
   - **오버레이에는 `z-10` 이 필요합니다.** 같은 줄의 자식 중 하나라도 `transform` 이 걸리면(화살표의 `rotate-180`) 스택 문맥이 생겨 오버레이 **위로** 올라옵니다. 그러면 그 위를 눌러도 오버레이에 닿지 않습니다 — 실제로 **펼친 상태에서만 화살표가 안 눌리는** 증상으로 나타났습니다 (2026-08-07). 장식 화살표에는 `pointer-events-none` 도 함께 답니다
 - **버튼은 `items-end` 로 필드 바닥에 붙입니다.** 라벨이 없어 그냥 두면 **17px 위로 뜹니다**(라벨 높이). 크기는 `default` — `--h-input-default` 가 40/36 으로 알아서 갈립니다
 - **조건은 4개까지.** 넘으면 좁을 때는 별도 필터 시트로, 넓을 때는 별도 검색 화면으로
-- 조건 줄은 **`FilterRow`** 로 감쌉니다 — 좁으면 세로, 넓으면 가로로 바뀝니다. 기간(`DateField`)은 넓어서 자기 줄을 씁니다
-- **안에 넣는 컨트롤도 한 벌입니다** — `<DateField/>` · `<Select/>` · `<Combobox/>` 를 그대로 씁니다. 시트로 열지 팝오버로 열지는 CSS 로 고를 수 없지만 **`PointerModeProvider` 가 정하므로** 호출부는 판단하지 않습니다. 스토리도 PC 와 모바일이 **글자 하나까지 같습니다** — 390 틀만 `mode="touch"` 로 감싸져 있습니다
-  - **조회 조건에서 `MobileDateField` · `MobileSelect` 를 직접 부를 자리는 없습니다.** 2026-08-07 이전에는 "좁은 화면은 `MobileDateField` · `MobileSelect`, 넓은 화면은 `DateField` · `Select`" 라고 적어뒀는데, `PointerModeProvider` 가 들어오면서 사실이 아니게 됐습니다 (2026-08-10 수정). 억지로 시트를 쓰려면 `overlay="sheet"` 가 있지만, 앱 화면에서 이걸 넘기기 시작하면 Provider 를 둔 뜻이 없어집니다 — 실제로 쓰는 곳은 문서·데모입니다
+- 조건 줄은 **`FilterRow`** 로 감쌉니다 — 좁으면 세로, 넓으면 가로로 바뀝니다. 기간(`DateRangePicker quickSelect`)은 넓어서 자기 줄을 씁니다
+- **안에 넣는 컨트롤도 한 벌입니다** — `<DateRangePicker/>` · `<Select/>` · `<Combobox/>` 를 그대로 씁니다. 시트로 열지 팝오버로 열지는 CSS 로 고를 수 없지만 **`PointerModeProvider` 가 정하므로** 호출부는 판단하지 않습니다. 스토리도 PC 와 모바일이 **글자 하나까지 같습니다** — 390 틀만 `mode="touch"` 로 감싸져 있습니다
+  - **조회 조건에서 `MobileDateRangePicker` · `MobileSelect` 를 직접 부를 자리는 없습니다.** 2026-08-07 이전에는 "좁은 화면은 모바일 컨트롤, 넓은 화면은 PC 컨트롤" 라고 적어뒀는데, `PointerModeProvider` 가 들어오면서 사실이 아니게 됐습니다 (2026-08-10 수정). 억지로 시트를 쓰려면 `overlay="sheet"` 가 있지만, 앱 화면에서 이걸 넘기기 시작하면 Provider 를 둔 뜻이 없어집니다 — 실제로 쓰는 곳은 문서·데모입니다
 - Figma description 이 "Expanded 206" 이라 적고 있었는데 변형은 **200** 입니다 — 변형에 맞췄습니다 (2026-08-07)
 
 ### Lookup — 열이 여러 개인 드롭다운
@@ -682,7 +695,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 - [x] ~~LookupPanel · LookupRow~~ — 완성형 `Lookup` 까지 (2026-08-07). **ListItem 이 아니라 자체 행**입니다 — 아래 근거
 - [ ] AccordionItem
-- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen (조회 조건은 `FilterBar` 한 벌로 합쳤습니다)
+- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateRangePicker · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen (조회 조건은 `FilterBar` 한 벌로 합쳤습니다)
 - [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다
 - [ ] React Hook Form + Zod 연동 예시
 
@@ -695,7 +708,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [x] ~~Toast~~ — `@radix-ui/react-toast` (2026-08-07)
 - [x] ~~Tabs~~ — **Radix 없이 만들었습니다** (2026-08-07). 근거는 아래 Tabs 절
 - [ ] DropdownMenu
-- [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **PC 는 끝**입니다. 남은 건 모바일(MobileCalendar · MobileDateField)
+- [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **PC 는 끝**입니다. 남은 건 모바일(MobileCalendar · MobileDateRangePicker)
 
 ### Figma
 

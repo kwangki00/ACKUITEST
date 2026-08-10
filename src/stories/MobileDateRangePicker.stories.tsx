@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { MobileDateField } from "@/components/ui/mobile-date-field";
-import { DateField } from "@/components/ui/date-field";
+import { MobileDateRangePicker } from "@/components/ui/mobile-date-range-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { FormField } from "@/components/ui/form-field";
 import type { DateRange } from "@/components/ui/calendar";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
 import { PointerModeProvider } from "@/components/ui/pointer-mode";
@@ -26,9 +27,9 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
 const today = startOfDay(new Date());
 
 /**
- * Figma: MobileDateField (3 변형) + MobileCalendar (6 변형)
+ * Figma: MobileDateRangePicker (3 변형) + MobileCalendar (6 변형)
  *
- * 모바일 조회 조건의 기간 입력입니다. **PC 의 `DateField` 와 짝**이고 규칙도 같습니다 —
+ * 모바일 조회 조건의 기간 입력입니다. **PC 의 `DateRangePicker` 와 짝**이고 규칙도 같습니다 —
  * 다만 가로로 놓는 대신 **세로로 쌓습니다.**
  *
  * ### PC 와 다른 점
@@ -51,9 +52,9 @@ const today = startOfDay(new Date());
  * 7일을 눌러둔 채로 3월을 고르면 칩이 실제 조회 조건과 다른 것을 가리킵니다.
  */
 const meta = {
-  title: "Mobile/MobileDateField",
-  component: MobileDateField,
-  parameters: { layout: "centered", ...design(figma.mobileDateField) },
+  title: "Mobile/MobileDateRangePicker",
+  component: MobileDateRangePicker,
+  parameters: { layout: "centered", ...design(figma.mobileDateRangeField) },
   argTypes: {
     precision: { control: "inline-radio", options: ["day", "month", "year"] },
     value: { control: false },
@@ -62,7 +63,7 @@ const meta = {
     container: { control: false },
   },
   args: { value: { start: null, end: null }, onValueChange: () => {} },
-} satisfies Meta<typeof MobileDateField>;
+} satisfies Meta<typeof MobileDateRangePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -74,13 +75,14 @@ export const 기본: Story = {
       <Phone>
         {(el) => (
           <>
-            <MobileDateField
+            <FormField label="조회 기간">
+              <MobileDateRangePicker
               {...args}
               container={el}
-              label="조회 기간"
               value={v}
               onValueChange={setV}
             />
+            </FormField>
             <p className="text-2xs text-text-muted-foreground">
               {v.start && v.end ? `${formatDate(v.start)} ~ ${formatDate(v.end)}` : "(없음)"}
             </p>
@@ -99,13 +101,14 @@ export const 빈값: Story = {
     return (
       <Phone>
         {(el) => (
-          <MobileDateField
+          <FormField label="조회 기간">
+              <MobileDateRangePicker
             {...args}
             container={el}
-            label="조회 기간"
             value={v}
             onValueChange={setV}
           />
+            </FormField>
         )}
       </Phone>
     );
@@ -123,14 +126,15 @@ export const 칩없음: Story = {
     return (
       <Phone>
         {(el) => (
-          <MobileDateField
+          <FormField label="검사 시행일">
+              <MobileDateRangePicker
             {...args}
             container={el}
-            label="검사 시행일"
             presets={false}
             value={v}
             onValueChange={setV}
           />
+            </FormField>
         )}
       </Phone>
     );
@@ -145,14 +149,15 @@ export const 월단위: Story = {
     return (
       <Phone>
         {(el) => (
-          <MobileDateField
+          <FormField label="통계 기간">
+              <MobileDateRangePicker
             {...args}
             container={el}
-            label="통계 기간"
             precision="month"
             value={v}
             onValueChange={setV}
           />
+            </FormField>
         )}
       </Phone>
     );
@@ -174,19 +179,22 @@ export const PC와나란히: Story = {
     return (
       <div className="flex items-start gap-8">
         <div>
-          <p className="mb-2 text-xs text-text-subtle">PC — DateField (가로)</p>
-          <DateField label="조회 기간" value={pc} onValueChange={setPc} />
+          <p className="mb-2 text-xs text-text-subtle">PC — DateRangePicker (가로)</p>
+          <FormField label="조회 기간">
+            <DateRangePicker quickSelect value={pc} onValueChange={setPc} />
+          </FormField>
         </div>
         <div>
-          <p className="mb-2 text-xs text-text-subtle">모바일 — MobileDateField (세로)</p>
+          <p className="mb-2 text-xs text-text-subtle">모바일 — MobileDateRangePicker (세로)</p>
           <Phone>
             {(el) => (
-              <MobileDateField
+              <FormField label="조회 기간">
+              <MobileDateRangePicker
                 container={el}
-                label="조회 기간"
                 value={mo}
                 onValueChange={setMo}
               />
+            </FormField>
             )}
           </Phone>
         </div>
