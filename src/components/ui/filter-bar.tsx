@@ -147,7 +147,10 @@ export function FilterBar({
           aria-controls={panelId}
           onClick={() => setOpen(!open)}
           className={cn(
-            "absolute inset-0 rounded-md outline-hidden",
+            // z-10 이 필요합니다 — 이 줄의 자식 중 하나라도 transform 이 걸리면
+            // (화살표의 rotate-180) 스택 문맥이 생겨 오버레이보다 위로 올라옵니다.
+            // 그러면 그 위를 눌러도 오버레이에 닿지 않습니다
+            "absolute inset-0 z-10 rounded-md outline-hidden",
             "focus-visible:ring-2 focus-visible:ring-action-focus-ring",
             "@pc/filter:hidden"
           )}
@@ -196,11 +199,13 @@ export function FilterBar({
           </Button>
         )}
 
-        {/* 좁을 때는 오버레이가 누름을 맡으므로 화살표는 장식입니다 */}
+        {/* 좁을 때는 오버레이가 누름을 맡으므로 화살표는 장식입니다 —
+            장식이니 클릭도 받지 않습니다 */}
         <ChevronDown
           aria-hidden
           className={cn(
-            "size-5 shrink-0 text-icon-muted-foreground transition-transform @pc/filter:hidden",
+            "pointer-events-none size-5 shrink-0 text-icon-muted-foreground",
+            "transition-transform @pc/filter:hidden",
             open && "rotate-180"
           )}
         />
