@@ -57,6 +57,7 @@ const preview: Preview = {
             "CheckMark",
             "ChoiceGroup",
             "Combobox",
+            "DateField",
             "Input",
             "InputGroup",
             "NativeSelect",

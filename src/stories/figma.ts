@@ -28,6 +28,7 @@ export const figma = {
   toast: node("652:7057"),
   mobileSheet: node("773:3976"),
   mobileSelectContent: node("810:13673"),
+  pcDateField: node("885:16749"),
   mobileDateField: node("772:12288"),
   mobileCalendar: node("780:4474"),
   mobileFilterBar: node("831:699"),

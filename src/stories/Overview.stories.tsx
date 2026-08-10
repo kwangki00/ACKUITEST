@@ -98,6 +98,11 @@ const GROUPS: Group[] = [
         codeOnly: ["NativeSelect"],
       },
       {
+        name: "DateField",
+        what: "기간 입력 한 묶음 — 라벨 + 입력창 + 빠른 선택",
+        rule: "**기간을 받는 자리에는 이걸 쓰세요.** 칩과 입력창이 한 값을 봐야 해서 라벨까지 안고 있습니다. PC·모바일 한 벌",
+      },
+      {
         name: "DatePicker",
         what: "단일 날짜 — 일 · 월 · 연 단위",
         rule: "입력창을 직접 칠 수 있습니다. 여덟 자리를 채우기 전에는 값이 바뀌지 않습니다",

@@ -6,7 +6,6 @@ import {
   DateRangeTabs,
   DEFAULT_PRESETS,
 } from "@/components/ui/date-range-picker";
-import { DateField } from "@/components/ui/date-field";
 import type { DateRange } from "@/components/ui/calendar";
 import { FormField } from "@/components/ui/form-field";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
@@ -66,6 +65,10 @@ const today = startOfDay(new Date());
  * 위·아래로는 **커서가 놓인 칸만** 오르내립니다 (시작 년/월/일, 종료 년/월/일 여섯 칸).
  * 시작은 종료를 넘지 못하고 종료는 시작보다 앞서지 못합니다.
  */
+/*
+  라벨 + 입력창 + 빠른 선택을 한 묶음으로 쓰려면 `Controls/DateField` 를 보세요 —
+  조회 조건에 넣을 때는 그쪽이고, 여기는 그 안에 든 입력창과 패널입니다.
+*/
 const meta = {
   title: "Controls/DateRangePicker",
   component: DateRangePicker,
@@ -214,43 +217,6 @@ export const State: Story = {
   },
 };
 
-/**
- * Figma: PCDateField — 조회 조건의 기간 입력 **한 묶음**입니다.
- *
- * 빠른 선택이 패널 안에도 있고 입력창 옆에도 있습니다. 조회 화면에서
- * **가장 많이 하는 일이 "최근 N일"** 이라, 패널을 열지 않고 끝나는 경로를
- * 한 번 더 앞에 둡니다.
- *
- * ### 칩은 거짓말을 하면 안 됩니다
- *
- * 7일을 눌러둔 채로 달력에서 3월 한 달을 고르면 **칩 선택이 풀립니다.**
- * 안 그러면 화면이 "최근 7일" 이라고 말하면서 실제로는 3월을 조회합니다.
- *
- * 눌러 보세요 — 칩 → 값이 채워지고, 달력에서 임의 기간 → 칩이 꺼집니다.
- *
- * ### Chip 이 아니라 ToggleGroup 입니다
- *
- * Figma description 은 "칩" 이라고 부르지만 실제로 얹힌 것은 `ToggleGroup(Outline)` 입니다.
- * 하나만 켜지는 배타 선택이라 세그먼트 컨트롤이 맞습니다 —
- * `Chip` 은 삭제할 수 있는 태그이고 여기서는 지우는 개념이 없습니다.
- */
-export const 조회조건묶음: Story = {
-  name: "조회 조건 묶음 (PCDateField)",
-  decorators: [],
-  parameters: { layout: "padded" },
-  render: function Field() {
-    const [v, setV] = useState<DateRange>({ start: addDays(today, -6), end: today });
-    // w-fit — DateField 는 부모가 준 폭을 채웁니다. 여기서는 내용만큼만 보여줍니다
-    return (
-      <div className="flex w-fit flex-col gap-4">
-        <DateField label="조회 기간" required value={v} onValueChange={setV} />
-        <p className="text-2xs text-text-muted-foreground">
-          {v.start && v.end ? `${formatDate(v.start)} ~ ${formatDate(v.end)}` : "(기간 없음)"}
-        </p>
-      </div>
-    );
-  },
-};
 
 /**
  * 범위도 `Precision` 을 탑니다. 통계 화면의 **월별 · 연별 조회**가 여기입니다.
