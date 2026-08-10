@@ -72,6 +72,11 @@ export interface ComboboxProps {
   title?: string;
   /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
   container?: HTMLElement | null;
+  /**
+   * 붙은 라벨이 없을 때 이름을 줍니다. **`FormField` 로 감쌌다면 필요 없습니다** —
+   * 라벨과 자동으로 묶입니다.
+   */
+  "aria-label"?: string;
 }
 
 /** 트리거 + 패널을 묶은 완성형입니다. 패널만 필요하면 ComboboxPanel 을 쓰세요. */
@@ -98,9 +103,11 @@ function SheetCombobox({
   className,
   title,
   container,
+  "aria-label": ariaLabel,
 }: ComboboxProps) {
   return (
     <MobileSelect
+      aria-label={ariaLabel}
       type={type}
       options={options}
       value={value}
@@ -138,6 +145,7 @@ function PopoverCombobox({
   clearable,
   leadingIcon,
   searchable = true,
+  "aria-label": ariaLabel,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -283,6 +291,7 @@ function PopoverCombobox({
             state={state}
             disabled={disabled}
             open={open}
+            aria-label={ariaLabel}
             // 안의 input 이 combobox 역할을 맡습니다 — 껍데기는 초점 대상이 아닙니다
             role={undefined}
             tabIndex={-1}
@@ -351,6 +360,7 @@ function PopoverCombobox({
           size={size}
           state={state}
           disabled={disabled}
+          aria-label={ariaLabel}
           open={open}
           leadingIcon={leadingIcon}
           onClear={clearable && value.length > 0 ? () => onValueChange([]) : undefined}

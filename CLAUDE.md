@@ -152,6 +152,13 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **에러가 나면 설명을 가립니다** — 한 번에 하나만 읽게 합니다. 형식 안내를 계속 보여주고 싶으면 그 내용을 에러 문구에 넣으세요. Figma 는 Description 이 불리언 하나라 State=Error 변형만 끌 수 없어 인스턴스에서 꺼야 합니다 (2026-08-07 — Figma Documentation 에 "설명 유지" 예시가 있었는데 코드에 맞춰 지웠습니다)
 - 에러는 `State=Error` 일 때만 — React Hook Form + Zod 의 검증 결과로 자동 결정됩니다
 - **래퍼에 `size` 는 없습니다.** Figma 의 Size 축은 래퍼가 아니라 **안쪽 컨트롤의 높이**라 `<Input size="lg" />` 처럼 컨트롤에 줍니다. 받기만 하고 아무 데도 안 쓰던 prop 을 지웠습니다 (2026-08-07)
+- **라벨과 컨트롤은 자동으로 묶입니다** — `<FormField label="…"><Input /></FormField>` 가 전부입니다. `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10). `useId()` 로 만든 id 셋이 컨텍스트로 내려가고, 설명·에러도 `aria-describedby` 로 함께 묶입니다
+  - **연결을 호출부에 시키면 반드시 빠집니다** — 이 저장소도 `FormField` 60곳 중 **26곳만** 넘기고 있었고, 나머지 34곳은 스크린리더로 가면 무엇을 입력하는 칸인지 안 읽혔습니다. 게다가 그 26곳 중 `Select` 넷은 `<div role="combobox">` 를 겨눠 **헛돌고 있었습니다.** 빠져도 화면은 멀쩡해서 알아챌 방법이 없습니다
+  - **`SelectTrigger` 계열은 `aria-labelledby` 로 묶습니다** — `<label for>` 는 labelable 요소(`input`·`textarea`·`select`)에만 걸립니다. `Select` · `Combobox` · `Lookup` · `MobileSelect` 가 껍데기를 공유하므로 한 곳만 고쳐 넷이 따라왔습니다
+  - **직접 준 것이 이깁니다** — `aria-label` · `aria-labelledby` 로 스스로 이름을 대면 설명(`aria-describedby`)까지 컨텍스트를 쓰지 않습니다. **이 규칙이 패널 안 검색창의 오염을 막습니다**: React 컨텍스트는 Portal 을 통과해서 `ComboboxPanel` · `LookupPanel` 의 검색창과 달력의 년·월 `Select` 가 바깥 필드의 id 를 집어갈 수 있는데, 셋 다 이미 `aria-label` 을 갖고 있어 걸러집니다. 안 그러면 검색창이 "검색, 여러 항목은 쉼표로 구분합니다" 로 읽힙니다
+  - **`id` 를 직접 주면 `aria-labelledby` 로 갈아탑니다** — `<label for>` 는 필드가 만든 id 를 가리키고 있어서 헛돕니다. 판단은 `useFieldBinding()` 한 곳에 모았습니다 — 네 갈래가 있고 하나만 어긋나도 그 칸만 조용히 이름을 잃습니다
+  - **`XxxField` 를 만들 이유가 없어졌습니다** — 이전 프로젝트에서 `InputField` · `SelectField` 처럼 라벨을 컨트롤에 넣어 쓴 이유가 "안 그러면 연결이 빠져서" 였습니다. 원인이 조립 방식이 아니라 **연결을 손으로 시키는 것**이었으므로 조립을 유지합니다. `DateField` 가 `FormField` 를 안고 있는 건 다른 이유입니다 — 입력창과 칩이 **같은 값을 봐야** 해서지 라벨 때문이 아닙니다
+  - `Checkbox` · `Radio` · `Switch` 는 **자기 라벨을 스스로** 답니다 (박스 옆 글자). 이 컨텍스트를 읽지 않습니다
 
 #### 라벨은 누가 갖나 — 안에 컨트롤이 몇 개냐로 갈립니다
 

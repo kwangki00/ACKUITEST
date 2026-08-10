@@ -69,6 +69,8 @@ export interface MobileSelectProps {
   className?: string;
   /** 문서·데모에서 시트를 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
   container?: HTMLElement | null;
+  /** 붙은 라벨이 없을 때만. `FormField` 로 감쌌다면 자동으로 묶입니다. */
+  "aria-label"?: string;
 }
 
 export function MobileSelect({
@@ -87,6 +89,7 @@ export function MobileSelect({
   disabled,
   className,
   container,
+  "aria-label": ariaLabel,
 }: MobileSelectProps) {
   // 시트 머리글은 결국 필드 라벨과 같은 글자입니다 — 같은 걸 두 번 적게 하지 않습니다
   const fieldLabel = useFormFieldLabel();
@@ -143,6 +146,7 @@ export function MobileSelect({
         state={state}
         disabled={disabled}
         open={open}
+        aria-label={ariaLabel}
         onClick={openSheet}
         className={cn(value.length === 0 && !disabled && "text-text-placeholder", className)}
       >

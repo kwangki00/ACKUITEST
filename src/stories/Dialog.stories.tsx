@@ -239,11 +239,11 @@ export const 폼: Story = {
         </DialogDescription>
 
         <div className="flex flex-col gap-3">
-          <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요." htmlFor="dg1">
-            <Input id="dg1" placeholder="예: CBC-001" />
+          <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요.">
+            <Input placeholder="예: CBC-001" />
           </FormField>
-          <FormField label="검사명" required htmlFor="dg2">
-            <Input id="dg2" placeholder="예: 일반혈액검사" />
+          <FormField label="검사명" required>
+            <Input placeholder="예: 일반혈액검사" />
           </FormField>
           <FormField label="분류">
             <Select

@@ -180,17 +180,17 @@ export const 결과조회화면: Story = {
       <div className="border-b border-border-gray-light bg-background-white px-6 py-4">
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-64">
-            <FormField label="기간설정" htmlFor="s1">
-              <Input id="s1" trailingIcon={<Calendar />} defaultValue="2025-04-26 ~ 2026-07-07" />
+            <FormField label="기간설정">
+              <Input trailingIcon={<Calendar />} defaultValue="2025-04-26 ~ 2026-07-07" />
             </FormField>
           </div>
           <div className="w-56">
-            <FormField label="검색" htmlFor="s2">
-              <Input id="s2" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
+            <FormField label="검색">
+              <Input leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
             </FormField>
           </div>
           <div className="w-40">
-            <FormField label="정렬" htmlFor="s3">
+            <FormField label="정렬">
               <Select
                 options={[
                   { value: "a", label: "접수번호순" },

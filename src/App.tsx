@@ -267,14 +267,14 @@ function Gallery() {
 
         <Section title="FormField" note="라벨 12 Medium · 값 14. 에러는 State=Error 일 때만 보입니다.">
           <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="검색" htmlFor="f1">
-              <Input id="f1" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
+            <FormField label="검색">
+              <Input leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
             </FormField>
-            <FormField label="검사 항목" htmlFor="f2" description="여러 항목은 쉼표로 구분합니다.">
+            <FormField label="검사 항목" description="여러 항목은 쉼표로 구분합니다.">
               <Select options={TESTS} value="all" onValueChange={() => {}} />
             </FormField>
-            <FormField label="접수번호" htmlFor="f3" required error="접수번호를 입력해 주세요.">
-              <Input id="f3" state="error" placeholder="예: 20250601001" />
+            <FormField label="접수번호" required error="접수번호를 입력해 주세요.">
+              <Input state="error" placeholder="예: 20250601001" />
             </FormField>
           </div>
         </Section>
@@ -393,12 +393,12 @@ function Gallery() {
               {/* 라벨 + 입력 + 빠른 선택이 한 묶음입니다 (Figma 의 PCDateField) */}
               <DateField label="기간설정" value={period} onValueChange={setPeriod} />
               <div className="w-56">
-                <FormField label="검색" htmlFor="p2">
-                  <Input id="p2" leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
+                <FormField label="검색">
+                  <Input leadingIcon={<Search />} placeholder="성명 또는 차트번호" />
                 </FormField>
               </div>
               <div className="w-40">
-                <FormField label="정렬" htmlFor="p3">
+                <FormField label="정렬">
                   <Select
                     options={[
                       { value: "a", label: "접수번호순" },

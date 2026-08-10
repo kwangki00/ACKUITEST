@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFieldBinding } from "@/components/ui/form-field";
 import {
   selectStateClass,
   type SelectSize as Size,
@@ -38,8 +39,24 @@ export interface NativeSelectProps
 }
 
 export const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProps>(
-  ({ className, size = "default", state = "default", placeholder, children, disabled, ...props }, ref) => {
+  (
+    {
+      className,
+      size = "default",
+      state = "default",
+      placeholder,
+      children,
+      disabled,
+      id,
+      "aria-label": ariaLabel,
+      "aria-describedby": ariaDescribedBy,
+      ...props
+    },
+    ref
+  ) => {
     const resolved: State = disabled ? "disabled" : state;
+    /* FormField 의 id 를 집어 씁니다 — 직접 준 것이 있으면 그게 이깁니다 (Input 과 같은 규칙) */
+    const field = useFieldBinding({ id, ariaLabel, ariaDescribedBy });
     const isGrid = size === "grid";
     return (
       <div className="relative w-full">
@@ -54,6 +71,7 @@ export const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProp
             resolved === "disabled" && "cursor-not-allowed",
             className
           )}
+          {...field}
           {...props}
         >
           {placeholder && (

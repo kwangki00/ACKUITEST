@@ -34,6 +34,26 @@ import { design, figma } from "./figma";
  *
  * 래퍼는 라벨 · 필수 표시 · 설명 · 에러만 담당하고 **안에 무엇이 들어가는지 모릅니다.**
  * Figma 의 Control 축 7종은 코드에서 그냥 children 입니다 — `Control` 스토리를 보세요.
+ *
+ * ### 라벨은 자동으로 묶입니다 (2026-08-10)
+ *
+ * ```tsx
+ * <FormField label="검사 항목"><Input /></FormField>   // 이게 전부입니다
+ * ```
+ *
+ * `htmlFor` 도 `id` 도 넘기지 마세요. `useId()` 로 만든 id 가 컨텍스트로 내려가
+ * 안쪽 컨트롤이 집어 씁니다. 설명·에러도 `aria-describedby` 로 함께 묶입니다.
+ *
+ * **연결을 호출부에 시키면 반드시 빠집니다** — 이 저장소도 60곳 중 26곳만 넘기고
+ * 있었고, 나머지는 스크린리더로 가면 무엇을 입력하는 칸인지 안 읽혔습니다.
+ * 화면은 멀쩡해서 알아챌 방법이 없습니다.
+ *
+ * `SelectTrigger` 계열(`Select` · `Combobox` · `Lookup` · `MobileSelect`)은
+ * `<div role="combobox">` 라 `<label for>` 가 안 통합니다 — **`aria-labelledby`**
+ * 로 묶습니다. 겉으로는 똑같이 그냥 감싸면 됩니다.
+ *
+ * `id` · `aria-label` 을 직접 넘기면 그게 이깁니다. 라벨을 둘 자리가 없어
+ * `aria-label` 로 이름을 준 곳(달력의 년·월 등)이 여기 걸립니다.
  */
 const meta = {
   title: "Form/FormField",
@@ -54,8 +74,8 @@ type Story = StoryObj<typeof meta>;
 
 export const 기본: Story = {
   render: (args) => (
-    <FormField {...args} htmlFor="a">
-      <Input id="a" placeholder="검사명 또는 코드" />
+    <FormField {...args}>
+      <Input placeholder="검사명 또는 코드" />
     </FormField>
   ),
 };
@@ -63,8 +83,8 @@ export const 기본: Story = {
 export const 설명: Story = {
   args: { description: "여러 항목은 쉼표로 구분합니다." },
   render: (args) => (
-    <FormField {...args} htmlFor="b">
-      <Input id="b" placeholder="검사명 또는 코드" />
+    <FormField {...args}>
+      <Input placeholder="검사명 또는 코드" />
     </FormField>
   ),
 };
@@ -77,8 +97,8 @@ export const 에러: Story = {
     error: "검사 항목을 선택해 주세요.",
   },
   render: (args) => (
-    <FormField {...args} htmlFor="c">
-      <Input id="c" state="error" placeholder="검사명 또는 코드" />
+    <FormField {...args}>
+      <Input state="error" placeholder="검사명 또는 코드" />
     </FormField>
   ),
 };
@@ -118,46 +138,46 @@ export const Control: Story = {
     return (
       <div className="grid w-[760px] gap-x-6 gap-y-5 sm:grid-cols-2">
         <Cell note="Input">
-          <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요." htmlFor="c1">
-            <Input id="c1" placeholder="텍스트를 입력해 주세요." />
+          <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요.">
+            <Input placeholder="텍스트를 입력해 주세요." />
           </FormField>
         </Cell>
         <Cell note="Input + Error">
-          <FormField label="검사 코드" required error="이미 등록된 검사 코드입니다." htmlFor="c2">
-            <Input id="c2" state="error" defaultValue="CBC-001" />
+          <FormField label="검사 코드" required error="이미 등록된 검사 코드입니다.">
+            <Input state="error" defaultValue="CBC-001" />
           </FormField>
         </Cell>
 
         <Cell note="InputGroup — 아이콘·버튼이 붙는 필드">
-          <FormField label="검사 수가" description="검사명 또는 코드로 찾습니다." htmlFor="c3">
+          <FormField label="검사 수가" description="검사명 또는 코드로 찾습니다.">
             <InputGroup>
-              <Input id="c3" leadingIcon={<Search />} placeholder="검사명 또는 코드" />
+              <Input leadingIcon={<Search />} placeholder="검사명 또는 코드" />
               <Button>조회</Button>
             </InputGroup>
           </FormField>
         </Cell>
         <Cell note="InputGroup + Error — 안쪽 Input 까지 연동">
-          <FormField label="검사 수가" error="검사를 먼저 조회해 주세요." htmlFor="c4">
+          <FormField label="검사 수가" error="검사를 먼저 조회해 주세요.">
             <InputGroup>
-              <Input id="c4" state="error" placeholder="검사명 또는 코드" />
+              <Input state="error" placeholder="검사명 또는 코드" />
               <Button>조회</Button>
             </InputGroup>
           </FormField>
         </Cell>
 
         <Cell note="Textarea">
-          <FormField label="특이사항" description="검사 결과에 대한 특이사항을 기재합니다." htmlFor="c5">
-            <Textarea id="c5" placeholder="내용을 입력해 주세요." />
+          <FormField label="특이사항" description="검사 결과에 대한 특이사항을 기재합니다.">
+            <Textarea placeholder="내용을 입력해 주세요." />
           </FormField>
         </Cell>
         <Cell note="Textarea + Counter — 길이 제한이 있을 때">
-          <FormField label="특이사항" htmlFor="c6">
-            <Textarea id="c6" counter maxLength={500} placeholder="내용을 입력해 주세요." />
+          <FormField label="특이사항">
+            <Textarea counter maxLength={500} placeholder="내용을 입력해 주세요." />
           </FormField>
         </Cell>
 
         <Cell note="Select — 단일">
-          <FormField label="검사 종류" htmlFor="c7">
+          <FormField label="검사 종류">
             <Select options={TESTS} value="cbc" onValueChange={() => {}} />
           </FormField>
         </Cell>
@@ -232,18 +252,18 @@ export const 슬롯: Story = {
   render: () => (
     <div className="grid w-[760px] gap-x-6 gap-y-5 sm:grid-cols-2">
       <Cell note="전부 켬">
-        <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요." htmlFor="s1">
-          <Input id="s1" placeholder="텍스트를 입력해 주세요." />
+        <FormField label="검사 코드" required description="영문 대문자와 숫자만 입력하세요.">
+          <Input placeholder="텍스트를 입력해 주세요." />
         </FormField>
       </Cell>
       <Cell note="설명 끔">
-        <FormField label="검사 코드" required htmlFor="s2">
-          <Input id="s2" placeholder="텍스트를 입력해 주세요." />
+        <FormField label="검사 코드" required>
+          <Input placeholder="텍스트를 입력해 주세요." />
         </FormField>
       </Cell>
       <Cell note="라벨 끔 — 표 안이나 반복되는 줄에서">
-        <FormField htmlFor="s3">
-          <Input id="s3" placeholder="텍스트를 입력해 주세요." />
+        <FormField>
+          <Input placeholder="텍스트를 입력해 주세요." />
         </FormField>
       </Cell>
       <Cell note="에러 — 설명이 있어도 가려집니다">
@@ -252,9 +272,9 @@ export const 슬롯: Story = {
           required
           description="영문 대문자와 숫자만 입력하세요."
           error="이미 등록된 검사 코드입니다."
-          htmlFor="s4"
+         
         >
-          <Input id="s4" state="error" defaultValue="CBC-001" />
+          <Input state="error" defaultValue="CBC-001" />
         </FormField>
       </Cell>
     </div>

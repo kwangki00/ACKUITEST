@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFieldBinding } from "@/components/ui/form-field";
 
 /**
  * Figma: SelectTrigger (120 변형 — Size 4 × State 6 × Render 5)
@@ -83,12 +84,26 @@ export const SelectTrigger = React.forwardRef<HTMLDivElement, SelectTriggerProps
       className,
       children,
       onKeyDown,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
       ...props
     },
     ref
   ) => {
     const resolved: SelectState = disabled ? "disabled" : state;
     const isGrid = size === "grid";
+
+    /*
+      **div 는 `<label for>` 로 못 묶습니다.** for 가 가리킬 수 있는 것은 input ·
+      select · textarea 같은 labelable 요소뿐이라, 여기에 걸면 조용히 아무 일도
+      일어나지 않습니다 (실제로 그 상태였습니다). 대신 라벨의 id 를 aria-labelledby
+      로 가리킵니다.
+
+      직접 준 이름이 있으면 그게 이깁니다 — 달력의 년·월 Select 처럼 라벨을 둘
+      자리가 없어 aria-label 을 쓰는 곳이 컨텍스트를 집어가지 않게 합니다.
+    */
+    const field = useFieldBinding({ ariaLabel, ariaLabelledBy, ariaDescribedBy, labelable: false });
 
     return (
       <div
@@ -97,6 +112,7 @@ export const SelectTrigger = React.forwardRef<HTMLDivElement, SelectTriggerProps
         tabIndex={disabled ? -1 : 0}
         aria-expanded={open}
         aria-disabled={disabled || undefined}
+        {...field}
         onKeyDown={(e) => {
           onKeyDown?.(e);
           // 안의 <input> 이나 버튼에서 올라온 키는 건드리지 않습니다.

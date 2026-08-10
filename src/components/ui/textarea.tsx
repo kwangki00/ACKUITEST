@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useFieldBinding } from "@/components/ui/form-field";
 
 /**
  * Figma: Textarea (12 변형 — State 6 × Content 2)
@@ -37,10 +38,26 @@ export interface TextareaProps
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
-    { className, state = "default", counter, disabled, readOnly, value, defaultValue, onChange, maxLength, ...props },
+    {
+      className,
+      state = "default",
+      counter,
+      disabled,
+      readOnly,
+      value,
+      defaultValue,
+      onChange,
+      maxLength,
+      id,
+      "aria-label": ariaLabel,
+      "aria-describedby": ariaDescribedBy,
+      ...props
+    },
     ref
   ) => {
     const resolved: State = disabled ? "disabled" : readOnly ? "readonly" : state;
+    /* FormField 의 id 를 집어 씁니다 — 직접 준 것이 있으면 그게 이깁니다 (Input 과 같은 규칙) */
+    const field = useFieldBinding({ id, ariaLabel, ariaDescribedBy });
 
     // 제어·비제어 양쪽에서 글자 수가 맞아야 합니다.
     // 제어면 value 가 진실이고, 비제어면 입력을 따라가며 셉니다.
@@ -73,6 +90,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             "text-text-basic placeholder:text-text-placeholder",
             "disabled:cursor-not-allowed disabled:text-text-disabled"
           )}
+          {...field}
           {...props}
         />
         {counter && (

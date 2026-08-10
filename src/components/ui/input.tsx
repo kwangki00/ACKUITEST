@@ -1,6 +1,7 @@
 import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFieldBinding } from "@/components/ui/form-field";
 import { InputGroupContext } from "@/components/ui/input-group";
 
 /**
@@ -110,11 +111,26 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       defaultValue,
       onChange,
       onKeyDown,
+      id,
+      "aria-label": ariaLabel,
+      "aria-describedby": ariaDescribedBy,
       ...props
     },
     ref
   ) => {
     const group = React.useContext(InputGroupContext);
+    /*
+      감싸고 있는 FormField 의 id 를 집어 씁니다 — **직접 준 것이 있으면 그게 이깁니다.**
+      이 규칙이 패널 안 검색창의 오염을 막습니다: React 컨텍스트는 Portal 을 통과해서
+      ComboboxPanel · LookupPanel 의 검색창이 바깥 필드의 id 를 집어갈 수 있는데,
+      그것들은 전부 aria-label 로 이름을 갖고 있어 여기서 걸러집니다.
+    */
+    const field = useFieldBinding({
+      id,
+      ariaLabel,
+      ariaLabelledBy: props["aria-labelledby" as keyof typeof props] as string | undefined,
+      ariaDescribedBy,
+    });
     // InputGroup 안이면 그룹 크기를 따릅니다 — 따로 주면 버튼과 높이가 어긋납니다
     const s: Size = size ?? group?.size ?? "default";
     const resolved: State = disabled ? "disabled" : readOnly ? "readonly" : state;
@@ -198,6 +214,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "disabled:text-text-disabled disabled:cursor-not-allowed",
             alignRight && "text-right"
           )}
+          {...field}
           {...props}
         />
 
