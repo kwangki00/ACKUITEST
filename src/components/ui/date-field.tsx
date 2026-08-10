@@ -164,11 +164,15 @@ export function DateField({
         description={description}
         error={error}
         /*
-          basis 256 · grow — 한 줄에 들어가면 256 이고(남는 자리가 없으니 grow 가
-          할 일이 없습니다), 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 찹니다.
-          w-64 로 박아두면 좁은 화면에서 오른쪽이 100px 남습니다.
+          w-64 + grow — 한 줄에 들어가면 256 이고(남는 자리가 없으니 grow 가 할 일이
+          없습니다), 칩이 다음 줄로 내려가면 그 줄을 혼자 쓰므로 꽉 찹니다.
+
+          basis-64 로 주면 안 됩니다. FormField 의 기본이 w-full 이라 둘이 남는데,
+          최대 폭을 잴 때는 퍼센트가 auto 로 취급돼 **입력창 내용 폭**이 잡히고
+          배치할 때는 basis 256 이 쓰입니다 — 그 차이만큼 칩이 다음 줄로 밀립니다.
+          w-64 는 tailwind-merge 가 w-full 을 걷어내서 두 계산이 같아집니다.
         */
-        className="min-w-0 grow basis-64"
+        className="w-64 grow"
       >
         <DateRangePicker
           value={value}
