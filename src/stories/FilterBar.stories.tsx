@@ -150,10 +150,11 @@ type Story = StoryObj<typeof meta>;
 /**
  * **이 스토리가 이번 변경의 요점입니다.**
  *
- * 왼쪽과 오른쪽은 **완전히 같은 `FilterBar` 코드**입니다. 폭만 다릅니다 —
- * 390 과 1100. `--container-pc`(880)를 경계로 배치가 갈립니다.
+ * 위와 아래는 **완전히 같은 `FilterBar` 코드**입니다. 담긴 칸의 폭만 다릅니다 —
+ * 위는 390 고정, 아래는 문서 폭 그대로. `--container-pc`(880)를 경계로 갈립니다.
  *
- * 브라우저 창을 좁혔다 넓혀도 **왼쪽은 계속 모바일 배치**입니다.
+ * **브라우저 창을 좁혀 보세요.** 아래는 창을 따라 접힌 배치로 바뀌지만
+ * **위는 계속 모바일 배치**입니다 — 창이 아니라 자기 폭을 재기 때문입니다.
  * 미디어쿼리였다면 둘 다 창을 따라 함께 바뀌었을 것입니다.
  *
  * 안에 든 `DateField` 도 같은 방식으로 **스스로 쌓입니다** — 입력창 256 + 칩 넷은
@@ -173,7 +174,7 @@ export const 두폭: Story = {
       <div className="flex flex-col gap-6">
         <div>
           <p className="mb-2 text-xs text-text-subtle">
-            390 — <code>--container-pc</code> 아래라 세로로 쌓입니다
+            390 — <code>--container-pc</code>(880) 아래라 세로로 쌓입니다
           </p>
           <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
             <FilterBar {...args} summary={summary} count={ROWS.length}>
@@ -190,8 +191,10 @@ export const 두폭: Story = {
         </div>
 
         <div>
-          <p className="mb-2 text-xs text-text-subtle">1100 — 넘으니 가로 한 줄 + 우측 버튼</p>
-          <div className="w-[1100px] overflow-hidden rounded-xl border border-border-gray-light">
+          <p className="mb-2 text-xs text-text-subtle">
+            문서 폭 그대로 — 880 을 넘으면 가로 한 줄 + 우측 버튼. 창을 좁히면 위와 같아집니다
+          </p>
+          <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
             <FilterBar {...args} summary={summary} count={ROWS.length}>
               <FilterRow>
                 <DateField label="기간 선택" value={b} onValueChange={setB} presets={DEMO_PRESETS} />
@@ -506,7 +509,7 @@ export const 접힘: Story = {
             </FilterRow>
           </FilterBar>
         </div>
-        <div className="w-[1100px] overflow-hidden rounded-xl border border-border-gray-light">
+        <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
           <FilterBar {...args} defaultOpen={false} summary={summary} count={128}>
             <FilterRow>
               <DateField label="기간 선택" value={b} onValueChange={setB} />
@@ -528,7 +531,7 @@ export const 건수없음: Story = {
   render: function NoCount(args) {
     const [v, setV] = useState<DateRange>({ start: null, end: null });
     return (
-      <div className="w-[1100px] overflow-hidden rounded-xl border border-border-gray-light">
+      <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
         <FilterBar {...args} summary="조건을 선택해 주세요">
           <FilterRow>
             <DateField label="검사 시행일" value={v} onValueChange={setV} />
