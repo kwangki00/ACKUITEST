@@ -117,27 +117,6 @@ export const 기본: Story = {
   },
 };
 
-/**
- * 폼 안에서는 `FormField` 로 감쌉니다. 라벨 · 설명 · 에러는 거기서 나옵니다.
- *
- * `clearable` 은 **필수 항목에 쓰지 마세요** — 지울 수 있으면 안 되는 값입니다.
- */
-export const 폼안에서: Story = {
-  name: "폼 안에서",
-  render: function InForm(args) {
-    const [v, setV] = useState<string | undefined>();
-    return (
-      <div className="flex w-80 flex-col gap-4">
-        <FormField label="검사 항목" description="코드 · 검사명 · 단위로 찾을 수 있습니다">
-          <Lookup {...args} value={v} onValueChange={(r) => setV(r?.code)} clearable />
-        </FormField>
-        <FormField label="검사 항목" error="검사 항목을 선택해 주세요">
-          <Lookup {...args} state="error" onValueChange={() => {}} />
-        </FormField>
-      </div>
-    );
-  },
-};
 
 /**
  * 같은 자료를 `Combobox` 와 `Lookup` 으로 나란히 놓은 것입니다.
@@ -292,6 +271,36 @@ export const 패널만: Story = {
           query={q}
           onQueryChange={setQ}
         />
+      </div>
+    );
+  },
+};
+
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ *
+ * 트리거가 `<div role="combobox">` 라 **`<label for>` 가 안 통합니다** — `for` 는
+ * labelable 요소에만 걸리고 div 에 걸면 조용히 아무 일도 안 일어납니다. 그래서
+ * 라벨의 id 를 **`aria-labelledby`** 로 가리킵니다. 껍데기(`SelectTrigger`)를
+ * `Select` · `Combobox` · `MobileSelect` 와 함께 쓰므로 넷이 같습니다.
+ */
+/**
+ * 폼 안에서는 `FormField` 로 감쌉니다. 라벨 · 설명 · 에러는 거기서 나옵니다.
+ *
+ * `clearable` 은 **필수 항목에 쓰지 마세요** — 지울 수 있으면 안 되는 값입니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  render: function InForm(args) {
+    const [v, setV] = useState<string | undefined>();
+    return (
+      <div className="flex w-80 flex-col gap-4">
+        <FormField label="검사 항목" description="코드 · 검사명 · 단위로 찾을 수 있습니다">
+          <Lookup {...args} value={v} onValueChange={(r) => setV(r?.code)} clearable />
+        </FormField>
+        <FormField label="검사 항목" error="검사 항목을 선택해 주세요">
+          <Lookup {...args} state="error" onValueChange={() => {}} />
+        </FormField>
       </div>
     );
   },

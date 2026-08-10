@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { CheckMark } from "@/components/ui/check-mark";
 import { Checkbox } from "@/components/ui/checkbox";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: CheckMark — 9 변형 (Size 3 × Tone 3)
@@ -24,7 +24,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 const SIZES = [
   { s: "sm", px: 14, use: "표 · 목록 안" },

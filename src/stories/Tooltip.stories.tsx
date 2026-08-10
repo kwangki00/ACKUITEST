@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Download, Printer, Search, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Tooltip — 4 변형 (Placement 4) + Arrow 불리언
@@ -59,7 +59,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 /** 네 방향. 자리가 없으면 Radix 가 알아서 뒤집으니 희망일 뿐입니다. */
 export const Placement: Story = {

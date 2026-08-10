@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/ui/form-field";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Textarea — 12 변형 (State 6 × Content 2)
@@ -27,7 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 /** Input 과 같은 상태 축입니다. Error 는 포커스가 와야 붉은 링이 붙습니다. */
 export const 상태: Story = {
@@ -104,8 +104,15 @@ export const 글자수: Story = {
   },
 };
 
-/** FormField 의 Control 자리에 Input 대신 넣습니다. */
-export const 폼: Story = {
+/**
+ * FormField 의 Control 자리에 `Input` 대신 넣습니다.
+ *
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ * `FormField` 가 `useId()` 로 만든 id 를 내려주고 `<textarea>` 가 자기 `id` 로 씁니다.
+ * 설명·에러도 `aria-describedby` 로 함께 묶입니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
   render: function InForm() {
     const [v, setV] = useState("");
     const error = v.trim() === "" ? "소견을 입력해 주세요." : undefined;

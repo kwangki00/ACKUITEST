@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Calendar, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { design, figma } from "./figma";
+import { FormField } from "@/components/ui/form-field";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Input — 48 변형 (Size 4 × State 6 × Content 2)
@@ -58,7 +59,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 export const Size: Story = {
   parameters: { layout: "padded", ...design(figma.input) },
@@ -207,6 +208,39 @@ export const lg는아이콘이큽니다: Story = {
             </div>
           </div>
         ))}
+      </div>
+    );
+  },
+};
+
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ * `FormField` 가 `useId()` 로 만든 id 를 내려주고 ``<input>`` 이(가) 자기 `id` 로 씁니다
+ * (`<label for>` 의 짝). 설명·에러도 `aria-describedby` 로 함께 묶입니다.
+ *
+ * **연결을 호출부에 시키면 반드시 빠집니다** — 이 저장소도 60곳 중 26곳만 넘기고
+ * 있었고, 나머지는 스크린리더로 가면 무엇을 입력하는 칸인지 안 읽혔습니다.
+ * 화면은 멀쩡해서 알아챌 방법이 없습니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  parameters: { layout: "padded" },
+  render: function InForm() {
+    const [v, setV] = useState("");
+    const error = v.trim() === "" ? "차트번호를 입력해 주세요." : undefined;
+    return (
+      <div className="flex w-72 flex-col gap-4">
+        <FormField label="차트번호" description="숫자 7자리입니다.">
+          <Input placeholder="2312345" leadingIcon={<Search />} />
+        </FormField>
+        <FormField label="차트번호" required error={error}>
+          <Input
+            state={error ? "error" : "default"}
+            value={v}
+            onChange={(e) => setV(e.target.value)}
+            placeholder="2312345"
+          />
+        </FormField>
       </div>
     );
   },

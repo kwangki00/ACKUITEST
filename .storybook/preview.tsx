@@ -116,6 +116,10 @@ const preview: Preview = {
      *
      * `code` 는 파일에 쓴 그대로를 보여줍니다. 조립 방법을 읽으러 오는 문서라
      * 이쪽이 맞습니다 — 어차피 복사해 가는 것은 그 코드입니다.
+     *
+     * **다만 `render` 없이 args 만 있는 스토리는 원문이 `{}` 라 빈칸이 나옵니다.**
+     * 그 14개는 `argsSource`(`src/stories/figma.ts`)로 `dynamic` 을 되돌려 답니다 —
+     * 그려진 결과가 곧 예제 코드인 경우입니다. `기본` 스토리들이 대부분 여기 해당합니다.
      */
     docs: { source: { type: "code" } },
   },

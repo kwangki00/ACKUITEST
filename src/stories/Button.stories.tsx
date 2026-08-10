@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ChevronRight, Download, Plus, Printer, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Button — 224 변형 (Variant 7 × Size 8 × State 2 × Shape 2)
@@ -39,7 +39,7 @@ const meta = {
     variant: {
       control: "select",
       options: ["default", "secondary", "destructive", "outline", "ghost", "link", "soft"],
-      description: "화면에서의 무게. 주 액션은 default 하나만.",
+      description: "화면에서 얼마나 강하게 보일지. 주 액션은 default 하나만.",
     },
     size: {
       control: "select",
@@ -73,13 +73,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 const VARIANTS = ["default", "secondary", "destructive", "outline", "ghost", "link", "soft"] as const;
 const SIZES = ["xs", "sm", "default", "lg"] as const;
 const SHAPES = ["default", "pill"] as const;
 
-/** 7가지 무게를 나란히 봅니다. */
+/** `variant` 7종을 나란히 봅니다. 화면의 주 액션은 `default` 하나뿐입니다. */
 export const Variant: Story = {
   parameters: { layout: "padded", ...design(figma.button) },
   render: (args) => (

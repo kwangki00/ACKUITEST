@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { NativeSelect } from "@/components/ui/native-select";
+import { FormField } from "@/components/ui/form-field";
 import { Select } from "@/components/ui/select";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * 네이티브 `<select>` 입니다. **Figma 에 대응물이 없습니다.**
@@ -44,9 +45,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 export const Placeholder: Story = {
+  parameters: { ...argsSource },
   args: { placeholder: "검사 항목을 선택하세요", defaultValue: "" },
 };
 
@@ -112,6 +114,38 @@ export const State: Story = {
           </NativeSelect>
         </div>
       ))}
+    </div>
+  ),
+};
+
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ * `FormField` 가 `useId()` 로 만든 id 를 내려주고 ``<select>`` 이(가) 자기 `id` 로 씁니다
+ * (`<label for>` 의 짝). 설명·에러도 `aria-describedby` 로 함께 묶입니다.
+ *
+ * **연결을 호출부에 시키면 반드시 빠집니다** — 이 저장소도 60곳 중 26곳만 넘기고
+ * 있었고, 나머지는 스크린리더로 가면 무엇을 입력하는 칸인지 안 읽혔습니다.
+ * 화면은 멀쩡해서 알아챌 방법이 없습니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  decorators: [],
+  parameters: { layout: "padded" },
+  render: () => (
+    <div className="flex w-56 flex-col gap-4">
+      <FormField label="검사 분류" description="분류를 고르면 항목이 좁혀집니다.">
+        <NativeSelect defaultValue="all">
+          <option value="all">전체</option>
+          <option value="blood">혈액검사</option>
+          <option value="urine">소변검사</option>
+        </NativeSelect>
+      </FormField>
+      <FormField label="검사 분류" required error="검사 분류를 선택해 주세요.">
+        <NativeSelect state="error" placeholder="선택하세요" defaultValue="">
+          <option value="blood">혈액검사</option>
+          <option value="urine">소변검사</option>
+        </NativeSelect>
+      </FormField>
     </div>
   ),
 };

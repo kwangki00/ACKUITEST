@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ChartColumn, FileText, Mail, Settings } from "lucide-react";
 import { SidebarItem } from "@/components/ui/sidebar-item";
 import type { SidebarItemFlatProps } from "@/components/ui/sidebar-item";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: SidebarItem (6 변형 — Level 2 × State 3)
@@ -63,6 +63,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const 기본: Story = {
+  parameters: { ...argsSource },
   args: { icon: <FileText /> },
 };
 

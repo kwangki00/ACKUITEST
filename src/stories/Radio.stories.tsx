@@ -98,30 +98,6 @@ export const 그룹: Story = {
   },
 };
 
-/** FormField 의 Control 자리에 그룹째 들어갑니다. */
-export const 폼: Story = {
-  parameters: { layout: "padded", ...design(figma.radio) },
-  render: function InForm() {
-    const [v, setV] = useState("");
-    const error = v === "" ? "출력 방식을 선택해 주세요." : undefined;
-    return (
-      <div className="w-80">
-        <FormField
-          label="출력 방식"
-          required
-          description="선택한 방식으로 결과지가 생성됩니다."
-          error={error}
-        >
-          <RadioGroup value={v} onValueChange={setV} error={!!error} aria-label="출력 방식">
-            <Radio value="pdf" label="PDF 파일" />
-            <Radio value="print" label="바로 인쇄" />
-          </RadioGroup>
-        </FormField>
-      </div>
-    );
-  },
-};
-
 /** 그룹 전체를 한 번에 끄거나 에러로 바꿀 수 있습니다. */
 export const 그룹속성: Story = {
   parameters: { layout: "padded", ...design(figma.radio) },
@@ -143,4 +119,38 @@ export const 그룹속성: Story = {
       </div>
     </div>
   ),
+};
+
+/**
+ * `FormField` 의 Control 자리에 **그룹째** 들어갑니다.
+ *
+ * **묶는 방법이 다릅니다.** `Radio` 는 네모 칸 옆 글자로 **자기 라벨을 스스로**
+ * 답니다 — `FormField` 의 컨텍스트를 읽지 않습니다. 여기서 `FormField` 가 다는
+ * 것은 **그룹 전체의 이름**이라, `RadioGroup` 에 `aria-label` 로 직접 줍니다.
+ *
+ * 그래서 `Checkbox` · `Radio` · `Switch` 의 `label` 은 **필드 라벨과 다른 것**입니다 —
+ * 네모 칸 옆에 붙는 글자지 필드 위의 라벨이 아닙니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  parameters: { layout: "padded", ...design(figma.radio) },
+  render: function InForm() {
+    const [v, setV] = useState("");
+    const error = v === "" ? "출력 방식을 선택해 주세요." : undefined;
+    return (
+      <div className="w-80">
+        <FormField
+          label="출력 방식"
+          required
+          description="선택한 방식으로 결과지가 생성됩니다."
+          error={error}
+        >
+          <RadioGroup value={v} onValueChange={setV} error={!!error} aria-label="출력 방식">
+            <Radio value="pdf" label="PDF 파일" />
+            <Radio value="print" label="바로 인쇄" />
+          </RadioGroup>
+        </FormField>
+      </div>
+    );
+  },
 };

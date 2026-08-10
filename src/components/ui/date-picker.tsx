@@ -89,7 +89,7 @@ export function DatePickerPanel({
         />
       )}
 
-      {/* 둘 다 link 라 같은 무게입니다 — 어느 쪽도 주 액션이 아닙니다 */}
+      {/* 둘 다 link 라 어느 쪽도 주 액션이 아닙니다 */}
       <div className="flex items-center justify-between border-t border-cal-border px-4 py-3">
         <Button
           variant="link"

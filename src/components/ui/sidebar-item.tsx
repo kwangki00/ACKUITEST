@@ -46,6 +46,16 @@ type Base = {
   /** 라벨 뒤에 붙는 건수. */
   count?: React.ReactNode;
   onClick?: () => void;
+  onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>;
+  /**
+   * 접힘 상태에서 툴팁을 답니다 (기본 켜짐). **하위 메뉴가 있으면 끄세요** —
+   * `SidebarGroup` 의 서브메뉴가 이미 이름을 알리는데 툴팁까지 뜨면 같은 글자가
+   * 두 번 나오고 서로 겹칩니다.
+   */
+  tooltip?: boolean;
+  "aria-haspopup"?: React.AriaAttributes["aria-haspopup"];
+  /** 직접 넘기면 이깁니다 — 접힘 상태에서 서브메뉴가 열렸는지 알릴 때. */
+  "aria-expanded"?: boolean;
   className?: string;
 };
 
@@ -82,6 +92,10 @@ export function SidebarItem({
   active,
   count,
   onClick,
+  onKeyDown,
+  tooltip = true,
+  "aria-haspopup": ariaHasPopup,
+  "aria-expanded": ariaExpanded,
   className,
   ...rest
 }: SidebarItemProps) {
@@ -99,28 +113,39 @@ export function SidebarItem({
   if (collapsed && !isL1) return null;
 
   if (collapsed) {
+    const button = (
+      <button
+        type="button"
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+        aria-current={active ? "page" : undefined}
+        aria-haspopup={ariaHasPopup}
+        aria-expanded={ariaExpanded}
+        // 라벨이 화면에서 사라지므로 보조기술에는 이름을 남겨야 합니다
+        aria-label={label}
+        className={cn(
+          "flex h-11 w-12 items-center justify-center rounded-md outline-hidden transition-colors",
+          "focus-visible:ring-2 focus-visible:ring-action-focus-ring",
+          "[&_svg]:size-4.5",
+          active
+            ? "bg-sidebar-item-active text-sidebar-text-active"
+            : "text-sidebar-text-muted hover:bg-sidebar-item-hover",
+          className
+        )}
+      >
+        {icon}
+      </button>
+    );
+
+    /*
+      하위 메뉴가 있으면 `SidebarGroup` 의 서브메뉴가 이름을 알립니다 — 툴팁까지 뜨면
+      같은 글자가 두 번 나오고 서로 겹칩니다. 그때만 tooltip={false} 입니다
+    */
+    if (!tooltip) return button;
+
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            onClick={onClick}
-            aria-current={active ? "page" : undefined}
-            // 라벨이 화면에서 사라지므로 보조기술에는 이름을 남겨야 합니다
-            aria-label={label}
-            className={cn(
-              "flex h-11 w-12 items-center justify-center rounded-md outline-hidden transition-colors",
-              "focus-visible:ring-2 focus-visible:ring-action-focus-ring",
-              "[&_svg]:size-4.5",
-              active
-                ? "bg-sidebar-item-active text-sidebar-text-active"
-                : "text-sidebar-text-muted hover:bg-sidebar-item-hover",
-              className
-            )}
-          >
-            {icon}
-          </button>
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
         {/* 접힘 상태에서는 툴팁이 유일한 이름입니다 (Figma 문서의 “미구현” 항목) */}
         <TooltipContent side="right">{label}</TooltipContent>
       </Tooltip>
@@ -131,8 +156,10 @@ export function SidebarItem({
     <button
       type="button"
       onClick={onClick}
+      onKeyDown={onKeyDown}
       aria-current={active ? "page" : undefined}
-      aria-expanded={isL1 && chevron ? !!expanded : undefined}
+      aria-haspopup={ariaHasPopup}
+      aria-expanded={ariaExpanded ?? (isL1 && chevron ? !!expanded : undefined)}
       className={cn(
         "relative flex w-full items-center rounded-md text-left outline-hidden transition-colors",
         "focus-visible:ring-2 focus-visible:ring-action-focus-ring",

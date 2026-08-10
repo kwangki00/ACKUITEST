@@ -44,7 +44,7 @@ export const 기본: Story = {
   },
 };
 
-/** 현재 페이지는 Primary 틴트입니다 — 채움을 쓰면 주 액션 버튼과 무게가 같아집니다. */
+/** 현재 페이지는 Primary 틴트입니다 — 채움을 쓰면 주 액션 버튼만큼 강해 보입니다. */
 export const Size: Story = {
   render: function S(args) {
     const [p, setP] = useState(3);

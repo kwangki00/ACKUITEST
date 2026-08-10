@@ -157,3 +157,41 @@ export const 상태: Story = {
     );
   },
 };
+
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ * `FormField` 가 만든 id 를 **그룹 안의 `Input` 이** 가져갑니다 — 그룹은 배치만
+ * 하고 컨텍스트를 가로채지 않습니다.
+ *
+ * **그룹 안에 `Input` 은 하나만 두세요.** 둘을 넣으면 같은 id 를 두 번 쓰게 됩니다 —
+ * 두 값을 받아야 하면 `FormField` 를 둘로 나누는 쪽이 맞습니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  parameters: { layout: "padded" },
+  render: function InForm() {
+    const [v, setV] = useState("");
+    const error = v.trim() === "" ? "등록번호를 입력해 주세요." : undefined;
+    return (
+      <div className="flex w-80 flex-col gap-4">
+        <FormField label="등록번호" description="중복확인을 눌러 사용할 수 있는지 확인합니다.">
+          <InputGroup attached>
+            <Input placeholder="등록번호" />
+            <Button>중복확인</Button>
+          </InputGroup>
+        </FormField>
+        <FormField label="등록번호" required error={error}>
+          <InputGroup attached>
+            <Input
+              state={error ? "error" : "default"}
+              value={v}
+              onChange={(e) => setV(e.target.value)}
+              placeholder="등록번호"
+            />
+            <Button>중복확인</Button>
+          </InputGroup>
+        </FormField>
+      </div>
+    );
+  },
+};

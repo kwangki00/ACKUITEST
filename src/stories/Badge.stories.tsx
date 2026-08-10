@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Badge } from "@/components/ui/badge";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Badge — 54 변형 (Tone 6 × Style 3 × Size 3)
@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 const TONES = ["neutral", "primary", "info", "success", "warning", "danger"] as const;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 /** Soft 가 기본입니다. Solid 는 강조가 꼭 필요할 때만. */
 export const 전체: Story = {

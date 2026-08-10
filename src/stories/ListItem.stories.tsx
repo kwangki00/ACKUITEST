@@ -5,7 +5,7 @@ import { ListItem } from "@/components/ui/list-item";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: ListItem — 16 변형 (Type 4 × State 4)
@@ -39,7 +39,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 const OPTIONS = ["일반혈액검사", "소변검사", "영상의학", "병리검사"];
 

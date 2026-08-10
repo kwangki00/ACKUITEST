@@ -181,3 +181,39 @@ export const 목록모양: Story = {
     );
   },
 };
+
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요 (2026-08-10).
+ *
+ * 다만 여기는 묶는 방법이 다릅니다. 트리거가 `<div role="combobox">` 라
+ * **`<label for>` 가 안 통합니다** — `for` 는 `input` · `textarea` · `select` 같은
+ * labelable 요소에만 걸리고, div 에 걸면 조용히 아무 일도 안 일어납니다
+ * (실제로 그 상태였습니다). 그래서 라벨의 id 를 **`aria-labelledby`** 로 가리킵니다.
+ *
+ * 껍데기(`SelectTrigger`)를 `Select` · `Combobox` · `Lookup` · `MobileSelect` 가
+ * 함께 쓰므로 넷이 같습니다. 쓰는 쪽에서는 그냥 감싸면 됩니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  parameters: { layout: "padded" },
+  render: function InForm() {
+    const [a, setA] = useState<string | undefined>("blood");
+    const [b, setB] = useState<string | undefined>();
+    return (
+      <div className="flex w-56 flex-col gap-4">
+        <FormField label="검사 분류" description="분류를 고르면 항목이 좁혀집니다.">
+          <Select options={TESTS} value={a} onValueChange={setA} />
+        </FormField>
+        <FormField label="검사 분류" required error={b ? undefined : "검사 분류를 선택해 주세요."}>
+          <Select
+            state={b ? "default" : "error"}
+            options={TESTS}
+            value={b}
+            onValueChange={setB}
+            placeholder="선택하세요"
+          />
+        </FormField>
+      </div>
+    );
+  },
+};

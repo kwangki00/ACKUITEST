@@ -68,3 +68,16 @@ export const figma = {
 
 /** 스토리 parameters 에 붙이는 헬퍼 */
 export const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
+/**
+ * `render` 없이 **args 만으로** 그리는 스토리에 답니다.
+ *
+ * 전역 기본은 `source.type: "code"` — 스토리 파일에 적힌 **원문 그대로**를 보여줍니다.
+ * 스토리 48개 중 대부분이 `render` 함수라 그게 맞습니다. `dynamic` 으로 두면 그려진
+ * 결과를 되돌려 쓰는데, `render: function Basic(args)` 처럼 이름 붙은 컴포넌트는
+ * `<Basic />` 한 줄로 접혀서 **아무 정보가 없습니다.**
+ *
+ * 반대로 args 만 있는 스토리는 원문이 `{}` 라 `code` 로는 **빈칸이 나옵니다.**
+ * 그 몇 개만 `dynamic` 으로 되돌립니다 — 그려진 결과가 곧 예제 코드입니다.
+ */
+export const argsSource = { docs: { source: { type: "dynamic" as const } } };

@@ -110,7 +110,7 @@ const GROUPS: Group[] = [
       {
         name: "DateRangePicker",
         what: "기간 — 두 달이 늘 이웃합니다",
-        rule: "빠른 선택이 주인공입니다. 칩은 거짓말을 하면 안 됩니다 — 달력을 만지면 칩 선택이 풀립니다",
+        rule: "빠른 선택이 주인공입니다. 칩은 값과 어긋나면 안 됩니다 — 달력을 만지면 칩 선택이 풀립니다",
       },
     ],
   },
@@ -211,8 +211,8 @@ const GROUPS: Group[] = [
     rows: [
       {
         name: "Sidebar",
-        what: "좌측 GNB — 펼침 256 · 접힘 72",
-        rule: "접히면 라벨이 사라지므로 툴팁이 유일한 이름입니다",
+        what: "좌측 GNB — 펼침 256 · 접힘 72 (SidebarGroup 포함)",
+        rule: "접히면 하위 없는 항목은 **툴팁**, 하위 있는 항목은 **서브메뉴**입니다 — 툴팁은 이동시키지 못합니다",
       },
       {
         name: "SidebarItem",
@@ -267,12 +267,12 @@ const GROUPS: Group[] = [
       {
         name: "MobileSelect",
         what: "목록 선택 — PC 와 같은 ComboboxPanel",
-        rule: "**보통은 `Select` · `Combobox` 를 쓰세요** — 손가락이면 이게 알아서 뜹니다. 목록은 PC 와 같은 `ComboboxPanel` 입니다",
+        rule: "**보통은 `Select` · `Combobox` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 목록은 PC 와 같은 `ComboboxPanel` 입니다",
       },
       {
         name: "MobileDateField",
         what: "기간 입력 — 한 달 달력",
-        rule: "**보통은 `DateField` 를 쓰세요** — 손가락이면 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
+        rule: "**보통은 `DateField` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
       },
       {
         name: "MobileListCard",

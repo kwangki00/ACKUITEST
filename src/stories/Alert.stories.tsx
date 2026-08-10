@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /**
  * Figma: Alert — 4 변형 (Tone 4)
@@ -33,7 +33,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const 기본: Story = {};
+export const 기본: Story = { parameters: { ...argsSource } };
 
 const TONES = [
   { tone: "info" as const, title: "조회 조건을 확인해 주세요", desc: "기간이 3개월을 넘으면 조회가 느려질 수 있습니다." },

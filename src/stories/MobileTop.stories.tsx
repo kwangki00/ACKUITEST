@@ -6,7 +6,7 @@ import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { MBottomTabBar } from "@/components/ui/m-bottom-tab-bar";
 import { Badge } from "@/components/ui/badge";
 import { PointerModeProvider } from "@/components/ui/pointer-mode";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /** 390×844 틀. `ack-mobile` 이 반응형 변수를 모바일 값으로 고정합니다. */
 function Phone({ children }: { children: React.ReactNode }) {
@@ -83,6 +83,7 @@ type Story = StoryObj<typeof meta>;
 
 /** 목록 화면의 기본 모습입니다. 왼쪽이 화면 이름, 오른쪽이 검색·알림입니다. */
 export const 기본: Story = {
+  parameters: { ...argsSource },
   args: {
     variant: "title",
     actions: (

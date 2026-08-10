@@ -47,6 +47,11 @@ import { Button } from "@/components/ui/button";
  *   화면으로 옮기세요 — 요약 줄이 길어져 못 읽고, 두 줄을 넘으면 결과가 몇 줄 안 보입니다
  * - 조건 줄은 `FilterRow` 로 감싸세요. **좁으면 세로, 넓으면 가로**로 알아서 바뀝니다.
  *   기간(`DateField`)은 넓어서 자기 줄을 쓰는 편이 좋습니다
+ * - **안에 넣는 컨트롤도 한 벌입니다** — `<DateField/>` · `<Select/>` · `<Combobox/>`
+ *   를 그대로 쓰세요. 시트로 열지 팝오버로 열지는 CSS 로 못 고르지만
+ *   **`PointerModeProvider` 가 정하므로** 호출부는 판단하지 않습니다.
+ *   조회 조건에서 `MobileDateField` · `MobileSelect` 를 직접 부를 자리는 없습니다
+ *   (2026-08-10 — 그전에는 폭에 따라 갈아 끼우라고 적혀 있었습니다)
  * - 버튼은 `default` 크기입니다 — `--h-input-default` 가 40/36 으로 알아서 갈립니다
  * - 요약은 걸린 조건을 `·` 로 이어 씁니다
  *

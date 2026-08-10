@@ -15,7 +15,7 @@ import type { DateRange } from "@/components/ui/calendar";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
 import { Bell, Search } from "lucide-react";
 import { PointerModeProvider } from "@/components/ui/pointer-mode";
-import { design, figma } from "./figma";
+import { design, figma, argsSource } from "./figma";
 
 /** 390×844 틀. `ack-mobile` 이 반응형 변수를 모바일 값으로 고정합니다. */
 function Phone({ children }: { children: (el: HTMLElement | null) => React.ReactNode }) {
@@ -120,6 +120,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const 기본: Story = {
+  parameters: { ...argsSource },
   args: { onFilter: () => {} },
 };
 
