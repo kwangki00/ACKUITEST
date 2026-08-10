@@ -121,21 +121,26 @@ export function FilterBar({
   const panelId = React.useId();
 
   return (
-    <div
-      className={cn(
-        // 배치를 자기 폭으로 정합니다 — 창이 아니라
-        "@container/filter flex flex-col border-b border-border-gray-light bg-background-white",
-        /*
-          넓을 때는 **바깥이 여백을 갖습니다** — 머리줄 32 + 위아래 12 로 접힘 56,
-          펼침 200 이 나옵니다 (Figma 값). 머리줄에 h-8 을 주고 여백을 안쪽에 넣으면
-          border-box 라 32 안에 여백이 먹혀 줄이 통째로 낮아집니다.
-          좁을 때는 머리줄·필드가 각자 여백을 갖습니다 (아래 참고).
-        */
-        "@pc/filter:gap-1.5 @pc/filter:px-6 @pc/filter:pt-3",
-        open ? "@pc/filter:pb-4" : "@pc/filter:pb-3",
-        className
-      )}
-    >
+    /*
+      바깥은 **컨테이너 역할만** 합니다. 컨테이너 쿼리는 컨테이너 자신에게는
+      적용되지 않고 **자손에게만** 걸리기 때문입니다 — 같은 요소에 @container 와
+      @pc/filter:px-6 을 함께 주면 그 여백은 조용히 죽습니다.
+      배치를 바꾸는 클래스는 전부 한 겹 안쪽에 둡니다 (DateField 와 같은 구조).
+    */
+    <div className={cn("@container/filter", className)}>
+      <div
+        className={cn(
+          "flex flex-col border-b border-border-gray-light bg-background-white",
+          /*
+            넓을 때는 **이 줄이 여백을 갖습니다** — 머리줄 32 + 위아래 12 로 접힘 56,
+            펼침 200 (Figma 값). 머리줄에 h-8 을 주고 여백을 그 안에 넣으면
+            border-box 라 32 안에 먹혀 줄이 통째로 낮아집니다.
+            좁을 때는 머리줄·필드가 각자 여백을 갖습니다.
+          */
+          "@pc/filter:gap-1.5 @pc/filter:px-6 @pc/filter:pt-3",
+          open ? "@pc/filter:pb-4" : "@pc/filter:pb-3"
+        )}
+      >
       {/* ── Head ─────────────────────────────────────────────────── */}
       <div
         className={cn(
@@ -267,6 +272,7 @@ export function FilterBar({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
