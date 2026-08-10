@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SelectTrigger, type SelectSize, type SelectState } from "@/components/ui/select-trigger";
-import { comboboxMatch } from "@/components/ui/combobox";
+import { comboboxMatch } from "@/components/ui/combobox-panel";
 
 /**
  * Figma: LookupPanel · LookupRow (Overlay 페이지 · 4 변형 — Type 2 × State 3)

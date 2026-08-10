@@ -74,3 +74,17 @@ export function usePointerMode(): PointerMode {
   const detected = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return ctx ?? detected;
 }
+
+/** 떠 있는 것을 어떻게 열지. */
+export type OverlayMode = "popover" | "sheet";
+
+/**
+ * 시트냐 팝오버냐를 정합니다 — **손가락이면 시트, 마우스면 팝오버.**
+ *
+ * `overlay` 를 직접 넘기면 그게 이깁니다. 화면 하나만 예외로 두고 싶을 때만
+ * 쓰세요 — 매번 넘기기 시작하면 Provider 를 둔 뜻이 없어집니다.
+ */
+export function useOverlay(overlay?: OverlayMode): OverlayMode {
+  const pointer = usePointerMode();
+  return overlay ?? (pointer === "touch" ? "sheet" : "popover");
+}

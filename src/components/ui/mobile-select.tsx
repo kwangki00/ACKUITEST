@@ -2,7 +2,11 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { SelectTrigger, type SelectSize, type SelectState } from "@/components/ui/select-trigger";
-import { ComboboxPanel, comboboxMatch, type ComboboxOption } from "@/components/ui/combobox";
+import {
+  ComboboxPanel,
+  comboboxMatch,
+  type ComboboxOption,
+} from "@/components/ui/combobox-panel";
 
 /**
  * Figma: MobileSelectContent (Overlay) + MobileSheet (Layouts)

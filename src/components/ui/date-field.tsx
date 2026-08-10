@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { FormField } from "@/components/ui/form-field";
 import { MobileDateField } from "@/components/ui/mobile-date-field";
-import { usePointerMode } from "@/components/ui/pointer-mode";
+import { useOverlay, type OverlayMode } from "@/components/ui/pointer-mode";
 import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
 import {
   DateRangePicker,
@@ -81,7 +81,7 @@ export interface DateFieldProps {
    * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
    * 마우스면 팝오버. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
    */
-  overlay?: "popover" | "sheet";
+  overlay?: OverlayMode;
   /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
   container?: HTMLElement | null;
 }
@@ -108,8 +108,7 @@ export function DateField({
     마우스가 이미 거기 있어서입니다. 좁은 데스크톱 창에는 팝오버가, 넓은 태블릿에는
     시트가 맞습니다. 그래서 앱 루트에서 한 번 정하고 여기서는 받아만 씁니다.
   */
-  const pointer = usePointerMode();
-  if ((overlay ?? (pointer === "touch" ? "sheet" : "popover")) === "sheet") {
+  if (useOverlay(overlay) === "sheet") {
     return (
       <MobileDateField
         label={label}

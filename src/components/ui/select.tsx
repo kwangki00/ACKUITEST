@@ -1,12 +1,14 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { ComboboxPanel, type ComboboxOption } from "@/components/ui/combobox";
+import { ComboboxPanel, type ComboboxOption } from "@/components/ui/combobox-panel";
 import {
   SelectTrigger,
   type SelectSize,
   type SelectState,
 } from "@/components/ui/select-trigger";
+import { MobileSelect } from "@/components/ui/mobile-select";
+import { useOverlay, type OverlayMode } from "@/components/ui/pointer-mode";
 
 /**
  * Figma: SelectTrigger — Render=Placeholder · Text
@@ -46,9 +48,65 @@ export interface SelectProps {
    * 없는 곳에 씁니다.
    */
   "aria-label"?: string;
+  /**
+   * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
+   * 마우스면 팝오버. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
+   */
+  overlay?: OverlayMode;
+  /** 시트 머리글. 안 넘기면 `aria-label` 을 씁니다. */
+  title?: string;
+  /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
+  container?: HTMLElement | null;
 }
 
-export function Select({
+/**
+ * 시트냐 팝오버냐만 고르는 얇은 껍데기입니다. 훅이 하나뿐이라 여기서 갈라도
+ * 훅 순서가 어긋나지 않습니다 — 아래 두 구현은 각자 상태를 쥡니다.
+ */
+export function Select(props: SelectProps) {
+  if (useOverlay(props.overlay) === "sheet") return <SheetSelect {...props} />;
+  return <PopoverSelect {...props} />;
+}
+
+/**
+ * 손가락일 때 — 목록을 다시 만들지 않고 `MobileSelect` 에 넘깁니다.
+ * 값이 하나라 `단일 · 검색 없음` 으로 고정하고, 배열 ↔ 문자열만 바꿔 끼웁니다.
+ */
+function SheetSelect({
+  options,
+  value,
+  onValueChange,
+  placeholder,
+  size,
+  state,
+  disabled,
+  emptyText,
+  className,
+  title,
+  container,
+  "aria-label": ariaLabel,
+}: SelectProps) {
+  return (
+    <MobileSelect
+      type="single"
+      // 값이 하나뿐인 목록에 검색창을 두면 항목보다 검색창이 더 큽니다
+      searchable={false}
+      options={options}
+      value={value != null && value !== "" ? [value] : []}
+      onValueChange={(v) => onValueChange(v[0] ?? "")}
+      title={title ?? ariaLabel}
+      placeholder={placeholder}
+      emptyText={emptyText}
+      size={size}
+      state={state}
+      disabled={disabled}
+      className={className}
+      container={container}
+    />
+  );
+}
+
+function PopoverSelect({
   options,
   value,
   onValueChange,

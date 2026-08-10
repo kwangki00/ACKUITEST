@@ -4,7 +4,6 @@ import { Bell, ChartColumn, ClipboardList, Mail, Search, Settings } from "lucide
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { DateField } from "@/components/ui/date-field";
 import { Select } from "@/components/ui/select";
-import { MobileSelect } from "@/components/ui/mobile-select";
 import { FormField } from "@/components/ui/form-field";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
@@ -126,7 +125,7 @@ const ROWS = [
  * 이건 폭이 아니라 **포인터**의 문제라 CSS 로는 못 고릅니다. 좁은 데스크톱 창에는
  * 팝오버가, 넓은 태블릿에는 시트가 맞습니다.
  *
- * 목록 선택(`MobileSelect`)은 아직 갈립니다.
+ * `Select` · `Combobox` 도 같습니다 — 아래 두 스토리가 같은 컴포넌트를 씁니다.
  *
  * ### 그 밖
  *
@@ -229,10 +228,10 @@ export const 모바일화면: Story = {
   render: function Demo() {
     const [tab, setTab] = useState("results");
     const [period, setPeriod] = useState<DateRange>({ start: addDays(today, -6), end: today });
-    const [test, setTest] = useState<string[]>(["all"]);
+    const [test, setTest] = useState("all");
     const [searched, setSearched] = useState(true);
 
-    const testLabel = TESTS.find((t) => t.value === test[0])?.label ?? "전체";
+    const testLabel = TESTS.find((t) => t.value === test)?.label ?? "전체";
     const rows = searched ? ROWS : [];
     const summary =
       period.start && period.end
@@ -264,7 +263,7 @@ export const 모바일화면: Story = {
               onSearch={() => setSearched((v) => !v)}
               onReset={() => {
                 setPeriod({ start: null, end: null });
-                setTest(["all"]);
+                setTest("all");
               }}
             >
               {/*
@@ -280,15 +279,15 @@ export const 모바일화면: Story = {
                   presets={DEMO_PRESETS}
                 />
               </FilterRow>
+              {/* 여기도 PC 스토리와 같은 `Select` 입니다 — 시트로 열립니다 */}
               <FilterRow>
                 <FormField label="검사 항목">
-                  <MobileSelect
+                  <Select
                     container={el}
                     title="검사 항목"
                     options={TESTS}
                     value={test}
                     onValueChange={setTest}
-                    searchable={false}
                   />
                 </FormField>
               </FilterRow>
