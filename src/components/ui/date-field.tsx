@@ -43,6 +43,15 @@ import { isSameDay, type DatePrecision } from "@/lib/date";
  * 칩을 다음 줄로 내리고, **각 줄이 폭을 꽉 채웁니다** — 입력창을 256 으로 박아두면
  * 좁은 화면에서 오른쪽이 남습니다.
  *
+ * ### 설명·에러는 줄 바깥입니다
+ *
+ * `FormField` 가 **줄 전체**를 감쌉니다 — 라벨은 위, 설명·에러는 아래, 그 사이 한 줄에
+ * 입력창과 칩이 나란히 놓입니다.
+ *
+ * 입력창만 감싸고 칩을 형제로 두면 설명·에러가 생겼을 때 그 줄만큼 필드가 길어져
+ * **칩이 메시지 높이까지 내려갑니다.** 메시지는 입력창이 아니라 **필드 전체**에
+ * 붙는 것이라 줄 바깥이 맞습니다.
+ *
  * ### 폭은 부모가 정합니다
  *
  * `Input` 과 같은 규칙입니다 — **폭을 고정하지 않습니다.** flex 항목으로 놓으면
@@ -157,23 +166,22 @@ export function DateField({
     // 자리가 모자라면 칩이 알아서 다음 줄로 내려갑니다 (입력창 256 + 칩 ≈ 464).
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다 — 빈 라벨 자리를
     // 넣어 맞추던 것을 대신합니다 (줄바꿈되면 그 빈 자리가 유령 여백으로 남습니다)
-    <div className={cn("flex flex-wrap items-end gap-2", className)}>
-      <FormField
-        label={label}
-        required={required}
-        description={description}
-        error={error}
-        /*
-          w-64 + grow — 한 줄에 들어가면 256 이고(남는 자리가 없으니 grow 가 할 일이
-          없습니다), 칩이 다음 줄로 내려가면 그 줄을 혼자 쓰므로 꽉 찹니다.
+    /*
+      **FormField 가 줄 전체를 감쌉니다** — 라벨은 위, 설명·에러는 아래, 그 사이
+      한 줄에 입력창과 칩이 나란히 놓입니다.
 
-          basis-64 로 주면 안 됩니다. FormField 의 기본이 w-full 이라 둘이 남는데,
-          최대 폭을 잴 때는 퍼센트가 auto 로 취급돼 **입력창 내용 폭**이 잡히고
-          배치할 때는 basis 256 이 쓰입니다 — 그 차이만큼 칩이 다음 줄로 밀립니다.
-          w-64 는 tailwind-merge 가 w-full 을 걷어내서 두 계산이 같아집니다.
-        */
-        className="w-64 grow"
-      >
+      입력창만 FormField 로 감싸고 칩을 형제로 두면, 설명·에러가 생겼을 때 그 줄만큼
+      필드가 길어져서 **칩이 메시지 높이까지 내려갑니다.** 메시지는 입력창이 아니라
+      필드 전체에 붙는 것이라, 줄 바깥으로 빼는 쪽이 맞습니다.
+    */
+    <FormField
+      label={label}
+      required={required}
+      description={description}
+      error={error}
+      className={className}
+    >
+      <div className="flex flex-wrap items-end gap-2">
         <DateRangePicker
           value={value}
           onValueChange={onValueChange}
@@ -183,30 +191,36 @@ export function DateField({
           presets={quick}
           disabled={disabled}
           state={error ? "error" : "default"}
+          /*
+            w-64 + grow — 한 줄에 들어가면 256 이고(남는 자리가 없으니 grow 가 할 일이
+            없습니다), 칩이 다음 줄로 내려가면 그 줄을 혼자 쓰므로 꽉 찹니다.
+            basis-64 로 주면 안 됩니다 — 재는 값과 놓는 값이 달라져 칩이 밀립니다.
+          */
+          className="w-64 grow"
         />
-      </FormField>
 
-      {quick.length > 0 && (
-        <ToggleGroup
-          variant="outline"
-          value={active}
-          onValueChange={(next: string) => {
-            const p = quick.find((x) => x.label === next);
-            if (p) onValueChange(p.range());
-          }}
-          disabled={disabled}
-          aria-label="빠른 선택"
-          // 줄바꿈되면 이 줄도 혼자 쓰므로 채웁니다. 한 줄일 때는 남는 자리가 없어
-          // grow 가 아무 일도 하지 않습니다 — PC 배치는 그대로입니다
-          className="grow"
-        >
-          {quick.map((p) => (
-            <ToggleItem key={p.label} value={p.label} className="flex-1">
-              {p.label}
-            </ToggleItem>
-          ))}
-        </ToggleGroup>
-      )}
-    </div>
+        {quick.length > 0 && (
+          <ToggleGroup
+            variant="outline"
+            value={active}
+            onValueChange={(next: string) => {
+              const p = quick.find((x) => x.label === next);
+              if (p) onValueChange(p.range());
+            }}
+            disabled={disabled}
+            aria-label="빠른 선택"
+            // 줄바꿈되면 이 줄도 혼자 쓰므로 채웁니다. 한 줄일 때는 남는 자리가 없어
+            // grow 가 아무 일도 하지 않습니다 — 한 줄 배치는 그대로입니다
+            className="grow"
+          >
+            {quick.map((p) => (
+              <ToggleItem key={p.label} value={p.label} className="flex-1">
+                {p.label}
+              </ToggleItem>
+            ))}
+          </ToggleGroup>
+        )}
+      </div>
+    </FormField>
   );
 }

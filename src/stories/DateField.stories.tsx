@@ -265,14 +265,19 @@ export const 조건줄: Story = {
             <Input placeholder="성명 또는 차트번호" />
           </FormField>
         </div>
-        <DateField
-          {...args}
-          required
-          description="최대 3개월까지 조회할 수 있습니다"
-          value={b}
-          onValueChange={setB}
-        />
-        <DateField {...args} error="기간을 선택해 주세요" value={b} onValueChange={setB} />
+        {/* 설명·에러가 붙어도 칩은 입력창과 같은 줄에 남습니다 */}
+        <div className="flex flex-wrap items-start gap-4">
+          <DateField
+            {...args}
+            required
+            description="최대 3개월까지 조회할 수 있습니다"
+            value={b}
+            onValueChange={setB}
+          />
+        </div>
+        <div className="flex flex-wrap items-start gap-4">
+          <DateField {...args} error="기간을 선택해 주세요" value={b} onValueChange={setB} />
+        </div>
       </div>
     );
   },
