@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
  *
  * ### 건수는 조회 결과 전체 수입니다
  *
- * `MobileFilterBar` 의 배지와 **같은 값**을 씁니다. 둘이 다르면 어느 쪽이 맞는지
+ * `FilterBar` 의 배지와 **같은 값**을 씁니다. 둘이 다르면 어느 쪽이 맞는지
  * 사용자가 판단할 수 없습니다. 화면에 보이는 카드 수가 아니라 조회된 전체 건수입니다.
  *
  * ### 필터 버튼은 할 일이 있을 때만
@@ -38,7 +38,7 @@ import { Button } from "@/components/ui/button";
 export interface MobileListHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   /**
-   * 조회 결과 **전체** 건수. `MobileFilterBar` 의 배지와 같은 값을 쓰세요.
+   * 조회 결과 **전체** 건수. `FilterBar` 의 배지와 같은 값을 쓰세요.
    * 넘기지 않으면 배지가 없습니다.
    */
   count?: React.ReactNode;

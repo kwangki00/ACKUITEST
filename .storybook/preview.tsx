@@ -70,8 +70,9 @@ const preview: Preview = {
           // Figma 의 Navigation 페이지와 같은 이름입니다
           "Navigation",
           ["Sidebar", "SidebarItem", "Tabs"],
-          // 화면 골격 — 부품이 아니라 자리를 정하는 것들
+          // 화면 골격 — 부품이 아니라 자리를 정하는 것들. PC·모바일 한 벌입니다
           "Layouts",
+          ["FilterBar"],
           // 모바일 전용은 마지막에 모읍니다 — 그룹은 "무엇인가" 로 나누지만
           // 모바일은 "어디서 쓰나" 라는 다른 축이라 섞이면 찾기 어렵습니다
           "Mobile",

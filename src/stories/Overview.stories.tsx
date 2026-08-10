@@ -223,6 +223,18 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    key: "Layouts",
+    title: "Layouts — 화면 골격",
+    lead: "부품이 아니라 **자리를 정하는** 것들입니다. PC·모바일이 한 벌입니다.",
+    rows: [
+      {
+        name: "FilterBar",
+        what: "조회 조건 — 조회하면 접힙니다 (FilterRow 포함)",
+        rule: "**컨테이너 쿼리**로 자기 폭을 재서 배치를 정합니다 — 창이 아니라. 조건은 4개까지",
+      },
+    ],
+  },
+  {
     key: "Mobile",
     title: "Mobile — 모바일 전용",
     lead: "PC 와 구조를 다시 짜야 하는 것들입니다. 자동 대응되는 것(Input · Button 등)은 여기 없습니다.",
@@ -256,11 +268,6 @@ const GROUPS: Group[] = [
         name: "MobileDateField",
         what: "기간 입력 — 한 달 달력",
         rule: "년 · 월이 Select 가 아니라 화살표입니다 — 시트 위에 시트를 겹치지 않으려고",
-      },
-      {
-        name: "MobileFilterBar",
-        what: "조회 조건 — 조회하면 접힙니다",
-        rule: "조건은 4개까지. 넘으면 요약 줄이 길어져 못 읽습니다",
       },
       {
         name: "MobileListCard",

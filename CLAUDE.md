@@ -46,10 +46,10 @@ CalendarCell · CalendarMonth · CalendarUnitCell · CalendarUnitGrid
 DatePickerPanel · DatePicker
 DateRangeTabs · DateRangePickerPanel · DateRangePicker · DateField
 Dialog · ConfirmDialog · Toast · MobileSheet · MobileSelect
-MobileDateField · MobileFilterBar · MobileListCard · MobileListHeader
+MobileDateField · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
-Lookup · LookupPanel · LookupRow · PCFilterBar · EmptyState
+Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
@@ -310,7 +310,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | Dialog                  | MobileSheet                                 |
 | Combobox · Lookup       | MobileSelectContent + MobileSheet           |
 | DatePicker 두 달 패널   | MobileCalendar 한 달 + MobileSheet          |
-| 조회 조건 가로 한 줄    | MobileFilterBar — 조회 후 자동으로 접힘     |
+| 조회 조건 가로 한 줄    | **FilterBar 한 벌** — 자기 폭을 재서 갈립니다 |
 
 ### MobileSheet
 
@@ -341,16 +341,6 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 빠른 선택 칩은 **균등 분할**(`flex-1`). 6개를 넘으면 가로 스크롤로 바꾸세요
 - 칩 연동 규칙은 PC 와 같습니다 — 달력에서 임의 기간을 고르면 **칩 선택이 풀립니다**
 
-### MobileFilterBar
-
-- **조회하면 자동으로 접힙니다.** 조건은 한 번 정하고 목록을 계속 보는 경우가 대부분이라, 펼친 채로 두면 작은 화면에서 목록이 몇 줄 안 보입니다
-- **요약 줄과 건수 배지는 접혔을 때만** 보입니다. 펼치면 아래 입력 필드에 같은 정보가 있어 중복이고, 조건을 바꾸는 중에 이전 결과 수가 남아 있으면 혼란스럽습니다
-- 요약은 걸린 조건을 `·` 로 이어 씁니다 — `2025-04-26 ~ 2026-07-07 · 발주일 · 전체`
-- **캡션이 상태에 따라 커집니다** — 펼치면 `base/SemiBold`(영역의 머리), 접히면 `xs`(요약이 주인공)
-- **조건은 4개까지.** 넘으면 별도 필터 시트로 옮기세요 — 접힌 줄의 요약이 길어져 못 읽습니다
-- **조회·초기화 버튼은 `default`(모바일 40)** 입니다. `lg`(52)로 올리면 조건 영역이 그만큼 높아져 목록이 밀립니다 — 손가락으로 확정하는 마지막 동작인 `MobileSheet` 만 `lg` 입니다 (2026-08-07 수정)
-- 기간은 `MobileDateField` 를 쓰세요. PC 짝은 `PCFilterBar` 이고 규칙은 같습니다
-
 ### MBottomTabBar — PC 의 Sidebar 자리
 
 - **마지막 자리는 홈이 아니라 전체메뉴**입니다. 직원용이라 돌아갈 홈이 없고, 자주 쓰는 넷 말고도 들어갈 메뉴가 계속 생깁니다. 전체메뉴는 **PC 와 같은 메뉴 구조**를 띄웁니다 — PC 로 익힌 위치를 다시 배우지 않아도 됩니다
@@ -364,7 +354,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 ### MobileListHeader — 표 헤더가 없어서 생긴 줄
 
 - **카드 목록에는 표 헤더가 없습니다.** PC 는 헤더 행이 열 이름을 알려주고 거기서 정렬까지 하는데, `MobileListCard` 를 쌓으면 그 자리가 통째로 없어집니다. 이 줄이 **무엇의 목록인지 · 몇 건인지 · 어떻게 고를지**를 대신합니다
-- **건수는 `MobileFilterBar` 의 배지와 같은 값**입니다 (조회 결과 전체 수, 화면에 보이는 카드 수가 아님). 한 화면에 두 곳에 나오므로 다르면 어느 쪽이 맞는지 판단할 수 없습니다
+- **건수는 `FilterBar` 의 배지와 같은 값**입니다 (조회 결과 전체 수, 화면에 보이는 카드 수가 아님). 한 화면에 두 곳에 나오므로 다르면 어느 쪽이 맞는지 판단할 수 없습니다
 - **`onFilter` 를 안 넘기면 버튼이 사라집니다.** 눌러도 아무 일이 없는 버튼은 두지 마세요
 - **스크롤 영역 밖**에 두세요 — 목록과 함께 밀려 올라가면 몇 건인지 다시 확인할 수 없습니다
 - 제목은 `base/Bold`, 아래 카드 제목은 `base/SemiBold` — **굵기 한 단계**로 위계를 만듭니다
@@ -435,14 +425,30 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **`onAction` 을 빼면 버튼이 사라집니다.** 할 수 있는 일이 없을 때만 — 막다른 길에 버튼까지 없으면 더 답답합니다
 - **실패는 Toast 만으로 두지 마세요** — 조회가 실패했으면 화면에도 `type="error"` 를 남깁니다 (`Toast` 규칙과 같음)
 
-### PCFilterBar — PC 조회 조건
+### FilterBar — 조회 조건 (PC·모바일 한 벌)
 
-- **조회하면 자동으로 접힙니다** (모바일과 같은 규칙). 접으면 **표가 약 150px 넓어집니다** — 펼침 200 · 접힘 56
-- **접힌 줄에 “조건 변경” 버튼을 함께 둡니다.** 화살표만으로는 누를 수 있다는 신호가 약합니다 — 모바일은 줄 전체가 누름 대상이라 필요 없지만, PC 는 마우스로 정확히 겨냥하므로 누를 곳을 눈에 보이게 둡니다
-- **캡션은 늘 `sm/SemiBold`** 입니다. 모바일은 펼치면 커지지만 PC 는 그대로 — 옆에 요약이 붙는 자리라 크기가 바뀌면 줄 높이가 흔들립니다
-- **버튼은 `items-end` 로 필드 바닥에 붙입니다.** 조회·초기화에는 라벨이 없어 그냥 두면 **17px 위로 뜹니다**(라벨 높이). Figma 는 빈 공간을 넣어 맞추지만, 코드는 줄 수가 바뀌어도 따라오게 했습니다
-- **조건은 4개까지.** 넘으면 행을 추가하지 말고 **별도 검색 화면**을 검토하세요 — 두 줄을 넘으면 접기 전에도 표가 몇 줄 안 보입니다
-- 조건 줄은 `PCFilterRow` 로 감쌉니다. **기간(`DateField`)은 넓어서 자기 줄**을 씁니다
+**Figma 는 `PCFilterBar` · `MobileFilterBar` 둘, 코드는 `FilterBar` 하나입니다.**
+두 컴포넌트가 상태 기계도, "조회하면 접힘" 도, props 11개 중 10개도 같았습니다 — 규칙을 바꿀 때 한쪽만 고쳐도 아무도 모릅니다 (실제로 버튼 크기가 모바일에만 `lg` 로 남아 있었습니다). 그림은 한 폭만 보여줄 수 있으니 **Figma 가 둘로 그리는 것은 맞습니다** (2026-08-07 통합)
+
+- **미디어쿼리가 아니라 컨테이너 쿼리입니다.** `lg:` 는 **브라우저 창**을 재서, 문서의 390 틀 안에 넣어도 창이 넓으면 PC 배치가 나옵니다 — `.ack-mobile` 은 CSS **변수**만 덮어쓰지 유틸리티 variant 는 못 막습니다. **자기 폭을 재는 쪽이 실제로도 맞습니다** — 사이드바가 열려 작업 영역이 좁아졌으면 창이 넓어도 접힌 배치가 옳습니다
+  - 경계는 `--container-pc`(880) **하나**입니다 (`ack-theme.css`). `@container/filter` 를 걸고 `@pc/filter:` 로 씁니다
+  - `container-type: inline-size` 는 `position: fixed` 자손의 기준이 되지만 `MobileSheet` · `Popover` 는 **Portal 로 빠져나가므로** 영향 없습니다
+
+| | 좁을 때 | 넓을 때 |
+|---|---|---|
+| 조건 배치 | 세로로 쌓음 | **가로 한 줄** |
+| 접힌 줄 | 요약 + **건수 배지** | 요약 + **“조건 변경” 버튼** |
+| 캡션 | 펼치면 커짐(`base/SemiBold`) | 늘 `sm/SemiBold` |
+| 버튼 | 화면을 반씩 (`flex-1`) | 우측에 내용 폭만큼 |
+| 누르는 곳 | **줄 전체** | 버튼만 |
+
+- **조회하면 자동으로 접힙니다.** 조건은 한 번 정하고 결과를 계속 봅니다. 접으면 **표가 약 150px 넓어집니다** (펼침 200 · 접힘 56)
+- **요약과 건수 배지는 접혔을 때만.** 펼치면 아래 필드에 같은 정보가 있어 중복이고, 조건을 바꾸는 중에 이전 결과 수가 남아 있으면 혼란스럽습니다. 요약은 걸린 조건을 `·` 로 이어 씁니다
+- **좁을 때 줄 전체가 눌리는 이유** — 손가락은 정확히 겨냥하기 어렵습니다. 넓을 때는 마우스로 찍으므로 **누를 곳을 눈에 보이게** 둡니다. 두 방식은 한 요소로 못 합니다(버튼 안의 버튼) — Head 에 **투명 오버레이 버튼**을 깔고 넓어지면 숨깁니다
+- **버튼은 `items-end` 로 필드 바닥에 붙입니다.** 라벨이 없어 그냥 두면 **17px 위로 뜹니다**(라벨 높이). 크기는 `default` — `--h-input-default` 가 40/36 으로 알아서 갈립니다
+- **조건은 4개까지.** 넘으면 좁을 때는 별도 필터 시트로, 넓을 때는 별도 검색 화면으로
+- 조건 줄은 **`FilterRow`** 로 감쌉니다 — 좁으면 세로, 넓으면 가로로 바뀝니다. 기간(`DateField`)은 넓어서 자기 줄을 씁니다
+- **껍데기는 한 벌이지만 안에 넣는 컨트롤은 아직 갈립니다** — 시트로 열지 팝오버로 열지는 CSS 로 고를 수 없습니다. 좁은 화면은 `MobileDateField` · `MobileSelect`, 넓은 화면은 `DateField` · `Select`
 - Figma description 이 "Expanded 206" 이라 적고 있었는데 변형은 **200** 입니다 — 변형에 맞췄습니다 (2026-08-07)
 
 ### Lookup — 열이 여러 개인 드롭다운
@@ -508,7 +514,7 @@ Screen
 └ Workspace            사이드바를 뺀 작업 영역
    ├ MDI TabBar 36     열린 화면 목록 (TabItem Variant=Line + Close)
    └ Content           선택된 탭의 내용 — 탭을 바꾸면 통째로 갈림
-      ├ FilterBar      PCFilterBar (Expanded 200 / Collapsed 56)
+      ├ FilterBar      조회 후 접힘 (Expanded 200 / Collapsed 56)
       └ Body           여백 24. 표 블록
 ```
 
@@ -566,7 +572,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 - [x] ~~LookupPanel · LookupRow~~ — 완성형 `Lookup` 까지 (2026-08-07). **ListItem 이 아니라 자체 행**입니다 — 아래 근거
 - [ ] AccordionItem
-- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileFilterBar · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen
+- [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateField · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen (조회 조건은 `FilterBar` 한 벌로 합쳤습니다)
 - [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다
 - [ ] React Hook Form + Zod 연동 예시
 

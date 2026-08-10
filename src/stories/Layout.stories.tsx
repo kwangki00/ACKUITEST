@@ -41,7 +41,7 @@ export const 화면구조: Story = {
             </div>
             <div className="flex min-h-0 flex-1 flex-col">
               <div className="flex h-16 shrink-0 items-center border-b border-border-gray-light bg-background-white px-3 text-xs text-text-subtle">
-                PCFilterBar — 펼침 206 / 접힘 56
+                FilterBar — 펼침 200 / 접힘 56
               </div>
               <div className="flex flex-1 items-center justify-center bg-background-gray-subtler text-xs text-text-subtle">
                 Body — 여백 24 · 표 블록
@@ -61,7 +61,7 @@ export const 화면구조: Story = {
             Header
           </div>
           <div className="flex h-10 shrink-0 items-center justify-center border-b border-border-gray-light bg-background-white text-2xs text-text-subtle">
-            MobileFilterBar — 조회 후 접힘
+            FilterBar — 조회 후 접힘 (PC 와 같은 컴포넌트)
           </div>
           <div className="flex flex-1 items-center justify-center bg-background-gray-subtler text-xs text-text-subtle">
             MobileListCard

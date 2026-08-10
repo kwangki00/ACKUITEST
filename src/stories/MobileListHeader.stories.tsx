@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
-import { MobileFilterBar } from "@/components/ui/mobile-filter-bar";
+import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { MobileDateField } from "@/components/ui/mobile-date-field";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { MBottomTabBar } from "@/components/ui/m-bottom-tab-bar";
@@ -73,7 +73,7 @@ const SORTS = [
  *
  * ### 건수는 조회 결과 전체 수
  *
- * `MobileFilterBar` 의 배지와 **같은 값**을 씁니다. 둘이 다르면 어느 쪽이 맞는지
+ * `FilterBar` 의 배지와 **같은 값**을 씁니다. 둘이 다르면 어느 쪽이 맞는지
  * 사용자가 판단할 수 없습니다. 화면에 보이는 카드 수가 아닙니다.
  *
  * ### 필터 버튼은 할 일이 있을 때만
@@ -228,7 +228,7 @@ export const 정렬시트: Story = {
 
 /**
  * **모바일 조회 화면이 전부 모였습니다** —
- * `MobileTop` + `MobileFilterBar` + `MobileListHeader` + `MobileListCard` + `MBottomTabBar`.
+ * `MobileTop` + `FilterBar` + `MobileListHeader` + `MobileListCard` + `MBottomTabBar`.
  *
  * **건수가 두 곳에 나옵니다** — 필터 바의 배지와 이 헤더의 배지. **같은 값**이어야 합니다.
  * 조회를 눌러 결과를 비워 보면 `EmptyState` 로 바뀌고 양쪽 다 0 이 됩니다.
@@ -266,20 +266,22 @@ export const 조회화면: Story = {
               }
             />
 
-            <MobileFilterBar
+            <FilterBar
               defaultOpen={false}
               summary={summary}
               count={rows.length}
               // 조회할 때마다 결과가 있고/없고를 번갈아 보여줍니다
               onSearch={() => setEmpty((v) => !v)}
             >
-              <MobileDateField
-                container={el}
-                label="기간"
-                value={period}
-                onValueChange={setPeriod}
-              />
-            </MobileFilterBar>
+              <FilterRow>
+                <MobileDateField
+                  container={el}
+                  label="기간"
+                  value={period}
+                  onValueChange={setPeriod}
+                />
+              </FilterRow>
+            </FilterBar>
 
             {/* 목록 전체가 흰 라운드 박스 안에 들어갑니다 — 헤더도 함께 */}
             <div className="min-h-0 flex-1 overflow-y-auto">

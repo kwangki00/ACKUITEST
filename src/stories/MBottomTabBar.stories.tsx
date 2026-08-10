@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Bell, Clipboard, FileText } from "lucide-react";
 import { MBottomTabBar, ACK_TABS } from "@/components/ui/m-bottom-tab-bar";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
-import { MobileFilterBar } from "@/components/ui/mobile-filter-bar";
+import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { MobileDateField } from "@/components/ui/mobile-date-field";
 import { Badge } from "@/components/ui/badge";
 import type { DateRange } from "@/components/ui/calendar";
@@ -241,7 +241,7 @@ export const 탭3개: Story = {
 
 /**
  * 오늘까지 만든 모바일 컴포넌트가 **한 화면에 다 모인 모습**입니다 —
- * `MBottomTabBar` + `MobileFilterBar` + `MobileDateField` + `MobileListCard`.
+ * `MBottomTabBar` + `FilterBar` + `MobileDateField` + `MobileListCard`.
  *
  * 탭바는 **스크롤 영역 밖**에 있습니다. 안에 넣으면 목록과 함께 밀려 올라갑니다.
  */
@@ -268,14 +268,16 @@ export const 조회화면: Story = {
 
             {tab === "results" ? (
               <>
-                <MobileFilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
-                  <MobileDateField
-                    container={el}
-                    label="기간"
-                    value={period}
-                    onValueChange={setPeriod}
-                  />
-                </MobileFilterBar>
+                <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
+                  <FilterRow>
+                    <MobileDateField
+                      container={el}
+                      label="기간"
+                      value={period}
+                      onValueChange={setPeriod}
+                    />
+                  </FilterRow>
+                </FilterBar>
 
                 {/* 탭바는 이 스크롤 영역 밖입니다 */}
                 <div className="flex-1 overflow-y-auto">

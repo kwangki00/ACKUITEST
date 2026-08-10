@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
-import { MobileFilterBar } from "@/components/ui/mobile-filter-bar";
+import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { MobileDateField } from "@/components/ui/mobile-date-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -227,14 +227,16 @@ export const 조회화면: Story = {
       <Phone>
         {(el) => (
           <div className="flex h-full flex-col">
-            <MobileFilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
-              <MobileDateField
-                container={el}
-                label="기간"
-                value={period}
-                onValueChange={setPeriod}
-              />
-            </MobileFilterBar>
+            <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
+              <FilterRow>
+                <MobileDateField
+                  container={el}
+                  label="기간"
+                  value={period}
+                  onValueChange={setPeriod}
+                />
+              </FilterRow>
+            </FilterBar>
 
             <div className="flex-1 overflow-y-auto">
               {ROWS.map((r) => (
