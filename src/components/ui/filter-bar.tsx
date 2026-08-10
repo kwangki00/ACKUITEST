@@ -125,6 +125,14 @@ export function FilterBar({
       className={cn(
         // 배치를 자기 폭으로 정합니다 — 창이 아니라
         "@container/filter flex flex-col border-b border-border-gray-light bg-background-white",
+        /*
+          넓을 때는 **바깥이 여백을 갖습니다** — 머리줄 32 + 위아래 12 로 접힘 56,
+          펼침 200 이 나옵니다 (Figma 값). 머리줄에 h-8 을 주고 여백을 안쪽에 넣으면
+          border-box 라 32 안에 여백이 먹혀 줄이 통째로 낮아집니다.
+          좁을 때는 머리줄·필드가 각자 여백을 갖습니다 (아래 참고).
+        */
+        "@pc/filter:gap-1.5 @pc/filter:px-6 @pc/filter:pt-3",
+        open ? "@pc/filter:pb-4" : "@pc/filter:pb-3",
         className
       )}
     >
@@ -132,7 +140,7 @@ export function FilterBar({
       <div
         className={cn(
           "relative flex items-center gap-2 py-3 pr-3 pl-4",
-          "@pc/filter:h-8 @pc/filter:gap-2.5 @pc/filter:px-6 @pc/filter:pt-3 @pc/filter:pb-0"
+          "@pc/filter:h-8 @pc/filter:gap-2.5 @pc/filter:p-0"
         )}
       >
         {/*
@@ -228,7 +236,8 @@ export function FilterBar({
           id={panelId}
           className={cn(
             "flex flex-col gap-3.5 px-4 pb-4",
-            "@pc/filter:flex-row @pc/filter:items-end @pc/filter:gap-4 @pc/filter:px-6 @pc/filter:pt-1.5"
+            // 넓을 때 여백은 바깥이 갖습니다 — 여기서 또 주면 200 을 넘깁니다
+            "@pc/filter:flex-row @pc/filter:items-end @pc/filter:gap-4 @pc/filter:p-0"
           )}
         >
           <div className="flex min-w-0 flex-1 flex-col gap-3.5 @pc/filter:gap-2.5">{children}</div>
