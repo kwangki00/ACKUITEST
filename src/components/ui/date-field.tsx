@@ -101,11 +101,15 @@ export function DateField({
     // 경계는 Tailwind 기본 @lg(512) — 입력창 256 + 칩 4개가 겨우 들어가는 폭입니다
     <div
       className={cn(
-        "@container/datefield flex flex-col gap-2",
-        "@lg/datefield:flex-row @lg/datefield:items-start",
+        // w-full 이 **꼭 필요합니다.** container-type: inline-size 는 내용이 폭을
+        // 정하면 성립하지 않습니다 — 가로 줄 안에서 내용만큼 넓어지는 flex 항목이면
+        // 브라우저가 폭을 못 정해 0 으로 무너집니다. 폭을 부모에서 받아야 합니다.
+        // (FilterBar 는 세로 흐름의 블록이라 이 문제가 없습니다)
+        "@container/datefield w-full min-w-0",
         className
       )}
     >
+      <div className="flex flex-col gap-2 @lg/datefield:flex-row @lg/datefield:items-start">
       <FormField
         label={label}
         required={required}
@@ -160,6 +164,7 @@ export function DateField({
             </ToggleItem>
           ))}
         </ToggleGroup>
+        </div>
       </div>
     </div>
   );
