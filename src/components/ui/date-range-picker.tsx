@@ -201,17 +201,26 @@ export interface DateRangePickerPanelProps {
   className?: string;
 }
 
-export function DateRangePickerPanel({
+/**
+ * 범위를 고르는 **규칙 한 벌**입니다. 화면은 안 그리고 상태와 판단만 쥡니다.
+ *
+ * PC 패널(`DateRangePickerPanel`)과 모바일 시트(`MobileDateField`)가 **같이 씁니다.**
+ * 겉모습은 다르지만 — 두 달이냐 한 달이냐, 사이드 레일이 있냐 — *언제 시작이 되고
+ * 언제 종료가 되는지*는 하나여야 합니다. 예전에는 두 벌이었고, 한쪽만 고치면
+ * 아무도 모르는 상태였습니다.
+ *
+ * `monthsVisible` 은 탭을 눌렀을 때 **달을 옮길지 판단하는 데만** 씁니다 —
+ * 이미 보이는 달이면 옮기지 않습니다.
+ */
+export function useDateRangeDraft({
   value,
-  onConfirm,
-  onCancel,
-  precision = "day",
-  min,
-  max,
-  presets,
-  className,
-}: DateRangePickerPanelProps) {
-  const quick = presets ?? PRESETS_BY_PRECISION[precision];
+  precision,
+  monthsVisible = 2,
+}: {
+  value: DateRange;
+  precision: DatePrecision;
+  monthsVisible?: 1 | 2;
+}) {
   // 확정 전까지는 여기서만 바뀝니다 — 취소하면 통째로 버립니다
   const [draft, setDraft] = React.useState<DateRange>(value);
   /**
@@ -225,20 +234,20 @@ export function DateRangePickerPanel({
     value.start && value.end ? null : value.start ? "end" : "start"
   );
   const [preview, setPreview] = React.useState<Date | null>(null);
-  const [left, setLeft] = React.useState<Date>(() => startOfMonth(value.start ?? new Date()));
+  const [cursor, setCursor] = React.useState<Date>(() =>
+    startOfMonth(value.start ?? new Date())
+  );
   // 오늘로 이동이 커서를 옮겨달라고 부탁하는 통로입니다. 매번 새 객체라 두 번 눌러도 반응합니다
   const [focusReq, setFocusReq] = React.useState<Date | null>(null);
-  const right = addMonths(left, 1);
 
   /**
-   * 고른 칸을 값으로 바꿉니다.
-   *
    * **종료는 그 단위의 마지막 날**입니다 — 2026년 8월을 종료로 고르면 8월 31일.
    * 1일로 두면 8월 2일부터가 조용히 빠져서, 화면은 8월까지라는데 자료는 하루만 나옵니다.
    */
   const asStart = (d: Date) => startOfUnit(d, precision);
   const asEnd = (d: Date) => endOfUnit(d, precision);
 
+  /** 고른 칸을 값으로 바꿉니다. */
   const pick = (raw: Date) => {
     setPreview(null);
     const d = asStart(raw);
@@ -288,14 +297,92 @@ export function DateRangePickerPanel({
     setEditing(which);
     const target = which === "start" ? draft.start : draft.end;
     if (!target) return;
-    if (!isSameMonth(target, left) && !isSameMonth(target, right)) {
-      setLeft(startOfMonth(target));
-    }
+    const visible =
+      isSameMonth(target, cursor) ||
+      (monthsVisible === 2 && isSameMonth(target, addMonths(cursor, 1)));
+    if (!visible) setCursor(startOfMonth(target));
     setFocusReq(new Date(target));
   };
 
+  /** 다 지웁니다 — 이어서 시작부터 고릅니다. */
+  const reset = () => {
+    setDraft({ start: null, end: null });
+    setEditing("start");
+  };
+
+  /**
+   * **달만 옮깁니다** — 오늘 하나를 넣어봐야 두 날짜를 골라야 하는 일이 끝나지
+   * 않습니다. 단일(`DatePicker`)은 반대로 오늘을 바로 고릅니다.
+   * 커서도 오늘 칸으로 옮겨서 이어서 방향키로 집어갈 수 있게 합니다.
+   */
+  const goToday = () => {
+    const today = startOfDay(new Date());
+    setCursor(startOfMonth(today));
+    setFocusReq(startOfDay(new Date()));
+  };
+
+  /** 빠른 선택을 눌렀을 때 — 다 정해졌으니 활성 탭을 끕니다. */
+  const applyPreset = (p: DatePreset) => {
+    const r = p.range();
+    setDraft(r);
+    setCursor(startOfMonth(r.start ?? new Date()));
+    setEditing(null);
+  };
+
+  /** 열 때마다 지금 값에서 다시 시작합니다 (시트처럼 여닫는 쪽에서 씁니다). */
+  const restart = (v: DateRange) => {
+    setDraft(v);
+    setEditing(v.start && v.end ? null : v.start ? "end" : "start");
+    setCursor(startOfMonth(v.start ?? new Date()));
+    setPreview(null);
+  };
+
+  return {
+    draft,
+    editing,
+    preview,
+    setPreview,
+    cursor,
+    setCursor,
+    focusReq,
+    pick,
+    editTab,
+    reset,
+    goToday,
+    applyPreset,
+    restart,
+    complete: draft.start != null && draft.end != null,
+  };
+}
+
+export function DateRangePickerPanel({
+  value,
+  onConfirm,
+  onCancel,
+  precision = "day",
+  min,
+  max,
+  presets,
+  className,
+}: DateRangePickerPanelProps) {
+  const quick = presets ?? PRESETS_BY_PRECISION[precision];
+  const {
+    draft,
+    editing,
+    preview,
+    setPreview,
+    cursor: left,
+    setCursor: setLeft,
+    focusReq,
+    pick,
+    editTab,
+    reset,
+    goToday,
+    applyPreset,
+    complete,
+  } = useDateRangeDraft({ value, precision });
+  const right = addMonths(left, 1);
   const today = startOfDay(new Date());
-  const complete = draft.start != null && draft.end != null;
 
   return (
     <div className={cn("flex rounded-xl border border-cal-border bg-background-white", className)}>
@@ -361,26 +448,16 @@ export function DateRangePickerPanel({
               variant="link"
               size="sm"
               disabled={!draft.start && !draft.end}
-              onClick={() => {
-                setDraft({ start: null, end: null });
-                setEditing("start");
-              }}
+              onClick={reset}
             >
               초기화
             </Button>
-            {/*
-              범위는 **달만 옮깁니다** — 오늘 하나를 넣어봐야 두 날짜를 골라야 하는
-              일이 끝나지 않습니다. 단일(DatePicker)은 반대로 오늘을 바로 고릅니다.
-              커서도 오늘 칸으로 옮겨서, 이어서 방향키로 집어갈 수 있게 합니다
-            */}
+            {/* 범위는 달만 옮깁니다 — 근거는 useDateRangeDraft 의 goToday 주석 참고 */}
             <Button
               variant="link"
               size="sm"
               disabled={isDisabled(today, min, max)}
-              onClick={() => {
-                setLeft(startOfMonth(today));
-                setFocusReq(startOfDay(new Date()));
-              }}
+              onClick={goToday}
             >
               {precision === "year" ? "올해로 이동" : precision === "month" ? "이번 달로 이동" : "오늘로 이동"}
             </Button>
@@ -404,13 +481,7 @@ export function DateRangePickerPanel({
             variant="outline"
             size="sm"
             className="w-full"
-            onClick={() => {
-              const r = p.range();
-              setDraft(r);
-              setLeft(startOfMonth(r.start ?? new Date()));
-              // 다 정해졌으니 활성 탭을 끕니다 — 이어서 고칠 쪽을 직접 누르면 됩니다
-              setEditing(null);
-            }}
+            onClick={() => applyPreset(p)}
           >
             {p.label}
           </Button>

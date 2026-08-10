@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
 import { CalendarMonth, type DateRange } from "@/components/ui/calendar";
-import { DateRangeTabs, PRESETS_BY_PRECISION, type DatePreset } from "@/components/ui/date-range-picker";
+import {
+  DateRangeTabs,
+  PRESETS_BY_PRECISION,
+  useDateRangeDraft,
+  type DatePreset,
+} from "@/components/ui/date-range-picker";
 import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
 import {
-  endOfUnit,
   formatByPrecision,
   isDisabled,
   isSameDay,
   startOfDay,
-  startOfMonth,
-  startOfUnit,
   type DatePrecision,
 } from "@/lib/date";
 
@@ -40,6 +42,17 @@ import {
  * ### 확인 버튼은 시트가 담당합니다
  *
  * 달력 자체에는 없습니다. 두 날짜를 골라야 하니 시트 Footer 로 확정합니다.
+ *
+ * ### 범위 규칙은 PC 와 **같은 훅**에서 옵니다
+ *
+ * `useDateRangeDraft` — 언제 시작이 되고 언제 종료가 되는지, 시작보다 앞을 고르면
+ * 어떻게 되는지, 탭을 누르면 달을 옮길지. **겉모습만 다르지 규칙은 하나여야 합니다.**
+ *
+ * 2026-08-07 이전에는 이 파일이 그 규칙을 **다시 구현하고** 있었습니다 —
+ * `MobileSelect` 가 “목록을 다시 만들지 않고 감싸는 컨테이너만 분기” 한 것과 달리,
+ * 여기서는 알맹이까지 복사돼 있어서 한쪽만 고치면 아무도 모르는 상태였습니다.
+ *
+ * 껍데기(시트 vs 팝오버)는 여전히 갈립니다 — 그건 CSS 로 고를 수 없습니다.
  */
 
 export interface MobileDateFieldProps {
@@ -70,9 +83,24 @@ export function MobileDateField({
   container,
 }: MobileDateFieldProps) {
   const [open, setOpen] = React.useState(false);
-  const [draft, setDraft] = React.useState<DateRange>(value);
-  const [editing, setEditing] = React.useState<"start" | "end" | null>(null);
-  const [month, setMonth] = React.useState<Date>(() => startOfMonth(value.start ?? new Date()));
+  /*
+    범위를 고르는 규칙은 **PC 패널과 같은 훅**에서 옵니다 — 겉모습만 다르지
+    "언제 시작이 되고 언제 종료가 되는지" 는 하나여야 합니다.
+    한 달만 보여주므로 monthsVisible 은 1 입니다 (탭을 눌렀을 때 달을 옮길지 판단).
+  */
+  const {
+    draft,
+    editing,
+    cursor: month,
+    setCursor: setMonth,
+    focusReq,
+    pick,
+    editTab,
+    reset,
+    goToday,
+    restart,
+    complete,
+  } = useDateRangeDraft({ value, precision, monthsVisible: 1 });
 
   const quick = presets === false ? [] : (presets ?? PRESETS_BY_PRECISION[precision]);
 
@@ -89,38 +117,11 @@ export function MobileDateField({
       ? `${formatByPrecision(value.start, precision)} ~ ${formatByPrecision(value.end, precision)}`
       : "";
 
+  // 열 때마다 지금 값에서 다시 시작합니다 — 지난번에 고르다 만 흔적을 남기지 않습니다
   const openSheet = () => {
     if (disabled) return;
-    setDraft(value);
-    setEditing(value.start && value.end ? null : value.start ? "end" : "start");
-    setMonth(startOfMonth(value.start ?? new Date()));
+    restart(value);
     setOpen(true);
-  };
-
-  const pick = (raw: Date) => {
-    const d = startOfUnit(raw, precision);
-
-    if (editing === "end" && draft.start) {
-      setDraft(
-        d < draft.start
-          ? { start: d, end: endOfUnit(draft.start, precision) }
-          : { ...draft, end: endOfUnit(raw, precision) }
-      );
-      setEditing(null);
-      return;
-    }
-    if (editing === "start" && draft.end) {
-      if (d > draft.end) {
-        setDraft({ start: d, end: null });
-        setEditing("end");
-      } else {
-        setDraft({ ...draft, start: d });
-        setEditing(null);
-      }
-      return;
-    }
-    setDraft({ start: d, end: null });
-    setEditing("end");
   };
 
   const today = startOfDay(new Date());
@@ -174,7 +175,7 @@ export function MobileDateField({
         title={label}
         container={container}
         confirmLabel="선택"
-        confirmDisabled={!draft.start || !draft.end}
+        confirmDisabled={!complete}
         onConfirm={() => {
           onValueChange(draft);
           setOpen(false);
@@ -184,11 +185,7 @@ export function MobileDateField({
         <DateRangeTabs
           range={draft}
           editing={editing}
-          onEditingChange={(which) => {
-            setEditing(which);
-            const target = which === "start" ? draft.start : draft.end;
-            if (target) setMonth(startOfMonth(target));
-          }}
+          onEditingChange={editTab}
           precision={precision}
         />
 
@@ -197,6 +194,7 @@ export function MobileDateField({
           onMonthChange={setMonth}
           range={draft}
           onSelect={pick}
+          focusDate={focusReq}
           min={min}
           max={max}
           header="nav"
@@ -209,10 +207,7 @@ export function MobileDateField({
             variant="link"
             size="sm"
             disabled={!draft.start && !draft.end}
-            onClick={() => {
-              setDraft({ start: null, end: null });
-              setEditing("start");
-            }}
+            onClick={reset}
           >
             초기화
           </Button>
@@ -220,7 +215,7 @@ export function MobileDateField({
             variant="link"
             size="sm"
             disabled={isDisabled(today, min, max)}
-            onClick={() => setMonth(startOfMonth(today))}
+            onClick={goToday}
           >
             오늘로 이동
           </Button>
