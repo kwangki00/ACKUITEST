@@ -109,7 +109,6 @@ export const 단일: Story = {
               {...args}
               container={el}
               type="single"
-              title="검사 항목"
               options={TESTS}
               value={v}
               onValueChange={setV}
@@ -137,7 +136,6 @@ export const 다중: Story = {
                 {...args}
                 container={el}
                 type="multi"
-                title="검사 항목"
                 options={TESTS}
                 value={v}
                 onValueChange={setV}
@@ -169,7 +167,6 @@ export const 검색없음: Story = {
             <MobileSelect
               {...args}
               container={el}
-              title="정렬 기준"
               searchable={false}
               options={[
                 { value: "a", label: "접수번호순" },
@@ -212,6 +209,7 @@ export const PC와나란히: Story = {
               <MobileSelect
                 container={el}
                 type="multi"
+                // FormField 로 감싸지 않은 자리라 머리글을 직접 줍니다
                 title="검사 항목"
                 options={TESTS}
                 value={mo}

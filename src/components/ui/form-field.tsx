@@ -20,6 +20,20 @@ import { cn } from "@/lib/utils";
  * `<Input size="lg" />` 처럼 컨트롤에 직접 줍니다. 래퍼에 받아봐야 쓸 데가 없어
  * 받기만 하고 아무 데도 안 쓰는 prop 이었습니다 (2026-08-07 제거).
  */
+/**
+ * 이 필드의 라벨을 안쪽에 알려줍니다.
+ *
+ * 시트로 열리는 컨트롤(`MobileSelect`)은 **시트 머리글**이 따로 필요한데, 그건 결국
+ * 필드 라벨과 같은 글자입니다. 이게 없으면 호출부가 같은 글자를 두 번 적어야 하고
+ * — 빠뜨리면 머리글이 "선택" 이라는 기본값으로 조용히 밋밋해집니다.
+ */
+const FormFieldLabelContext = React.createContext<string | undefined>(undefined);
+
+/** 감싸고 있는 `FormField` 의 라벨. 없으면 `undefined`. */
+export function useFormFieldLabel() {
+  return React.useContext(FormFieldLabelContext);
+}
+
 export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   label?: string;
   required?: boolean;
@@ -53,7 +67,7 @@ export function FormField({
           )}
         </label>
       )}
-      {children}
+      <FormFieldLabelContext.Provider value={label}>{children}</FormFieldLabelContext.Provider>
       {description && !error && (
         <p className="text-xs text-text-muted-foreground">{description}</p>
       )}

@@ -284,9 +284,9 @@ export const 모바일화면: Story = {
               {/* 여기도 PC 스토리와 같은 `Select` 입니다 — 시트로 열립니다 */}
               <FilterRow>
                 <FormField label="검사 항목">
+                  {/* 시트 머리글은 감싸고 있는 FormField 라벨에서 옵니다 */}
                   <Select
                     container={el}
-                    title="검사 항목"
                     options={TESTS}
                     value={test}
                     onValueChange={setTest}

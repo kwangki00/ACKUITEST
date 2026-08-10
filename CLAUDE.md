@@ -173,6 +173,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 - **컨트롤 하나에 `label` prop 을 달지 마세요** — `FormField` 가 하는 일이 두 벌이 됩니다
 - `Checkbox` · `Radio` · `Switch` 의 `label` 은 **다른 것**입니다. 네모 칸 옆에 붙는 글자지 필드 위의 라벨이 아닙니다
+- **시트 머리글은 `FormField` 가 알려줍니다.** `MobileSelect` 의 `title` 을 안 넘기면 감싸고 있는 `FormField` 의 라벨을 씁니다 — 안 그러면 같은 글자를 두 번 적어야 하고, 빠뜨리면 머리글이 “선택” 이라는 기본값으로 조용히 밋밋해집니다 (`useFormFieldLabel`, 2026-08-07). `FormField` 밖에서 쓸 때만 `title` 을 직접 주세요
 
 ### Table
 

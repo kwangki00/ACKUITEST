@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
+import { useFormFieldLabel } from "@/components/ui/form-field";
 import { SelectTrigger, type SelectSize, type SelectState } from "@/components/ui/select-trigger";
 import {
   ComboboxPanel,
@@ -53,6 +54,7 @@ export interface MobileSelectProps {
   /** 단일이어도 배열입니다 — `Combobox` 와 같은 모양이라 갈아끼우기 쉽습니다. */
   value: string[];
   onValueChange: (value: string[]) => void;
+  /** 시트 머리글. 안 넘기면 **감싸고 있는 `FormField` 의 라벨**을 씁니다. */
   title?: string;
   placeholder?: string;
   searchPlaceholder?: string;
@@ -74,7 +76,7 @@ export function MobileSelect({
   options,
   value,
   onValueChange,
-  title = "선택",
+  title,
   placeholder = "선택해 주세요.",
   searchPlaceholder = "검색어 (초성 검색 가능)…",
   emptyText = "검색 결과가 없습니다.",
@@ -86,6 +88,9 @@ export function MobileSelect({
   className,
   container,
 }: MobileSelectProps) {
+  // 시트 머리글은 결국 필드 라벨과 같은 글자입니다 — 같은 걸 두 번 적게 하지 않습니다
+  const fieldLabel = useFormFieldLabel();
+  const heading = title ?? fieldLabel ?? "선택";
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   // 다중은 확정 전까지 여기서만 바뀝니다 — 취소하면 통째로 버립니다
@@ -147,7 +152,7 @@ export function MobileSelect({
       <MobileSheet
         open={open}
         onOpenChange={setOpen}
-        title={title}
+        title={heading}
         container={container}
         // 단일은 고르면 바로 닫히니 확인 버튼이 필요 없습니다
         footer={type === "multi"}
