@@ -812,6 +812,10 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - 문서는 **표 중심**입니다. 문장으로 길게 쓰면 안 읽힙니다
 - **스토리가 실제로 그려지는지는 `tsc` 로 안 걸립니다.** 훅을 컴포넌트 밖에 두거나 컨텍스트 없이 쓰면 **런타임에만** 터집니다 — `tsc -b` 도 `vite build` 도 `storybook build` 도 통과합니다. 2026-08-11 에 `Table/결과조회화면` 이 그렇게 깨졌고(모듈 최상단에 `useState`), 훑다가 `Tabs/기본` 도 원래부터 깨져 있던 걸 찾았습니다
   - 확인은 **모든 스토리의 `render` 를 SSR 로 한 번 그려 보는 것**입니다 (`react-dom/server`). `preview.tsx` 의 decorator(`PointerModeProvider` · `TooltipProvider` · `ToastProvider`)를 같이 감싸야 Provider 오류가 안 납니다. **`render` 를 직접 호출하면 안 됩니다** — 훅이 컴포넌트 밖에서 돌아 엉뚱한 오류가 납니다. `<R {...args} />` 로 그리세요
+- **Controls 패널은 다섯 묶음으로 나뉩니다** — `Display` · `Content` · `State` · `Behavior` · `Events` (2026-08-11). 규칙은 `src/stories/figma.ts` 의 `argCategory` 한 곳에 있고, `preview.tsx` 의 `argTypesEnhancers` 가 모든 스토리에 한 번에 붙입니다
+  - **스토리마다 `table.category` 를 적지 마세요** — 40개 파일에 흩어 놓으면 새 prop 이 늘 때마다 빠지고, 같은 이름이 파일마다 다른 묶음에 들어갑니다. 벗어나야 하는 자리에만 그 항목에 직접 적으세요 (직접 준 것이 이깁니다)
+  - **`secondPass: true` 가 필요합니다** — 안 켜면 docgen 이 타입에서 뽑아내기 **전에** 돌아서, 손으로 적은 argTypes 만 묶이고 `Input` 처럼 HTML 속성을 상속해 자동으로 붙는 것들이 묶음 밖에 남습니다. 정작 어수선한 쪽이 그쪽입니다
+  - 어디에도 안 걸리는 것(`className` · `container` · `aria-*`)은 **묶지 않습니다** — 묶음 밖에 남아 오히려 눈에 띕니다
 - **스토리는 눌러 볼 수 있어야 합니다.** `onValueChange={() => {}}` 에 값까지 박아두면 열어서 골라도 아무 일이 없습니다 — 문서를 보러 온 사람은 당연히 눌러 봅니다
   - **에러가 붙은 예제는 특히** — 값을 넣으면 에러가 사라지는 것까지 보여야 「에러는 검증 결과로 자동」 규칙이 화면에서 설명됩니다
   - 죽은 핸들러는 **`State` · `변형` 스토리에만** 둡니다. 거기는 `readonly` · `disabled` 처럼 **모양만** 보여주는 자리입니다

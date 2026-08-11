@@ -81,3 +81,52 @@ export const design = (url: string) => ({ design: { type: "figma" as const, url 
  * 그 몇 개만 `dynamic` 으로 되돌립니다 — 그려진 결과가 곧 예제 코드입니다.
  */
 export const argsSource = { docs: { source: { type: "dynamic" as const } } };
+
+/* ---------------------------------------------------------------- Controls */
+
+/**
+ * Controls 패널의 묶음 — **prop 이름으로 자동 분류**합니다.
+ *
+ * `Lookup` 12 · `DateRangePicker` 11 처럼 축이 많은 컴포넌트는 한 줄로 늘어놓으면
+ * 무엇부터 만져야 할지 안 보입니다. `Input` 처럼 HTML 속성을 상속하는 것은
+ * 자동 생성분까지 붙어 더 깁니다.
+ *
+ * **스토리마다 `table.category` 를 적지 않습니다.** 40개 파일에 흩어 놓으면 새 prop 이
+ * 늘 때마다 빠지고, 같은 이름이 파일마다 다른 묶음에 들어갑니다. 규칙을 여기 두고
+ * `preview.tsx` 의 `argTypesEnhancers` 가 **모든 스토리에 한 번에** 붙입니다.
+ *
+ * | 묶음 | 무엇 |
+ * |---|---|
+ * | `Display` | 모양을 정하는 축 — `variant` · `size` · `shape` · `tone` · `render` |
+ * | `Content` | 화면에 나오는 글자 — `label` · `placeholder` · `description` |
+ * | `State` | 지금 값과 상태 — `value` · `state` · `disabled` · `error` |
+ * | `Behavior` | 어떻게 굴러가는지 — `open` · `searchable` · `clearable` |
+ * | `Events` | `on*` 전부 |
+ *
+ * 어디에도 안 걸리는 것(`className` · `container` · `aria-*`)은 **묶지 않습니다** —
+ * 묶음 밖에 남아 오히려 눈에 띕니다. 규칙에서 벗어나야 하는 자리가 있으면 그 스토리의
+ * 해당 항목에만 `table: { category }` 를 직접 적으세요 — 직접 준 것이 이깁니다.
+ */
+const CATEGORY: [RegExp, string][] = [
+  [/^on[A-Z]/, "Events"],
+  [
+    /^(variant|styleVariant|size|shape|tone|render|precision|align|direction|side|placement|type|level|dot|homeIndicator|header|counter|attached|withToolbar)$/,
+    "Display",
+  ],
+  [
+    /^(label|title|placeholder|description|emptyText|searchPlaceholder|children|logo|icon|leadingIcon|trailingIcon|actions|unit|count|summary|caption|resetLabel|searchLabel|changeLabel|confirmLabel|cancelLabel|note)$/,
+    "Content",
+  ],
+  [
+    /^(value|defaultValue|selected|checked|options|rows|columns|user|state|disabled|readOnly|required|error|loading|active|indeterminate|collapsed|expanded|min|max|maxLength)$/,
+    "State",
+  ],
+  [
+    /^(open|defaultOpen|searchable|clearable|selectAll|closable|scrollable|quickSelect|overlay|presets|displayColumns|display|maxChips|panelWidth|monthsVisible|chevron|tooltip|getRowId)$/,
+    "Behavior",
+  ],
+];
+
+/** prop 이름이 속한 묶음. 어디에도 안 걸리면 `undefined` — 묶지 않습니다. */
+export const argCategory = (name: string): string | undefined =>
+  CATEGORY.find(([re]) => re.test(name))?.[1];

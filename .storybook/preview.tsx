@@ -1,8 +1,34 @@
-import type { Preview } from "@storybook/react";
+import type { Preview, ReactRenderer } from "@storybook/react";
+import type { ArgTypesEnhancer } from "storybook/internal/types";
 import { TooltipProvider } from "../src/components/ui/tooltip";
 import { ToastProvider } from "../src/components/ui/toast";
 import { PointerModeProvider } from "../src/components/ui/pointer-mode";
+import { argCategory } from "../src/stories/figma";
 import "../src/index.css";
+
+/**
+ * Controls 패널을 다섯 묶음으로 나눕니다 — 규칙은 `src/stories/figma.ts` 의
+ * `argCategory` 한 곳에 있습니다.
+ *
+ * **스토리마다 `table.category` 를 적지 않습니다.** 40개 파일에 흩어 놓으면 새 prop 이
+ * 늘 때마다 빠지고, 같은 이름이 파일마다 다른 묶음에 들어갑니다.
+ *
+ * **`secondPass` 가 필요합니다** — 이걸 안 켜면 docgen 이 타입에서 뽑아내기 **전에**
+ * 돌아서, 스토리에 손으로 적은 argTypes 만 묶이고 `Input` 처럼 HTML 속성을 상속해
+ * 자동으로 붙는 것들은 묶음 밖에 남습니다. 정작 어수선한 쪽이 그쪽입니다.
+ *
+ * 스토리가 직접 적어둔 `category` 는 그대로 둡니다 — 직접 준 것이 이깁니다.
+ */
+const groupArgTypes: ArgTypesEnhancer<ReactRenderer> = (context) => {
+  const out: typeof context.argTypes = {};
+  for (const [name, def] of Object.entries(context.argTypes)) {
+    const table = def.table as { category?: string } | undefined;
+    const category = table?.category ?? argCategory(name);
+    out[name] = category ? { ...def, table: { ...table, category } } : def;
+  }
+  return out;
+};
+groupArgTypes.secondPass = true;
 
 const preview: Preview = {
   // Radix Tooltip 은 Provider 없이 쓰면 던집니다. 앱 루트와 같은 자리입니다.
@@ -22,6 +48,8 @@ const preview: Preview = {
       </PointerModeProvider>
     ),
   ],
+
+  argTypesEnhancers: [groupArgTypes],
 
   parameters: {
     layout: "centered",
