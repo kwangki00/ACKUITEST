@@ -11,7 +11,7 @@ import {
   PRESETS_BY_PRECISION,
   useDateRangeDraft,
   type DatePreset,
-} from "@/components/ui/date-range-picker";
+} from "@/components/ui/date-range-core";
 import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
 import {
   formatByPrecision,

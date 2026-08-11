@@ -483,6 +483,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
   - `MobileSelect` 는 `Select` 가 아니라 **`Combobox` 의 짝**입니다 (둘 다 `value: string[]` · `type` · `searchable`). `Select` 는 값이 하나라 `단일 · 검색 없음` 으로 고정해 넘기고 배열 ↔ 문자열만 바꿔 끼웁니다
   - **시트로 열면 트리거 표현이 안 쓰입니다** — `render` · `maxChips` · `clearable` · `leadingIcon`. 시트 쪽 트리거는 글자 한 줄이고, `editable` 처럼 트리거에 직접 치는 방식은 시트와 맞지 않습니다
   - `Combobox` · `Select` 가 `MobileSelect` 를 부르면서 **순환 import** 가 생겨(`combobox → mobile-select → combobox`) 패널을 `combobox-panel.tsx` 로 뽑았습니다. 예전 경로도 그대로 동작하도록 `combobox.tsx` 가 다시 내보냅니다 (2026-08-07)
+  - **날짜도 같은 일을 겪었습니다** — `DateRangePicker` 가 시트 구현을 부르고 시트가 규칙을 다시 가져가면서 `date-range-picker ↔ mobile-date-range-picker` 순환이 생겼습니다. 탭·프리셋·`useDateRangeDraft` 를 **`date-range-core.tsx`** 로 뽑았습니다 (2026-08-11). 예전 경로는 `date-range-picker.tsx` 가 다시 내보냅니다
+  - **한 벌로 합칠 때마다 생기는 모양입니다** — 완성형이 시트 구현을 부르고, 시트가 알맹이를 도로 가져갑니다. **알맹이를 제3의 파일로 뽑고 예전 경로는 재수출**하는 것이 이 저장소의 답입니다
 - **년·월 머리글에 화살표가 함께 붙습니다** (`CalendarMonth` 의 `header="nav"`) — 옆 달로 가는 것이 가장 잦은 이동인데 그때마다 Select 를 열고 고르고 닫는 건 손이 많이 갑니다. **Select 도 남겨 둡니다**: 먼 달로 갈 길이 화살표뿐이면 수십 번 눌러야 합니다
   - 예전에는 “시트 위에 Select 패널을 또 띄우지 않으려고 화살표만 둔다” 고 적어뒀는데, **`header` prop 이 선언만 되고 아무 데도 안 쓰여** 실제로는 Select 만 떴습니다 (2026-08-07 구현). 겹쳐 뜨는 것은 그대로 두기로 했습니다 — Radix 가 레이어를 쌓아 처리하고, 먼 달로 가는 길이 필요합니다
 - PC 는 두 달, **모바일은 한 달**. 모바일 폭에 두 달을 넣으면 칸이 손가락보다 작아집니다
