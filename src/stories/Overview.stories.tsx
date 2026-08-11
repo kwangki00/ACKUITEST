@@ -152,7 +152,7 @@ const GROUPS: Group[] = [
   {
     key: "Feedback",
     title: "Feedback — 알림",
-    lead: "무엇이 일어났는지 알리는 것들입니다. **답을 받을지 · 남을지**로 갈립니다.",
+    lead: "무엇이 일어났는지 알리는 것들입니다. **답을 받을지 · 남을지**로 갈립니다. 보여줄 것이 없을 때는 `EmptyState`.",
     rows: [
       {
         name: "Alert",
@@ -171,6 +171,11 @@ const GROUPS: Group[] = [
         rule: "동시에 3개까지 · 우하단. 색만으로 구분하지 말고 제목 문구로 결과를 씁니다",
       },
       {
+        name: "EmptyState",
+        what: "결과 없음 · 데이터 없음 · 오류",
+        rule: "셋의 차이는 **다음에 무엇을 하느냐**입니다 — 조건을 바꾸거나 · 만들거나 · 다시 시도하거나. `no-data` 만 Primary",
+      },
+      {
         name: "Loading & Divider",
         what: "Skeleton · Spinner · Progress · Separator",
         rule: "무엇이 올지 아는 자리는 Skeleton, 모르면 Spinner",
@@ -180,7 +185,7 @@ const GROUPS: Group[] = [
   {
     key: "Overlay",
     title: "Overlay — 떠 있는 것",
-    lead: "완성형(Select · Combobox)을 만드는 조립 부품입니다. 반경은 전부 `Radius/md`(6).",
+    lead: "완성형(`Select` · `Combobox` · `Lookup`)을 만드는 조립 부품입니다. 반경은 전부 `Radius/md`(6).",
     rows: [
       {
         name: "Popover",
@@ -191,6 +196,12 @@ const GROUPS: Group[] = [
         name: "ListItem",
         what: "목록 한 줄 — 선택 표식 · 검색어 강조",
         rule: "선택을 배경으로 알리지 않습니다. 배경 하나가 hover · 커서 · 선택 세 가지를 뜻하기 때문",
+      },
+      {
+        name: "Lookup",
+        what: "열이 여러 개인 드롭다운 (LookupPanel · LookupRow 포함)",
+        rule: "가르는 축은 **한 줄에 무엇이 들어가느냐**입니다 — 이름만으로 판단되면 `Combobox`. 열은 4개까지",
+        codeOnly: ["Lookup"],
       },
       {
         name: "Tooltip",
@@ -237,7 +248,7 @@ const GROUPS: Group[] = [
   {
     key: "Mobile",
     title: "Mobile — 모바일 전용",
-    lead: "PC 와 구조를 다시 짜야 하는 것들입니다. 자동 대응되는 것(Input · Button 등)은 여기 없습니다.",
+    lead: "**구조를 다시 짜야 하는** 것들입니다. 높이만 바뀌면 되는 것(Input · Button 등)은 여기 없고, `MobileSelect` · `MobileDateRangePicker` 는 **시트 쪽 구현**이라 직접 부를 자리가 없습니다.",
     rows: [
       {
         name: "MobileTop",
@@ -268,6 +279,11 @@ const GROUPS: Group[] = [
         name: "MobileDateRangePicker",
         what: "기간 입력 — 한 달 달력",
         rule: "**보통은 `DateRangePicker` 를 쓰세요** — 터치 기기에서는 이게 알아서 뜹니다. 범위 규칙은 PC 와 같은 훅",
+      },
+      {
+        name: "MobileListHeader",
+        what: "카드 목록 위 한 줄 — 제목 · 건수 · 필터",
+        rule: "카드 목록에는 표 헤더가 없습니다. **무엇의 목록인지 · 몇 건인지 · 어떻게 고를지**를 이 줄이 대신합니다",
       },
       {
         name: "MobileListCard",
