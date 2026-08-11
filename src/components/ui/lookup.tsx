@@ -35,8 +35,18 @@ import { comboboxMatch } from "@/components/ui/combobox-panel";
  * **애초에 그 구분 때문에 `Combobox` 대신 이걸 쓰는 것**입니다. Figma 문서에도
  * “닫힌 상태에 코드+명칭 함께 표시” 라고 적혀 있습니다.
  *
- * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)이고, 코드 열이 없으면 이름만
- * 나옵니다. 다른 조합이 필요하면 `display` 로 바꾸세요.
+ * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)입니다 — **열이 넷이어도 트리거에는
+ * 둘만** 나옵니다. 한 줄에 다 넣으면 서로를 밀어내 전부 잘리고, 나머지는 열어서 보면
+ * 됩니다.
+ *
+ * 다른 조합이 필요하면 **`displayColumns`** 로 열 `key` 를 고르세요 — 적은 순서대로
+ * 놓입니다. **둘까지**입니다.
+ *
+ * ```tsx
+ * <Lookup columns={COLS} displayColumns={["name", "unit"]} … />
+ * ```
+ *
+ * 값을 합치거나 형식을 바꿔야 하면 `display` 로 직접 만듭니다 — 넘기면 그게 이깁니다.
  *
  * ### 코드 열은 흐립니다
  *
@@ -263,8 +273,18 @@ export interface LookupProps<T> {
   value?: string;
   onValueChange: (row: T | null) => void;
   /**
-   * 트리거에 보일 글자. 기본은 **코드 + 이름**입니다 — `muted` 열(코드)과 폭을 주지
-   * 않은 열(이름)을 나란히 놓습니다. 코드 열이 없으면 이름만 나옵니다.
+   * 트리거에 보일 **열**을 `key` 로 고릅니다. 적은 순서대로 놓입니다.
+   *
+   * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)이라, 열이 넷이어도 트리거에는
+   * 둘만 나옵니다. 다른 조합이 필요할 때만 넘기세요 — `["name", "unit"]` 처럼.
+   *
+   * **둘까지입니다.** 트리거는 잘리는 한 줄이라 셋을 넣으면 전부 잘려서 무엇을
+   * 골랐는지 오히려 확인이 안 됩니다. 그보다 복잡한 표현은 `display` 로 만드세요.
+   */
+  displayColumns?: readonly [string] | readonly [string, string];
+  /**
+   * 트리거에 보일 글자를 직접 만듭니다. `displayColumns` 로 안 되는 경우에만 —
+   * 값을 합치거나 형식을 바꿔야 할 때입니다. 넘기면 `displayColumns` 보다 이깁니다.
    */
   display?: (row: T) => React.ReactNode;
   placeholder?: string;
@@ -292,6 +312,7 @@ export function Lookup<T>({
   getRowId,
   value,
   onValueChange,
+  displayColumns,
   display,
   placeholder = "선택하세요",
   size = "default",
@@ -343,23 +364,32 @@ export function Lookup<T>({
     코드+명칭 함께 표시”). 이름만 남기면 비슷한 검사가 여럿일 때 무엇을 골랐는지
     확인할 수 없습니다 — 애초에 그 구분 때문에 Combobox 대신 Lookup 을 쓰는 것입니다.
 
-    코드는 목록에서와 같은 흐린 색(Lookup/Code)입니다. 읽는 값이 아니라 찾는 값이라
-    이름과 같은 색이면 눈이 어디를 봐야 할지 정하지 못합니다.
+    열이 넷이어도 트리거에는 둘만 놓습니다. 한 줄에 다 넣으면 서로를 밀어내
+    전부 잘립니다 — 나머지는 열어서 보면 됩니다.
   */
   const fill = columns.find((c) => c.width == null) ?? columns[0];
-  const code = columns.find((c) => c.muted && c !== fill);
-  const label = selected
-    ? display
-      ? display(selected)
-      : code
-        ? (
-            <>
-              <span className="shrink-0 text-lookup-code">{code.value(selected)}</span>
-              <span className="min-w-0 truncate">{fill.value(selected)}</span>
-            </>
-          )
-        : fill.value(selected)
-    : null;
+  const shown = displayColumns
+    ? displayColumns.map((k) => columns.find((c) => c.key === k)).filter((c) => c !== undefined)
+    : [columns.find((c) => c.muted && c !== fill), fill].filter((c) => c !== undefined);
+
+  const label =
+    selected == null
+      ? null
+      : display
+        ? display(selected)
+        : shown.map((c, i) => (
+            <span
+              key={c.key}
+              className={cn(
+                // 마지막 것만 남는 폭을 쓰고 잘립니다 — 앞의 코드는 짧아서 온전히 보여야
+                // 무엇을 골랐는지 확인됩니다
+                i === shown.length - 1 ? "min-w-0 truncate" : "shrink-0",
+                c.muted && "text-lookup-code"
+              )}
+            >
+              {c.value(selected)}
+            </span>
+          ))
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!open) return;

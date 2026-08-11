@@ -58,8 +58,18 @@ const COLUMNS: LookupColumns<Test> = [
  * **애초에 그 구분 때문에 `Combobox` 대신 이걸 쓰는 것**입니다. Figma 문서에도
  * “닫힌 상태에 코드+명칭 함께 표시” 라고 적혀 있습니다.
  *
- * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)이고, 코드 열이 없으면 이름만
- * 나옵니다. 다른 조합이 필요하면 `display` 로 바꾸세요.
+ * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)입니다 — **열이 넷이어도 트리거에는
+ * 둘만** 나옵니다. 한 줄에 다 넣으면 서로를 밀어내 전부 잘리고, 나머지는 열어서 보면
+ * 됩니다.
+ *
+ * 다른 조합이 필요하면 **`displayColumns`** 로 열 `key` 를 고르세요 — 적은 순서대로
+ * 놓입니다. **둘까지**입니다.
+ *
+ * ```tsx
+ * <Lookup columns={COLS} displayColumns={["name", "unit"]} … />
+ * ```
+ *
+ * 값을 합치거나 형식을 바꿔야 하면 `display` 로 직접 만듭니다 — 넘기면 그게 이깁니다.
  *
  * ### 코드 열은 흐립니다
  *
@@ -155,6 +165,64 @@ export const 견주기: Story = {
         <div className="w-72">
           <p className="mb-2 text-xs text-text-subtle">Lookup — 코드 · 이름 · 단위</p>
           <Lookup {...args} value={b} onValueChange={(r) => setB(r?.code)} aria-label="검사 항목 (Lookup)" />
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * **트리거에 무엇이 보일지는 열과 따로 정합니다.**
+ *
+ * 패널에는 열이 넷이어도 트리거는 잘리는 한 줄이라, 다 넣으면 서로를 밀어내
+ * 전부 잘립니다. 기본은 **코드 + 이름** 이고, 다른 조합이 필요하면
+ * `displayColumns` 로 열 `key` 를 고르세요 — **적은 순서대로, 둘까지**입니다.
+ *
+ * 셋을 넣으면 **컴파일이 안 됩니다.** 값을 합치거나 형식을 바꿔야 하면
+ * `display` 로 직접 만드세요 (그게 이깁니다).
+ *
+ * 각 줄을 열어서 하나 골라 보면 트리거가 어떻게 달라지는지 보입니다.
+ */
+export const 트리거표시: Story = {
+  name: "트리거에 보일 열",
+  parameters: { layout: "padded" },
+  render: function TriggerDisplay(args) {
+    const [a, setA] = useState<string | undefined>("CD001");
+    const [b, setB] = useState<string | undefined>("CD001");
+    const [c, setC] = useState<string | undefined>("CD001");
+    const [d, setD] = useState<string | undefined>("CD001");
+
+    const rows = [
+      ["기본 — 코드 + 이름", undefined, a, setA],
+      ["displayColumns={[\"name\", \"unit\"]}", ["name", "unit"] as const, b, setB],
+      ["displayColumns={[\"name\"]} — 이름만", ["name"] as const, c, setC],
+    ] as const;
+
+    return (
+      <div className="flex w-80 flex-col gap-4">
+        {rows.map(([note, cols, v, set]) => (
+          <div key={note}>
+            <p className="mb-1.5 text-2xs text-text-muted-foreground">{note}</p>
+            <Lookup
+              {...args}
+              displayColumns={cols}
+              value={v}
+              onValueChange={(r) => set(r?.code)}
+              clearable
+            />
+          </div>
+        ))}
+        <div>
+          <p className="mb-1.5 text-2xs text-text-muted-foreground">
+            display — 값을 합치거나 형식을 바꿀 때
+          </p>
+          <Lookup
+            {...args}
+            display={(r) => `${r.name} · ${r.unit}`}
+            value={d}
+            onValueChange={(r) => setD(r?.code)}
+            clearable
+          />
         </div>
       </div>
     );
