@@ -45,8 +45,9 @@ const preview: Preview = {
     options: {
       storySort: {
         order: [
-          // 무엇이 있는지 한 장에 모은 카탈로그 — 맨 앞입니다
+          // 가로지르는 규칙(개요) → 무엇이 있는지(목록). 맨 앞입니다
           "Overview",
+          ["개요", "컴포넌트 목록"],
           // Figma Guideline 페이지와 같은 읽기 순서 (Color → Typography → Layout → Icon)
           "Foundation",
           ["Tokens", "Typography", "Layout & Grid", "Icon"],
@@ -57,7 +58,8 @@ const preview: Preview = {
             "CheckMark",
             "ChoiceGroup",
             "Combobox",
-            "DateField",
+            "DatePicker",
+            "DateRangePicker",
             "Input",
             "InputGroup",
             "NativeSelect",
