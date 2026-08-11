@@ -283,6 +283,9 @@ export const 패널만: Story = {
  * labelable 요소에만 걸리고 div 에 걸면 조용히 아무 일도 안 일어납니다. 그래서
  * 라벨의 id 를 **`aria-labelledby`** 로 가리킵니다. 껍데기(`SelectTrigger`)를
  * `Select` · `Combobox` · `MobileSelect` 와 함께 쓰므로 넷이 같습니다.
+ *
+ * 아래 필드는 **골라 보세요** — 값이 들어가면 에러가 사라집니다. 실제 화면에서는
+ * 이 자리에 React Hook Form + Zod 의 검증 결과가 옵니다 (에러를 손으로 켜지 마세요).
  */
 /**
  * 폼 안에서는 `FormField` 로 감쌉니다. 라벨 · 설명 · 에러는 거기서 나옵니다.
@@ -293,13 +296,23 @@ export const 폼필드: Story = {
   name: "FormField 안에서",
   render: function InForm(args) {
     const [v, setV] = useState<string | undefined>();
+    // 아래 필드는 **고르면 에러가 사라집니다** — 실제로는 Zod 검증 결과가 이 자리에 옵니다
+    const [required, setRequired] = useState<string | undefined>();
+    const error = required ? undefined : "검사 항목을 선택해 주세요";
+
     return (
       <div className="flex w-80 flex-col gap-4">
         <FormField label="검사 항목" description="코드 · 검사명 · 단위로 찾을 수 있습니다">
           <Lookup {...args} value={v} onValueChange={(r) => setV(r?.code)} clearable />
         </FormField>
-        <FormField label="검사 항목" error="검사 항목을 선택해 주세요">
-          <Lookup {...args} state="error" onValueChange={() => {}} />
+        <FormField label="검사 항목" required error={error}>
+          <Lookup
+            {...args}
+            state={error ? "error" : "default"}
+            value={required}
+            onValueChange={(r) => setRequired(r?.code)}
+            clearable
+          />
         </FormField>
       </div>
     );
