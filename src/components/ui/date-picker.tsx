@@ -133,33 +133,18 @@ export function DatePickerPanel({
  */
 
 /**
- * 입력창의 기본 폭입니다 — **단위마다 다릅니다.**
+ * **폭은 부모가 정합니다** — `Input` · `Select` 와 같은 규칙입니다 (2026-08-11).
  *
- * 날짜는 자릿수가 정해져 있어 부모가 폭을 정해줄 이유가 없습니다 (`Input` 과 다른
- * 점입니다). 하나로 고정하면 월·연에서 오른쪽이 크게 빕니다.
+ * 자릿수가 정해져 있으니 컴포넌트가 폭을 쥐어도 될 것 같지만, `FormField` 안에서는
+ * 다른 필드와 나란히 칸을 채워야 합니다 — 날짜 칸만 혼자 짧으면 줄이 어긋나 보입니다.
  *
- * 필요한 폭 = 좌우 여백 24 + 글자 + 간격 8 + 우측 아이콘.
- * 우측은 값이 있으면 지우기 16 + 간격 4 + 달력 16 = **36**, 비어 있으면 달력 **16** 뿐이라
- * `day` 는 자리표시가, 나머지는 값이 폭을 정합니다 (Pretendard 14 실측).
+ * 좁게 두고 싶으면 감싸는 쪽에 폭을 주세요. 값과 자리표시가 실제로 차지하는 폭은
+ * (여백 24 + 글자 + 간격 8 + 우측 아이콘) 기준으로 `day` **144** · `month` **122** ·
+ * `year` **102** 입니다 — 우측은 값이 있으면 지우기 16 + 4 + 달력 16, 비어 있으면 달력 16.
  *
- * | | 값 | 자리표시 | 필요 | 여기 |
- * |---|---|---|---|---|
- * | day | 76 | 90 | 144 | **148** |
- * | month | 54 | 65 | 122 | **128** |
- * | year | 34 | 36 | 102 | **108** |
- *
- * **Figma 값을 따르지 않습니다** (2026-08-11) — 그림은 지우기 버튼을 그리지 않아
- * 실제보다 좁게 잡히고, 대신 넉넉한 자리는 그대로 남아 있었습니다.
- *
- * 폭을 직접 정하려면 `className` 으로 덮으세요 — `w-full` 도 됩니다
- * (tailwind-merge 가 기본 폭을 걷어냅니다).
+ * 기간을 받는 `DateRangePicker` 는 `quickSelect` 일 때만 자기 폭을 갖습니다 —
+ * 그 줄은 입력창과 칩이 폭을 나눠 갖는 자리라 먼저 몫을 정해야 하기 때문입니다.
  */
-const PICKER_WIDTH: Record<DatePrecision, string> = {
-  day: "w-37",
-  month: "w-32",
-  year: "w-27",
-};
-
 export interface DatePickerProps
   extends Omit<
     InputProps,
@@ -345,7 +330,7 @@ export function DatePicker({
           // 기본 자리(가장 바깥)에 두면 달력 버튼이 안쪽으로 밀려
           // 늘 같은 자리에 있어야 할 것이 값 유무에 따라 움직입니다
           clearable={false}
-          className={cn(PICKER_WIDTH[precision], className)}
+          className={className}
           trailingIcon={
             <span className="flex items-center gap-1">
               {digits !== "" && !disabled && !readOnly && (
