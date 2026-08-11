@@ -69,7 +69,9 @@ import { comboboxMatch } from "@/components/ui/combobox-panel";
  *
  * - 검색창은 **패널 안**에 있고 열면 커서가 그리로 갑니다. 초성 검색이 됩니다
  *   (Figma placeholder 가 약속하는 대로 — `Combobox` 와 같은 규칙)
- * - 방향키로 줄을 옮기고 Enter 로 고릅니다. **열자마자 0번을 짚지 않습니다** —
+ * - 방향키로 줄을 옮기고 Enter 로 고릅니다. **열 때는 고른 줄을 짚고 화면 안으로
+ *   데려옵니다** — 아래로 한참 내려가 고른 뒤 다시 열면 맨 위가 나와서 또 찾아
+ *   내려가야 했습니다. **고른 값이 없으면 0번을 짚지 않습니다** —
  *   고르지도 않은 첫 줄이 선택된 것처럼 보입니다. 검색어가 있을 때만 첫 결과를 짚습니다
  * - 열 제목(`header`)을 끄면 목록만 남습니다. **열이 하나뿐이면 끄세요** — 제목이
  *   설명하는 것이 없습니다
@@ -364,23 +366,45 @@ export function Lookup<T>({
     [rows, value, getRowId]
   );
 
-  // 열자마자 0번을 짚지 않습니다 — 고르지도 않은 첫 줄이 선택된 것처럼 보입니다.
-  // 검색어가 있을 때만 첫 결과를 짚습니다
+  /**
+   * 열 때 어디를 짚을지.
+   *
+   * **고른 값이 있으면 그 줄**입니다 — 아래로 한참 스크롤해서 고른 뒤 다시 열면
+   * 맨 위가 나와서, 방금 무엇을 골랐는지 확인하려면 또 찾아 내려가야 했습니다.
+   * 짚은 줄은 아래 effect 가 화면 안으로 데려옵니다.
+   *
+   * **값이 없으면 아무 데도 짚지 않습니다**(-1) — 0번을 짚으면 고르지도 않은 첫 줄이
+   * 선택된 것처럼 보입니다. 검색어가 있을 때만 첫 결과를 짚습니다.
+   *
+   * `open` 을 deps 에 두어 **열 때마다** 맞춥니다. filtered 를 통째로 지켜보면
+   * 방향키로 옮겨둔 위치가 매 렌더 처음으로 돌아갑니다 (Combobox 와 같은 사정).
+   */
   React.useEffect(() => {
-    setActiveIndex(query ? (filtered.length ? 0 : -1) : -1);
-  }, [query, filtered.length]);
+    if (!open) return;
+    if (query) {
+      setActiveIndex(filtered.length ? 0 : -1);
+      return;
+    }
+    setActiveIndex(value ? filtered.findIndex((r) => getRowId(r) === value) : -1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, query, filtered.length, value]);
 
   React.useEffect(() => {
     if (!open) setQuery("");
   }, [open]);
 
-  // 짚은 줄이 화면 밖이면 따라 내려갑니다
+  /*
+    짚은 줄이 화면 밖이면 따라 내려갑니다.
+
+    nearest 라 방향키로 한 칸씩 옮길 때는 딱 필요한 만큼만 움직이고, 열 때처럼
+    한참 아래를 짚으면 그 줄이 아래 끝에 걸립니다 — 위쪽 맥락이 함께 보입니다.
+  */
   React.useEffect(() => {
-    if (activeIndex < 0) return;
+    if (!open || activeIndex < 0) return;
     document
       .getElementById(`${listId}-${activeIndex}`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [activeIndex, listId]);
+  }, [open, activeIndex, listId]);
 
   /*
     닫힌 트리거에는 **코드와 이름을 함께** 보여줍니다 (Figma 문서의 “닫힌 상태에

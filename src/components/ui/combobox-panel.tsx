@@ -89,6 +89,20 @@ export function ComboboxPanel({
   onToggleAll,
   showSearch = true,
 }: ComboboxPanelProps) {
+  const listId = React.useId();
+
+  /*
+    짚은 항목이 화면 밖이면 따라 내려갑니다 — 열 때 선택된 값을 짚으므로,
+    한참 아래에서 고른 뒤 다시 열어도 그 줄이 보입니다.
+    (커서를 어디에 둘지는 Combobox 가 정합니다 — 여기는 보여주기만 합니다)
+  */
+  React.useEffect(() => {
+    if (activeIndex < 0) return;
+    document
+      .getElementById(`${listId}-${activeIndex}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, listId]);
+
   const pickable = options.filter((o) => !o.disabled);
   const chosen = pickable.filter((o) => selected.includes(o.value));
   const allOn = pickable.length > 0 && chosen.length === pickable.length;
@@ -142,6 +156,7 @@ export function ComboboxPanel({
           {options.map((o, i) => (
             <ListItem
               key={o.value}
+              id={`${listId}-${i}`}
               // 단일도 Check 입니다 — Figma 의 Select Open Demo 와 같습니다.
               // hover·커서·선택이 전부 같은 배경색이라, 우측 체크가 없으면
               // 무엇이 골라진 상태인지 배경만으로는 구분되지 않습니다
