@@ -126,6 +126,11 @@ const GROUPS: Group[] = [
     title: "Display — 표시",
     lead: "값을 보여주기만 하는 것들입니다.",
     rows: [
+      {
+        name: "Accordion",
+        what: "접이식 영역 (AccordionItem · Trigger · Content)",
+        rule: "**항상 보여야 하면 `Card`, 공간을 아껴야 하면 여기**입니다. 접힌 내용은 잘 안 봅니다 — 자주 보는 항목은 펼쳐 두세요",
+      },
       { name: "Avatar", what: "이니셜 · 사진 · 상태 점", rule: "이니셜은 한글 1자 · 영문 2자" },
       { name: "Badge", what: "상태를 알리는 작은 라벨", rule: "상태가 2종이면 점, 3종 이상이면 배지. 둘 다 켜지 마세요" },
       { name: "Card", what: "표면 하나로 묶는 상자 (CardRow 포함)", rule: "반경 8. 떠 있는 패널(6)보다 큽니다" },

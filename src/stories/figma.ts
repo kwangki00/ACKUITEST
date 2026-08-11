@@ -65,6 +65,7 @@ export const figma = {
   paginationItem: node("624:6740"),
   tableToolbar: node("617:295"),
   dropdownMenu: node("717:650"),
+  accordion: node("668:239"),
 } as const;
 
 /** 스토리 parameters 에 붙이는 헬퍼 */

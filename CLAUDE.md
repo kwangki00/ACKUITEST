@@ -50,13 +50,13 @@ MobileDateRangePicker · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
-DropdownMenu · SidebarGroup
+DropdownMenu · SidebarGroup · Accordion
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
 Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
-**Radix 는 Popover · Tooltip · Dialog · Toast · DropdownMenu 다섯을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast` · `-dropdown-menu`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **남은 것은 `Accordion` 하나**입니다.
+**Radix 는 Popover · Tooltip · Dialog · Toast · DropdownMenu · Accordion 여섯을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast` · `-dropdown-menu` · `-accordion`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **코드로 옮길 컴포넌트는 다 끝났습니다** (2026-08-11).
 
 Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 설정과 자체 토큰 이름(`bg-popover` 등)을 끌고 오는데, 어차피 색을 전부 갈아끼워야 해서 손해입니다. 프리미티브만 설치하고 컴포넌트는 직접 씁니다.
 
@@ -665,6 +665,18 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 검색은 **모든 열**을 훑고 초성도 됩니다 (`comboboxMatch` 재사용). 열 때 커서는 **고른 줄**에 가고, 없으면 아무 데도 짚지 않습니다 — 검색어가 있을 때만 첫 결과 (`ListItem` 규칙과 같음)
 - **패널 반경이 8 이었습니다.** `ComboboxPanel` 과 똑같이 **변수 바인딩도 없었습니다** — 2026-08-06 정리에서 이 패널이 빠져 있었습니다. `Radius/md`(6)에 바인딩했습니다 (2026-08-07)
 
+### Accordion — 공간을 아끼는 대신 안 보게 됩니다
+
+- **가르는 축은 「항상 보여야 하나」입니다** — 항상 보여야 하면 `Card`, 공간을 아껴야 하면 `Accordion`
+- **접힌 내용은 잘 안 봅니다.** 자주 보는 항목은 `defaultValue` 로 펼쳐 두세요 — 중요한 정보를 접어두면 없는 것과 비슷해집니다. **부가 정보에 쓰는 것**이 맞습니다
+- **화살표는 「지금 상태」입니다** — 펼쳐져 있으면 위, 접혀 있으면 아래. "누르면 일어날 일" 로 읽어 반대로 두면 같은 화면에서 같은 화살표가 두 뜻을 갖습니다 (`Sidebar` 1단계 화살표와 같은 규칙)
+- **`type="single"` 에는 `collapsible` 을 함께** — 안 켜면 **항상 하나는 열려 있습니다.** 전부 접힌 상태가 필요하면 반드시 켜세요. 항목이 많으면 `single` 이 스크롤을 줄입니다
+- **`size` 는 `Accordion` 에 한 번만** 줍니다 (컨텍스트로 내려갑니다). 항목마다 넘기면 하나만 빠뜨려도 그 줄만 높이가 다릅니다 — `SidebarCollapsedContext` 와 같은 이유. `sm` 44 · `default` 52 (트리거 높이)
+- **높이 애니메이션 때문에 Radix 를 들였습니다** — `height: auto` 로는 애니메이션이 안 걸립니다. Radix 가 내용 높이를 `--radix-accordion-content-height` 로 넘겨주고 키프레임(`ack-theme.css`)이 그걸 씁니다. `prefers-reduced-motion` 에서는 즉시 바뀝니다 — 자리를 밀어내는 움직임이라 어지럼을 만들기 쉽습니다
+  - **화살표 회전에는 `group` 이 필요합니다** — Radix 는 `data-state` 를 **트리거에** 답니다. 아이콘에 `data-[state=open]:` 를 직접 걸면 조용히 안 돕니다
+- **트리거 안에 버튼을 넣지 마세요** — `<button>` 이라 버튼 안의 버튼이 됩니다 (`SelectTrigger` · `TabItem` 과 같은 사정). 줄에 액션이 필요하면 트리거 밖, 항목 안에 놓으세요
+- 항목마다 **하단 구분선만** 있어 쌓으면 선이 이어집니다. 바깥을 `rounded-lg border border-card-border` 로 감싸면 한 덩어리가 됩니다
+
 ### DropdownMenu — 고르는 게 아니라 실행하는 것
 
 - **가르는 축은 「누른 뒤에 무엇이 남느냐」입니다**
@@ -784,7 +796,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 ### 코드 — 새 의존성 없이 가능
 
 - [x] ~~LookupPanel · LookupRow~~ — 완성형 `Lookup` 까지 (2026-08-07). **ListItem 이 아니라 자체 행**입니다 — 아래 근거
-- [ ] AccordionItem
+- [x] ~~AccordionItem~~ — `@radix-ui/react-accordion` (2026-08-11). 높이 애니메이션 때문에 들였습니다 — 아래 근거
 - [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateRangePicker · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen (조회 조건은 `FilterBar` 한 벌로 합쳤습니다)
 - [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다
 - [ ] React Hook Form + Zod 연동 예시

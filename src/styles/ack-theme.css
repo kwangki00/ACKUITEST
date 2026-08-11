@@ -78,6 +78,11 @@
      나갈 때가 조금 빠릅니다 — 떠나는 것을 오래 보고 있을 이유가 없습니다 */
   --animate-push-in: ack-push-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-push-out: ack-push-out 180ms cubic-bezier(0.32, 0.72, 0, 1);
+  /* 아코디언 — 높이가 0 ↔ 내용 높이. 그 높이는 Radix 가 --radix-accordion-content-height
+     로 넘겨줍니다. auto 로는 애니메이션이 안 걸려서 이 변수가 필요합니다.
+     팝오버보다 조금 느립니다 — 자리를 밀어내는 움직임이라 눈이 따라가야 합니다 */
+  --animate-accordion-down: ack-accordion-down 180ms ease-out;
+  --animate-accordion-up: ack-accordion-up 160ms ease-out;
 
   /* ---------- Radius (Primitive) ---------- */
   --radius-none: 0px;
@@ -575,6 +580,24 @@
   }
 }
 
+@keyframes ack-accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes ack-accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
 @keyframes ack-slide-up {
   from {
     transform: translateY(100%);
@@ -606,6 +629,23 @@
    fade 는 자리가 움직이지 않아 어지럼을 만들지 않으므로 그대로 둡니다 —
    Scrim 이 갑자기 켜지면 오히려 놀랍니다. */
 @media (prefers-reduced-motion: reduce) {
+  /* 아코디언은 자리를 밀어내는 움직임이라 어지럼을 만들기 쉽습니다 — 즉시 바뀝니다 */
+  @keyframes ack-accordion-down {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes ack-accordion-up {
+    from {
+      height: 0;
+    }
+    to {
+      height: 0;
+    }
+  }
   @keyframes ack-pop-in {
     from {
       opacity: 1;

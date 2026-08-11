@@ -99,6 +99,7 @@ const preview: Preview = {
           ],
           "Form",
           "Display",
+          ["Accordion", "Avatar", "Badge", "Card", "Chip"],
           "Data",
           "Feedback",
           ["Alert", "Dialog", "EmptyState", "Loading & Divider", "Toast"],
