@@ -29,6 +29,15 @@ import { comboboxMatch } from "@/components/ui/combobox-panel";
  *
  * 폭을 주지 않은 열이 **남는 폭을 채웁니다** (Figma 의 Cell 2). 하나만 비워 두세요.
  *
+ * ### 닫힌 트리거에도 코드와 이름이 함께 나옵니다
+ *
+ * 이름만 남기면 비슷한 검사가 여럿일 때 무엇을 골랐는지 확인할 수 없습니다 —
+ * **애초에 그 구분 때문에 `Combobox` 대신 이걸 쓰는 것**입니다. Figma 문서에도
+ * “닫힌 상태에 코드+명칭 함께 표시” 라고 적혀 있습니다.
+ *
+ * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)이고, 코드 열이 없으면 이름만
+ * 나옵니다. 다른 조합이 필요하면 `display` 로 바꾸세요.
+ *
  * ### 코드 열은 흐립니다
  *
  * `muted` 를 켠 열은 `Lookup/Code` 입니다. 코드는 **찾을 때 쓰는 값**이지 읽는 값이
@@ -253,7 +262,10 @@ export interface LookupProps<T> {
   getRowId: (row: T) => string;
   value?: string;
   onValueChange: (row: T | null) => void;
-  /** 트리거에 보일 글자. 기본은 폭을 주지 않은 열(= 이름 열)의 값입니다. */
+  /**
+   * 트리거에 보일 글자. 기본은 **코드 + 이름**입니다 — `muted` 열(코드)과 폭을 주지
+   * 않은 열(이름)을 나란히 놓습니다. 코드 열이 없으면 이름만 나옵니다.
+   */
   display?: (row: T) => React.ReactNode;
   placeholder?: string;
   size?: SelectSize;
@@ -326,8 +338,28 @@ export function Lookup<T>({
       ?.scrollIntoView({ block: "nearest" });
   }, [activeIndex, listId]);
 
+  /*
+    닫힌 트리거에는 **코드와 이름을 함께** 보여줍니다 (Figma 문서의 “닫힌 상태에
+    코드+명칭 함께 표시”). 이름만 남기면 비슷한 검사가 여럿일 때 무엇을 골랐는지
+    확인할 수 없습니다 — 애초에 그 구분 때문에 Combobox 대신 Lookup 을 쓰는 것입니다.
+
+    코드는 목록에서와 같은 흐린 색(Lookup/Code)입니다. 읽는 값이 아니라 찾는 값이라
+    이름과 같은 색이면 눈이 어디를 봐야 할지 정하지 못합니다.
+  */
   const fill = columns.find((c) => c.width == null) ?? columns[0];
-  const label = selected ? (display ?? fill.value)(selected) : null;
+  const code = columns.find((c) => c.muted && c !== fill);
+  const label = selected
+    ? display
+      ? display(selected)
+      : code
+        ? (
+            <>
+              <span className="shrink-0 text-lookup-code">{code.value(selected)}</span>
+              <span className="min-w-0 truncate">{fill.value(selected)}</span>
+            </>
+          )
+        : fill.value(selected)
+    : null;
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!open) return;
@@ -361,9 +393,13 @@ export function Lookup<T>({
           className={className}
         >
           <span
-            className={cn("min-w-0 flex-1 truncate text-left", !selected && "text-text-placeholder")}
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-2 text-left",
+              // 두 조각(코드·이름)일 때 사이를 벌립니다. 한 조각이면 gap 이 하는 일이 없습니다
+              !selected && "text-text-placeholder"
+            )}
           >
-            {label ?? placeholder}
+            {label ?? <span className="truncate">{placeholder}</span>}
           </span>
           {/* 화살표·지우기는 SelectTrigger 가 그립니다 — 여기서 또 넣으면 두 개가 됩니다 */}
         </SelectTrigger>
