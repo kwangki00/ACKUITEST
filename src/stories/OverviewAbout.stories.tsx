@@ -120,6 +120,34 @@ function About() {
 
       <Section
         n="01"
+        title="무엇 위에 서 있나"
+        lead={
+          <>
+            <C>shadcn/ui</C> 의 구성 방식(<C>cva</C> 변형 키)을 따르지만 <B>CLI 로 설치하지
+            않습니다</B> — 색 토큰을 전부 자체 이름으로 쓰기 때문에 가져와도 갈아끼워야 합니다.
+          </>
+        }
+      >
+        <Table
+          head={["", "무엇", "비고"]}
+          rows={[
+            ["Tailwind CSS 4", <C>@theme static</C>, "토큰을 전부 내보냅니다 — 안 그러면 클래스가 아닌 참조가 빕니다"],
+            [
+              "Radix UI",
+              <>
+                Popover · Tooltip · Dialog · Toast <B>넷</B>
+              </>,
+              "Tabs · Combobox · DatePicker 는 새 의존성 없이 직접 만들었습니다",
+            ],
+            ["lucide", "아이콘 201", "코드에서 같은 이름으로 import 합니다"],
+            ["Pretendard", "본문 글꼴", "한글이 많아 12px 에서 먼저 뭉갭니다 — 본문 14 가 기본"],
+            ["React Hook Form + Zod", "폼 검증", <>에러는 검증 결과로 자동 — <B>손으로 켜지 마세요</B></>],
+          ]}
+        />
+      </Section>
+
+      <Section
+        n="02"
         title="토큰은 3계층 — 컴포넌트는 Semantic 만"
         lead={
           <>
@@ -159,7 +187,7 @@ function About() {
       </Section>
 
       <Section
-        n="02"
+        n="03"
         title="반응형은 한 기준이 아닙니다"
         lead={
           <>
@@ -209,7 +237,7 @@ function About() {
       </Section>
 
       <Section
-        n="03"
+        n="04"
         title="라벨은 전부 FormField 가 답니다"
         lead={
           <>
@@ -254,7 +282,7 @@ function About() {
       </Section>
 
       <Section
-        n="04"
+        n="05"
         title="폭은 누가 정하나 — 날짜만 반대입니다"
         lead={<>자릿수가 정해져 있느냐로 갈립니다.</>}
       >
@@ -294,7 +322,7 @@ function About() {
       </Section>
 
       <Section
-        n="05"
+        n="06"
         title="PC · 모바일 — 한 벌인 것과 갈리는 것"
         lead={
           <>
@@ -332,26 +360,48 @@ function About() {
       </Section>
 
       <Section
-        n="06"
-        title="같은 사실이 네 곳에 있습니다"
-        lead={<>하나만 고치면 나머지 셋이 조용히 어긋납니다.</>}
+        n="07"
+        title="Figma 와 코드는 이름이 같습니다"
+        lead={
+          <>
+            변형 축 값이 곧 <C>cva</C> 키입니다. <B>이름을 번역해야 한다면 대응이 깨진
+            것</B>이라, 그럴 때는 한쪽 이름을 고칩니다 — <C>Select</C> →{" "}
+            <C>SelectTrigger</C>, <C>DateField</C> → <C>DateRangeField</C> 가 그랬습니다.
+          </>
+        }
       >
         <Table
-          head={["어디", "무엇이 적혀 있나"]}
+          head={["대상", "규칙", "예시"]}
           rows={[
-            ["Figma 컴포넌트 description", "변형 축의 의미, 쓰지 말아야 할 경우"],
-            ["Figma Documentation 프레임", "프로퍼티 표 · 판단 기준표 · 코드 대응 표"],
-            ["Figma About 섹션", "페이지 성격, 언제 뭘 쓰나"],
-            ["코드 — 컴포넌트 주석 · 스토리", "위 셋의 근거 + 코드에만 있는 사정"],
+            ["변형 축 값", "cva 키와 동일 (소문자)", <C>variant=&quot;destructive&quot; · size=&quot;icon-sm&quot;</C>],
+            ["Semantic 토큰", "역할/용도-수식", <C>Button/Primary-Fill · Text/Muted-Foreground</C>],
+            ["Primitive 색", "Color/브랜드/단계", <C>Color/Primary/500</C>],
+            ["텍스트 스타일", "Text/사이즈/웨이트", <C>Text/base/Medium</C>],
+            ["아이콘", "icons/lucide-이름", <C>icons/loader-circle</C>],
           ]}
         />
-        <Trap title="컴포넌트가 문서보다 사실에 가깝습니다">
-          어긋나면 <B>변형을 먼저 믿고</B>, 그다음 어느 쪽이 의도인지 물어보세요. 문장에 토큰
-          이름·수치를 함께 적으면(<C>Toggle/Surface-Selected</C>) 값이 바뀔 때 어디를 볼지
-          드러납니다. 방침을 바꾸면 <B>날짜와 이전 방침</B>을 남기세요 — 근거 없이 되돌아가는 걸
-          막습니다.
+        <Table
+          head={["Figma", "코드", "비고"]}
+          rows={[
+            ["변형 축", <C>cva</C>, "값 이름이 같습니다"],
+            ["불리언 프로퍼티", "boolean prop", <>Loading · Icon Left …</>],
+            ["인스턴스 스왑", <>children 으로 넘김</>, "아이콘 자리"],
+            ["텍스트 프로퍼티", <>children · placeholder</>, "Label · Value"],
+            [
+              <>완성형 (<C>Select</C> · <C>Combobox</C> · <C>Lookup</C>)</>,
+              <B>코드에만 있습니다</B>,
+              "Figma 는 껍데기까지 그리고, 묶어서 상태·키보드·검색까지 담은 것은 코드입니다",
+            ],
+          ]}
+        />
+        <Trap title="같은 사실이 네 곳에 있습니다">
+          Figma <B>description</B> · Figma <B>Documentation</B> 프레임 · Figma <B>About</B> ·
+          코드 주석. 하나만 고치면 나머지 셋이 조용히 어긋납니다. 어긋나면{" "}
+          <B>컴포넌트(변형)를 먼저 믿고</B> 문서를 고치세요 — 실제로 네 번 그랬습니다.
+          방침을 바꾸면 <B>날짜와 이전 방침</B>을 남기세요.
         </Trap>
       </Section>
+
     </div>
   );
 }
