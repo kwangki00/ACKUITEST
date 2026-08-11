@@ -177,7 +177,9 @@ function PopoverSelect({
         // 방향키로 짚은 항목이 따로 놀아 표시가 둘이 됩니다 — 패널 자체에 포커스를 둡니다
         onOpenAutoFocus={(e) => {
           e.preventDefault();
-          contentRef.current?.focus();
+          // preventScroll — 패널은 이미 떠 있어서, 그냥 focus 하면 브라우저가
+          // 그걸 보이게 하려고 뒤 화면을 스크롤합니다 (MobileSheet 와 같은 사정)
+          contentRef.current?.focus({ preventScroll: true });
         }}
       >
         <ComboboxPanel

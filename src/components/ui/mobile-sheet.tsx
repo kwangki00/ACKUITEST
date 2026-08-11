@@ -121,17 +121,11 @@ export function MobileSheet({
 
   return (
     /*
-      **틀 안에 가둘 때는 페이지를 잠그지 않습니다.**
-
-      `modal` 이면 Radix 가 body 스크롤을 잠그는데, 그 순간 스크롤바가 사라지면서
-      **페이지 전체가 스크롤바 폭만큼 옆으로 밀립니다.** 시트는 제자리인데 뒤가
-      움직이는 것처럼 보입니다 — 문서에서는 시트가 틀 안에만 있으니 잠글 이유도 없습니다.
-
-      `container` 는 문서·데모 전용이라 그걸 기준으로 갑니다. 실제 앱에서는 넘기지
-      않으므로 `modal` 그대로입니다 — 뒤 화면이 스크롤되면 안 되고, 포커스도
-      시트 안에 갇혀야 합니다.
+      **`modal` 을 끄지 마세요.** Radix 는 modal 이 아니면 `Overlay` 를 **아예 안 그립니다**
+      — Scrim 이 통째로 사라집니다. 스크롤 잠금이 거슬린다고 껐다가 그걸로 되돌렸습니다
+      (2026-08-11).
     */
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange} modal={!container}>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal container={container ?? undefined}>
         {/* Scrim 은 시트에 딸려 있습니다 — 쓰는 쪽에서 따로 깔지 않습니다 */}
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay-scrim data-[state=open]:animate-fade-in" />
@@ -141,7 +135,13 @@ export function MobileSheet({
           onOpenAutoFocus={(e) => {
             // 열자마자 첫 입력에 커서가 들어가면 키보드가 올라와 시트를 덮습니다
             e.preventDefault();
-            sheetRef.current?.focus();
+            /*
+              **preventScroll 이 필요합니다.** 시트는 화면 아래쪽에 있어서, 그냥 focus()
+              하면 브라우저가 그걸 보이게 하려고 **조상들을 스크롤합니다** — 문서처럼
+              긴 페이지에서는 시트가 아니라 뒤 화면이 움직이는 것처럼 보입니다.
+              시트는 이미 fixed 라 스크롤할 이유가 없습니다.
+            */
+            sheetRef.current?.focus({ preventScroll: true });
           }}
           style={offset ? { transform: `translateY(${offset}px)`, transition: "none" } : undefined}
           className={cn(

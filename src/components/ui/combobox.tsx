@@ -409,7 +409,9 @@ function PopoverCombobox({
             ? undefined
             : (e) => {
                 e.preventDefault();
-                contentRef.current?.focus();
+                // preventScroll — 패널은 이미 떠 있어서, 그냥 focus 하면 브라우저가
+                // 그걸 보이게 하려고 뒤 화면을 스크롤합니다 (MobileSheet 와 같은 사정)
+                contentRef.current?.focus({ preventScroll: true });
               }
         }
       >
