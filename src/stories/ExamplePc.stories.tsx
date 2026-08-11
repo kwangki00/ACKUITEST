@@ -34,9 +34,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableToolbar,
 } from "@/components/ui/table";
 import type { DateRange } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 /* ---------------------------------------------------------------- 자료 */
 
@@ -182,10 +182,60 @@ function QueryBar() {
   );
 }
 
+/**
+ * 판 — 좌우 두 덩어리가 같은 대접입니다. 반경 8 · 테두리 · 여백 좌우 20 · 상하 10.
+ *
+ * **`Card` 가 아닙니다.** `Card` 는 제목·내용을 묶는 표면이고, 이건 **섹션 여러 개를
+ * 담는 자리**입니다. Figma 도 이 두 판은 `Card` 인스턴스가 아니라 그냥 프레임입니다.
+ */
+function Panel({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "flex min-h-0 flex-col gap-2.5 rounded-lg border border-table-border",
+        "bg-background-white px-5 py-2.5",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * 섹션 제목줄 — 높이 40. **판의 여백 안에 있어서 밑줄을 긋지 않습니다.**
+ *
+ * `TableToolbar` 를 쓰지 않은 이유입니다 — 그건 표에 딱 붙는 줄이라 아래 테두리가
+ * 있고 좌우 여백을 스스로 갖습니다. 여기서는 표가 **자기 테두리를 따로** 가지므로
+ * 제목줄이 그 밖에 있고, 밑줄을 그으면 선이 두 겹이 됩니다.
+ */
+function SectionTitle({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="text-base font-semibold text-table-text">{title}</span>
+      {/* 톤은 늘 neutral 입니다. 건수에 색을 주면 상태처럼 읽힙니다 */}
+      {count && (
+        <Badge tone="neutral" size="sm">
+          {count}
+        </Badge>
+      )}
+      {children}
+    </div>
+  );
+}
+
 /** 완료여부 범례 — 점만 있으면 무슨 색이 무슨 뜻인지 알 수 없습니다. */
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 pb-3">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
       {Object.values(DONE).map((d) => (
         <span key={d.label} className="flex items-center gap-1.5 text-xs text-text-subtle">
           <span aria-hidden className={`size-2.5 rounded-full ${d.cls}`} />
@@ -207,14 +257,19 @@ function PatientList({
   const [page, setPage] = useState(1);
 
   return (
-    /* 표를 담는 판은 한 가지입니다 — 오른쪽 상세와 같은 대접이어야 같은 층위로 읽힙니다 */
-    <div className="flex min-h-0 w-135 shrink-0 flex-col overflow-hidden rounded-lg border border-table-border bg-table-row-surface">
-      <TableToolbar title="환자리스트" count="총 979명" />
-      <Legend />
+    <Panel className="w-135 shrink-0">
+      <SectionTitle title="환자리스트" count="총 979명">
+        <Legend />
+      </SectionTitle>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/*
+        표가 **자기 테두리**를 갖습니다 — 판 안에 섹션이 여럿이라, 표가 어디서
+        시작하고 끝나는지 스스로 말해야 합니다 (Figma 도 같은 구조).
+        판에 붙여 그리면 제목줄·페이지네이션과 경계가 흐려집니다.
+      */}
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-table-border">
         <Table>
-          {/* 헤더 행은 스크롤 영역 안이지만 sticky 라 남습니다 — 열 이름이 사라지면 안 됩니다 */}
+          {/* 헤더 행은 sticky 라 스크롤해도 열 이름이 남습니다 */}
           <TableHeader className="sticky top-0 z-10">
             <TableRow>
               <TableHead className="w-14">순번</TableHead>
@@ -283,10 +338,10 @@ function PatientList({
       </div>
 
       {/* 페이지네이션은 스크롤 영역 밖 — 몇 쪽을 보고 있었는지 남아야 합니다 */}
-      <div className="flex shrink-0 justify-center border-t border-table-border py-3">
+      <div className="flex h-12 shrink-0 items-center justify-center">
         <Pagination page={page} totalPages={5} onPageChange={setPage} />
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -296,14 +351,10 @@ function Detail({ chart }: { chart: string }) {
   const r = ROWS.find((x) => x.chart === chart)!;
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto">
-      {/*
-        요약 판도 왼쪽과 같은 테두리를 씁니다 — 나란히 놓인 두 판이 다른 색이면
-        같은 층위인데 하나가 더 진해 보입니다. 안에 든 카드 3장만 진짜 Card 입니다
-      */}
-      <div className="rounded-lg border border-table-border bg-table-row-surface p-4">
-        {/* 머리 — 이름 · 식별값 · 상태, 우측에 액션 */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+    /* 왼쪽과 같은 판입니다 — 나란히 놓인 두 덩어리가 같은 층위이기 때문입니다 */
+    <Panel className="min-w-0 flex-1 overflow-y-auto">
+      {/* 머리 — 이름 · 식별값 · 상태, 우측에 액션 */}
+      <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-2">
           <h2 className="text-lg font-bold text-text-basic">{r.name}</h2>
           <span className="text-sm text-text-subtle">차트번호 : {r.chart}</span>
           <span className="text-sm text-text-subtle">접수번호 : 202506011001</span>
@@ -345,9 +396,9 @@ function Detail({ chart }: { chart: string }) {
           </div>
         </div>
 
-        {/* 늘 보는 값이라 Card 입니다 — 접는 것은 사용자가 정합니다 */}
-        {open && (
-          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+      {/* 늘 보는 값이라 Card 입니다 — 접는 것은 사용자가 정합니다 */}
+      {open && (
+        <div className="grid shrink-0 gap-3 lg:grid-cols-3">
             <Card variant="filled">
               <CardHeader title="접수정보" />
               <CardBody>
@@ -374,12 +425,13 @@ function Detail({ chart }: { chart: string }) {
                 <CardRow label="검사일">2025-06-01</CardRow>
               </CardBody>
             </Card>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="overflow-hidden rounded-lg border border-table-border bg-table-row-surface">
-        <TableToolbar title="검사목록" count={`총 ${TESTS.length}건`} />
+      <SectionTitle title="검사목록" count={`총 ${TESTS.length}건`} />
+
+      {/* 왼쪽 표와 같습니다 — 판 안에 섹션이 여럿이라 표가 자기 테두리를 갖습니다 */}
+      <div className="min-h-0 overflow-y-auto rounded-md border border-table-border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -429,7 +481,7 @@ function Detail({ chart }: { chart: string }) {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -454,22 +506,32 @@ function Detail({ chart }: { chart: string }) {
  * 이 화면은 좌우로 나눠서 세로가 이미 넉넉하니 접을 이유가 없고, 접는 장치를
  * 두면 누를 것만 하나 늘어납니다. 조건 줄을 그냥 한 줄로 둡니다.
  *
- * ### 표를 담는 판은 한 가지입니다
+ * ### 판은 두 겹입니다
  *
- * 왼쪽 환자리스트와 오른쪽 상세는 **같은 층위**라 같은 대접이어야 합니다 —
- * `rounded-lg border-table-border`. 나란히 놓인 두 판이 다른 테두리를 쓰면 하나가
- * 더 진해 보여 위계가 있는 것처럼 읽힙니다.
+ * ```
+ * 판  (반경 8 · 테두리 · 여백 좌우 20 상하 10)
+ * ├ 제목줄 40          환자리스트 · 총 979명 · 범례
+ * ├ 표     자기 테두리   ← 판에 붙이지 않습니다
+ * └ 페이지네이션 48
+ * ```
  *
- * **`Card` 로 감싸지 않았습니다.** `Card` 는 여백을 갖는 표면(`p-4`~`p-6`)이라 표를
- * 넣으면 헤더 행 배경이 모서리까지 안 닿고, 툴바 여백이 두 겹이 됩니다. `p-0` 으로
- * 눌러 쓸 수는 있지만 그러면 남는 것이 `rounded-lg border` 뿐이라 `Card` 라고 부를
- * 이유가 없습니다. **Figma 도 이 두 판은 `Card` 인스턴스가 아니라 그냥 프레임**입니다.
+ * **표가 자기 테두리를 갖는 이유** — 판 안에 섹션이 여럿이라 표가 어디서 시작하고
+ * 끝나는지 스스로 말해야 합니다. 판에 붙여 그리면 제목줄·페이지네이션과 경계가
+ * 흐려집니다. Figma 도 같은 구조입니다 (`Frame 8` 안에 테두리 있는 `Table`).
  *
- * 안에 든 **요약 카드 3장만 진짜 `Card`** 입니다 — 여백이 필요한 내용 블록입니다.
+ * **`TableToolbar` 를 쓰지 않았습니다.** 그건 표에 딱 붙는 줄이라 아래 테두리가
+ * 있고 좌우 여백을 스스로 갖습니다. 여기서는 제목줄이 표 **밖**에 있어서, 그대로
+ * 쓰면 선이 두 겹이 되고 여백도 판의 여백과 겹칩니다.
+ *
+ * **`Card` 도 아닙니다.** `Card` 는 제목·내용을 묶는 표면이고, 이 판은 **섹션 여러
+ * 개를 담는 자리**입니다. Figma 도 이 두 판은 `Card` 인스턴스가 아니라 그냥
+ * 프레임입니다. 안에 든 **요약 카드 3장만 진짜 `Card`** 입니다.
+ *
+ * 좌우 두 판은 **같은 대접**입니다 — 같은 층위인데 다른 테두리를 쓰면 하나가 더
+ * 진해 보여 위계가 있는 것처럼 읽힙니다.
  *
  * 반경은 **8**(`Radius/lg`)입니다. 원본은 10 인데, 8 이면 `Card` · `Dialog` 와 같은
- * 값이라 화면에서 모서리가 한 종류로 유지됩니다. 2px 을 위해 반경을 셋으로 늘리는
- * 값보다 큽니다.
+ * 값이라 화면에서 모서리가 한 종류로 유지됩니다.
  *
  * ### 점 하나로 상태를 알릴 때는 범례가 필요합니다
  *
