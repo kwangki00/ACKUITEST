@@ -340,7 +340,7 @@ export const 오버레이: Story = {
             <div
               ref={setFrame}
               style={{ transform: "translateZ(0)" }}
-              className="ack-mobile relative h-[560px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+              className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
             >
               <FormField label="기간">
                 <DateRangePicker quickSelect {...args} value={b} onValueChange={setB} />
