@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -43,8 +44,14 @@ import { comboboxMatch } from "@/components/ui/combobox-panel";
  * 놓입니다. **둘까지**입니다.
  *
  * ```tsx
- * <Lookup columns={COLS} displayColumns={["name", "unit"]} … />
+ * <Lookup displayColumns={["name", "unit"]} … />
+ * <Lookup displayColumns={[{ key: "code", as: "badge" }, "name"]} … />
  * ```
+ *
+ * **모양도 고를 수 있습니다** — `as: "badge"` 면 그 열만 배지로 그립니다. 코드처럼
+ * **덩어리로 읽는 값**을 이름과 떼어놓을 때 씁니다. 흐린 글자(`Lookup/Code`)로도
+ * 충분히 갈리지만, 코드가 길거나 이름과 섞여 읽히면 배지 쪽이 확실합니다.
+ * `Badge`(`neutral` · `sm`)를 그대로 쓰므로 다른 배지와 규격이 맞습니다.
  *
  * 값을 합치거나 형식을 바꿔야 하면 `display` 로 직접 만듭니다 — 넘기면 그게 이깁니다.
  *
@@ -84,6 +91,15 @@ export interface LookupColumn<T> {
   /** 검색 대상에서 빼려면 끄세요. 기본은 모든 열이 검색 대상입니다. */
   searchable?: boolean;
 }
+
+/**
+ * 트리거에 보일 열 하나. `key` 만 적으면 글자로, `as: "badge"` 면 배지로 그립니다.
+ *
+ * 배지는 **덩어리로 읽는 값**에 씁니다 — 코드처럼 그 자체가 하나의 표식이고 이름과
+ * 섞이면 안 되는 값입니다. `Badge`(`neutral` · `sm`)를 그대로 쓰므로 다른 배지와
+ * 나란히 놓아도 규격이 맞습니다. 톤을 바꿔야 하면 `display` 로 직접 만드세요.
+ */
+export type LookupDisplayColumn = string | { key: string; as?: "text" | "badge" };
 
 /** Figma 도 Cell 을 4개까지만 둡니다 — 5번째는 컴파일이 안 됩니다. */
 export type LookupColumns<T> =
@@ -278,10 +294,17 @@ export interface LookupProps<T> {
    * 기본은 `muted` 열(코드) + 폭을 주지 않은 열(이름)이라, 열이 넷이어도 트리거에는
    * 둘만 나옵니다. 다른 조합이 필요할 때만 넘기세요 — `["name", "unit"]` 처럼.
    *
+   * **모양도 고를 수 있습니다.** `{ key, as: "badge" }` 로 적으면 그 열만 배지로
+   * 그립니다 — 코드처럼 **덩어리로 읽는 값**을 이름과 떼어놓을 때 씁니다.
+   *
+   * ```tsx
+   * displayColumns={[{ key: "code", as: "badge" }, "name"]}
+   * ```
+   *
    * **둘까지입니다.** 트리거는 잘리는 한 줄이라 셋을 넣으면 전부 잘려서 무엇을
    * 골랐는지 오히려 확인이 안 됩니다. 그보다 복잡한 표현은 `display` 로 만드세요.
    */
-  displayColumns?: readonly [string] | readonly [string, string];
+  displayColumns?: readonly [LookupDisplayColumn] | readonly [LookupDisplayColumn, LookupDisplayColumn];
   /**
    * 트리거에 보일 글자를 직접 만듭니다. `displayColumns` 로 안 되는 경우에만 —
    * 값을 합치거나 형식을 바꿔야 할 때입니다. 넘기면 `displayColumns` 보다 이깁니다.
@@ -368,28 +391,42 @@ export function Lookup<T>({
     전부 잘립니다 — 나머지는 열어서 보면 됩니다.
   */
   const fill = columns.find((c) => c.width == null) ?? columns[0];
-  const shown = displayColumns
-    ? displayColumns.map((k) => columns.find((c) => c.key === k)).filter((c) => c !== undefined)
-    : [columns.find((c) => c.muted && c !== fill), fill].filter((c) => c !== undefined);
+  const shown = (
+    displayColumns
+      ? displayColumns.map((d) => {
+          const key = typeof d === "string" ? d : d.key;
+          const col = columns.find((c) => c.key === key);
+          return col && { col, as: typeof d === "string" ? "text" : (d.as ?? "text") };
+        })
+      : [columns.find((c) => c.muted && c !== fill), fill].map(
+          (col) => col && { col, as: "text" as const }
+        )
+  ).filter((x) => x !== undefined);
 
   const label =
     selected == null
       ? null
       : display
         ? display(selected)
-        : shown.map((c, i) => (
-            <span
-              key={c.key}
-              className={cn(
-                // 마지막 것만 남는 폭을 쓰고 잘립니다 — 앞의 코드는 짧아서 온전히 보여야
-                // 무엇을 골랐는지 확인됩니다
-                i === shown.length - 1 ? "min-w-0 truncate" : "shrink-0",
-                c.muted && "text-lookup-code"
-              )}
-            >
-              {c.value(selected)}
-            </span>
-          ))
+        : shown.map(({ col, as }, i) =>
+            as === "badge" ? (
+              <Badge key={col.key} tone="neutral" size="sm" className="shrink-0">
+                {col.value(selected)}
+              </Badge>
+            ) : (
+              <span
+                key={col.key}
+                className={cn(
+                  // 마지막 것만 남는 폭을 쓰고 잘립니다 — 앞의 코드는 짧아서 온전히
+                  // 보여야 무엇을 골랐는지 확인됩니다
+                  i === shown.length - 1 ? "min-w-0 truncate" : "shrink-0",
+                  col.muted && "text-lookup-code"
+                )}
+              >
+                {col.value(selected)}
+              </span>
+            )
+          )
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!open) return;

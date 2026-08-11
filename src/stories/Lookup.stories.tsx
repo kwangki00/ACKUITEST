@@ -66,8 +66,14 @@ const COLUMNS: LookupColumns<Test> = [
  * 놓입니다. **둘까지**입니다.
  *
  * ```tsx
- * <Lookup columns={COLS} displayColumns={["name", "unit"]} … />
+ * <Lookup displayColumns={["name", "unit"]} … />
+ * <Lookup displayColumns={[{ key: "code", as: "badge" }, "name"]} … />
  * ```
+ *
+ * **모양도 고를 수 있습니다** — `as: "badge"` 면 그 열만 배지로 그립니다. 코드처럼
+ * **덩어리로 읽는 값**을 이름과 떼어놓을 때 씁니다. 흐린 글자(`Lookup/Code`)로도
+ * 충분히 갈리지만, 코드가 길거나 이름과 섞여 읽히면 배지 쪽이 확실합니다.
+ * `Badge`(`neutral` · `sm`)를 그대로 쓰므로 다른 배지와 규격이 맞습니다.
  *
  * 값을 합치거나 형식을 바꿔야 하면 `display` 로 직접 만듭니다 — 넘기면 그게 이깁니다.
  *
@@ -178,8 +184,12 @@ export const 견주기: Story = {
  * 전부 잘립니다. 기본은 **코드 + 이름** 이고, 다른 조합이 필요하면
  * `displayColumns` 로 열 `key` 를 고르세요 — **적은 순서대로, 둘까지**입니다.
  *
- * 셋을 넣으면 **컴파일이 안 됩니다.** 값을 합치거나 형식을 바꿔야 하면
- * `display` 로 직접 만드세요 (그게 이깁니다).
+ * 셋을 넣으면 **컴파일이 안 됩니다.**
+ *
+ * **모양도 고를 수 있습니다** — `{ key, as: "badge" }` 면 그 열만 배지입니다.
+ * 코드처럼 덩어리로 읽는 값을 이름과 떼어놓을 때 씁니다.
+ *
+ * 값을 합치거나 형식을 바꿔야 하면 `display` 로 직접 만드세요 (그게 이깁니다).
  *
  * 각 줄을 열어서 하나 골라 보면 트리거가 어떻게 달라지는지 보입니다.
  */
@@ -191,11 +201,18 @@ export const 트리거표시: Story = {
     const [b, setB] = useState<string | undefined>("CD001");
     const [c, setC] = useState<string | undefined>("CD001");
     const [d, setD] = useState<string | undefined>("CD001");
+    const [e, setE] = useState<string | undefined>("CD001");
 
     const rows = [
       ["기본 — 코드 + 이름", undefined, a, setA],
       ["displayColumns={[\"name\", \"unit\"]}", ["name", "unit"] as const, b, setB],
       ["displayColumns={[\"name\"]} — 이름만", ["name"] as const, c, setC],
+      [
+        'displayColumns={[{ key: "code", as: "badge" }, "name"]}',
+        [{ key: "code", as: "badge" }, "name"] as const,
+        e,
+        setE,
+      ],
     ] as const;
 
     return (
