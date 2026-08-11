@@ -207,6 +207,7 @@ function PatientList({
   const [page, setPage] = useState(1);
 
   return (
+    /* 표를 담는 판은 한 가지입니다 — 오른쪽 상세와 같은 대접이어야 같은 층위로 읽힙니다 */
     <div className="flex min-h-0 w-135 shrink-0 flex-col overflow-hidden rounded-lg border border-table-border bg-table-row-surface">
       <TableToolbar title="환자리스트" count="총 979명" />
       <Legend />
@@ -296,7 +297,11 @@ function Detail({ chart }: { chart: string }) {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto">
-      <div className="rounded-lg border border-card-border bg-card-surface p-4">
+      {/*
+        요약 판도 왼쪽과 같은 테두리를 씁니다 — 나란히 놓인 두 판이 다른 색이면
+        같은 층위인데 하나가 더 진해 보입니다. 안에 든 카드 3장만 진짜 Card 입니다
+      */}
+      <div className="rounded-lg border border-table-border bg-table-row-surface p-4">
         {/* 머리 — 이름 · 식별값 · 상태, 우측에 액션 */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <h2 className="text-lg font-bold text-text-basic">{r.name}</h2>
@@ -431,7 +436,8 @@ function Detail({ chart }: { chart: string }) {
 /* ---------------------------------------------------------------- 스토리 */
 
 /**
- * **실제 조회 화면의 구성**입니다 — 1440 폭 기준.
+ * **실제 조회 화면의 구성**입니다 — Figma `SCL_페이지 디자인` 의 `결과조회-기본`
+ * (Page 3 e-smart) 을 옮긴 것으로, **1920 폭**입니다.
  *
  * ### 왜 좌우 분할인가
  *
@@ -447,6 +453,23 @@ function Detail({ chart }: { chart: string }) {
  * `FilterBar` 는 조회 뒤에 접어서 **표에 세로 자리를 내주는** 장치입니다.
  * 이 화면은 좌우로 나눠서 세로가 이미 넉넉하니 접을 이유가 없고, 접는 장치를
  * 두면 누를 것만 하나 늘어납니다. 조건 줄을 그냥 한 줄로 둡니다.
+ *
+ * ### 표를 담는 판은 한 가지입니다
+ *
+ * 왼쪽 환자리스트와 오른쪽 상세는 **같은 층위**라 같은 대접이어야 합니다 —
+ * `rounded-lg border-table-border`. 나란히 놓인 두 판이 다른 테두리를 쓰면 하나가
+ * 더 진해 보여 위계가 있는 것처럼 읽힙니다.
+ *
+ * **`Card` 로 감싸지 않았습니다.** `Card` 는 여백을 갖는 표면(`p-4`~`p-6`)이라 표를
+ * 넣으면 헤더 행 배경이 모서리까지 안 닿고, 툴바 여백이 두 겹이 됩니다. `p-0` 으로
+ * 눌러 쓸 수는 있지만 그러면 남는 것이 `rounded-lg border` 뿐이라 `Card` 라고 부를
+ * 이유가 없습니다. **Figma 도 이 두 판은 `Card` 인스턴스가 아니라 그냥 프레임**입니다.
+ *
+ * 안에 든 **요약 카드 3장만 진짜 `Card`** 입니다 — 여백이 필요한 내용 블록입니다.
+ *
+ * 반경은 **8**(`Radius/lg`)입니다. 원본은 10 인데, 8 이면 `Card` · `Dialog` 와 같은
+ * 값이라 화면에서 모서리가 한 종류로 유지됩니다. 2px 을 위해 반경을 셋으로 늘리는
+ * 값보다 큽니다.
  *
  * ### 점 하나로 상태를 알릴 때는 범례가 필요합니다
  *
@@ -499,7 +522,7 @@ export const 조회화면: Story = {
     };
 
     return (
-      <div className="flex h-250 w-360 bg-surface-gray-subtle">
+      <div className="flex h-250 w-480 bg-surface-gray-subtle">
         <Sidebar
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}
