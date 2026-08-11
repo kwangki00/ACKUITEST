@@ -55,7 +55,7 @@ Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
 Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
-**Radix 는 Popover · Tooltip · Dialog · Toast 넷을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). 나머지(Lookup · DropdownMenu · Tabs · Accordion)는 아직입니다.
+**Radix 는 Popover · Tooltip · Dialog · Toast 넷을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **남은 것은 `DropdownMenu` · `Accordion` 둘**입니다.
 
 Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 설정과 자체 토큰 이름(`bg-popover` 등)을 끌고 오는데, 어차피 색을 전부 갈아끼워야 해서 손해입니다. 프리미티브만 설치하고 컴포넌트는 직접 씁니다.
 
@@ -779,7 +779,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [x] ~~Toast~~ — `@radix-ui/react-toast` (2026-08-07)
 - [x] ~~Tabs~~ — **Radix 없이 만들었습니다** (2026-08-07). 근거는 아래 Tabs 절
 - [ ] DropdownMenu
-- [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **PC 는 끝**입니다. 남은 건 모바일(MobileCalendar · MobileDateRangePicker)
+- [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **모바일 시트까지 끝났습니다** (2026-08-11) — `PointerModeProvider` 가 갈라 줍니다
 
 ### Figma
 
