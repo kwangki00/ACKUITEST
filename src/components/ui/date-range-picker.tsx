@@ -615,29 +615,31 @@ export interface DateRangePickerProps
 }
 
 /**
- * `quickSelect` 일 때 입력창의 기본 폭입니다. **단위마다 다릅니다** — 하나로 고정하면
- * 월·연에서 오른쪽이 크게 빕니다 (256 고정일 때 month 59 · year 105 남았습니다).
+ * 입력창의 기본 폭입니다 — **단위마다 다릅니다.**
+ *
+ * 날짜는 자릿수가 정해져 있어 부모가 폭을 정해줄 이유가 없습니다 (`Input` 과 다른
+ * 점입니다). 하나로 고정하면 월·연에서 오른쪽이 크게 빕니다.
  *
  * 필요한 폭 = 좌우 여백 24 + 글자 + 간격 8 + 우측 아이콘.
- * 우측은 값이 있으면 지우기(16) + 간격(4) + 달력(16) = 36, 비어 있으면 달력 16 뿐입니다.
- * 그래서 **`day` 는 자리표시가, 나머지는 값이** 폭을 정합니다 (Pretendard 14 실측).
+ * 우측은 값이 있으면 지우기 16 + 간격 4 + 달력 16 = **36**, 비어 있으면 달력 **16** 뿐이라
+ * `day` 는 자리표시가, 나머지는 값이 폭을 정합니다 (Pretendard 14 실측).
  *
  * | | 값 | 자리표시 | 필요 | 여기 |
  * |---|---|---|---|---|
- * | day | 169 | 196 | 244 | **252** |
- * | month | 129 | 145 | 197 | **208** |
- * | year | 83 | 87 | 151 | **160** |
+ * | day | 169 | 196 | 244 | **248** |
+ * | month | 129 | 145 | 197 | **204** |
+ * | year | 83 | 87 | 151 | **156** |
  *
- * Figma 는 250 · 200 · 180 입니다. 지우기 버튼을 그리지 않아 month 가 3px 모자라고
- * year 는 반대로 넉넉합니다 — **코드 쪽이 실제에 가까워** 이 값을 씁니다 (2026-08-10).
+ * **Figma 값을 따르지 않습니다** (2026-08-11) — 그림은 지우기 버튼을 그리지 않아
+ * 실제보다 좁게 잡히고, 대신 넉넉한 자리는 그대로 남아 있었습니다.
  *
- * 폭을 직접 정하고 싶으면 `className` 으로 덮으세요. `quickSelect` 를 끄면 이 폭은
- * 쓰이지 않습니다 — 그때는 `Input` 과 같이 **부모가 폭을 정합니다.**
+ * 폭을 직접 정하려면 `className` 으로 덮으세요 — `w-full` 도 됩니다
+ * (tailwind-merge 가 기본 폭을 걷어냅니다).
  */
 const PICKER_WIDTH: Record<DatePrecision, string> = {
-  day: "w-63",
-  month: "w-52",
-  year: "w-40",
+  day: "w-62",
+  month: "w-51",
+  year: "w-39",
 };
 
 const RANGE_PLACEHOLDER: Record<DatePrecision, string> = {
@@ -788,7 +790,7 @@ function PopoverDateRangePicker({
             setDigits(rangeToDigits(value, precision));
           }}
           clearable={false}
-          className={className}
+          className={cn(PICKER_WIDTH[precision], className)}
           trailingIcon={
             <span className="flex items-center gap-1">
               {digits !== "" && !disabled && !readOnly && (
@@ -888,7 +890,7 @@ function PopoverDateRangePicker({
  *
  * ### 자리가 모자라면 칩이 다음 줄로 (`flex-wrap`)
  *
- * 입력창 252(day) + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** —
+ * 입력창 248(day) + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** —
  * 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에
  * 놓으면 조용히 무너집니다. `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
@@ -968,7 +970,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
     <div className={cn("flex flex-wrap items-end gap-2", className)}>
       {/* grow — 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 채웁니다 */}
-      <PopoverDateRangePicker {...props} className={cn(PICKER_WIDTH[precision], "grow")} />
+      <PopoverDateRangePicker {...props} className="grow" />
       {chips}
     </div>
   );
