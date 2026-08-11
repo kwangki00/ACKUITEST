@@ -639,9 +639,10 @@ export interface DateRangePickerProps
  * | month | 129 | 145 | 197 | **204** |
  * | year | 83 | 87 | 151 | **156** |
  *
- * `quickSelect` 일 때는 이 폭이 **칩과 나눠 갖는 몫**이 됩니다 — 입력창이 먼저
- * 자기 자리를 정하지 않으면 칩이 밀려납니다. 자리가 모자라면 칩이 다음 줄로 내려가고
- * 그때는 각 줄이 꽉 찹니다 (`grow`).
+ * `quickSelect` 일 때도 **이 폭 그대로**입니다 — 남는 자리는 비워 둡니다.
+ * `grow` 를 주면 컨테이너가 넓을수록 입력창만 혼자 커져서, 값의 길이는 그대로인데
+ * 오른쪽이 비어 보입니다. 좁아지면 flex 항목이 알아서 줄고, 더 좁으면 칩이 다음 줄로
+ * 내려갑니다.
  *
  * ### `w-full` 과 `w-fit` 은 주는 대상이 다릅니다
  *
@@ -919,8 +920,8 @@ function PopoverDateRangePicker({
  * 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에
  * 놓으면 조용히 무너집니다. `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
- * 줄바꿈되면 각 줄이 폭을 꽉 채웁니다 (`w-* grow`). `basis-*` 로 주면 **재는 값과 놓는
- * 값이 달라져** 넓은 화면에서도 칩이 밀립니다.
+ * **남는 자리는 비워 둡니다** — `grow` 를 주지 않습니다. 늘리면 컨테이너가 넓을수록
+ * 입력창만 혼자 커져서 값의 길이는 그대로인데 오른쪽이 비어 보입니다.
  *
  * ### 팝오버냐 시트냐는 포인터가 정합니다
  *
@@ -966,7 +967,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
       disabled={disabled}
       // 스스로 이름을 대므로 FormField 의 라벨을 집어가지 않습니다
       aria-label="빠른 선택"
-      className={sheet ? "w-full" : "grow"}
+      className={sheet ? "w-full" : undefined}
     >
       {quick.map((p) => (
         <ToggleItem key={p.label} value={p.label} className="flex-1">
@@ -994,8 +995,12 @@ export function DateRangePicker(props: DateRangePickerProps) {
   return (
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
     <div className={cn("flex flex-wrap items-end gap-2", className)}>
-      {/* grow — 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 채웁니다 */}
-      <PopoverDateRangePicker {...props} className="grow" />
+      {/*
+        grow 를 주지 않습니다. 남는 자리를 입력창이 먹어서 컨테이너가 넓을수록
+        혼자 커집니다 — 값의 길이는 그대로인데 오른쪽만 비어 보입니다.
+        좁아지면 flex 항목이 알아서 줄어들고, 더 좁으면 칩이 다음 줄로 내려갑니다.
+      */}
+      <PopoverDateRangePicker {...props} />
       {chips}
     </div>
   );
