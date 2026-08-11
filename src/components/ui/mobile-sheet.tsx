@@ -120,7 +120,18 @@ export function MobileSheet({
   };
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    /*
+      **틀 안에 가둘 때는 페이지를 잠그지 않습니다.**
+
+      `modal` 이면 Radix 가 body 스크롤을 잠그는데, 그 순간 스크롤바가 사라지면서
+      **페이지 전체가 스크롤바 폭만큼 옆으로 밀립니다.** 시트는 제자리인데 뒤가
+      움직이는 것처럼 보입니다 — 문서에서는 시트가 틀 안에만 있으니 잠글 이유도 없습니다.
+
+      `container` 는 문서·데모 전용이라 그걸 기준으로 갑니다. 실제 앱에서는 넘기지
+      않으므로 `modal` 그대로입니다 — 뒤 화면이 스크롤되면 안 되고, 포커스도
+      시트 안에 갇혀야 합니다.
+    */
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange} modal={!container}>
       <DialogPrimitive.Portal container={container ?? undefined}>
         {/* Scrim 은 시트에 딸려 있습니다 — 쓰는 쪽에서 따로 깔지 않습니다 */}
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay-scrim data-[state=open]:animate-fade-in" />
