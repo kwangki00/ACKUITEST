@@ -50,12 +50,13 @@ MobileDateRangePicker · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
+DropdownMenu · SidebarGroup
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
 Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
-**Radix 는 Popover · Tooltip · Dialog · Toast 넷을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **남은 것은 `DropdownMenu` · `Accordion` 둘**입니다.
+**Radix 는 Popover · Tooltip · Dialog · Toast · DropdownMenu 다섯을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast` · `-dropdown-menu`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **남은 것은 `Accordion` 하나**입니다.
 
 Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 설정과 자체 토큰 이름(`bg-popover` 등)을 끌고 오는데, 어차피 색을 전부 갈아끼워야 해서 손해입니다. 프리미티브만 설치하고 컴포넌트는 직접 씁니다.
 
@@ -664,6 +665,24 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - 검색은 **모든 열**을 훑고 초성도 됩니다 (`comboboxMatch` 재사용). 열 때 커서는 **고른 줄**에 가고, 없으면 아무 데도 짚지 않습니다 — 검색어가 있을 때만 첫 결과 (`ListItem` 규칙과 같음)
 - **패널 반경이 8 이었습니다.** `ComboboxPanel` 과 똑같이 **변수 바인딩도 없었습니다** — 2026-08-06 정리에서 이 패널이 빠져 있었습니다. `Radius/md`(6)에 바인딩했습니다 (2026-08-07)
 
+### DropdownMenu — 고르는 게 아니라 실행하는 것
+
+- **가르는 축은 「누른 뒤에 무엇이 남느냐」입니다**
+
+  | | 무엇을 하나 | 표식 |
+  |---|---|---|
+  | `Combobox` · `Select` | **값을 고릅니다** | 고른 것에 체크 |
+  | `DropdownMenu` | **동작을 실행합니다** | **없습니다** |
+
+  눌러서 화면 어딘가에 그 선택이 남아야 하면 `Combobox`, 아니면 여기입니다
+- **`ListItem` 을 쓰지 않습니다** — `ListItem` 은 `selected` · `check` · `checkbox` 를 축으로 가진 **고르는 줄**이고, 여기 필요한 건 그 축이 없는 줄입니다. 체크가 보이면 사용자가 "지금 이게 켜져 있다" 고 읽습니다. `Lookup` 이 `LookupRow` 를 따로 둔 것과 같은 이유입니다. 높이(32)와 상태 색은 같은 토큰을 씁니다
+- **삭제는 마지막에 두고 `DropdownMenuSeparator` 로 떼어 놓습니다** — 바로 위 항목을 누르려다 미끄러지는 것을 줄입니다. `tone="destructive"` 로 글자도 빨강이 됩니다
+- **위험한 동작의 hover 는 `Surface/Danger-Subtler`(#ffeeee)** 입니다. `Badge/Danger-Soft-Fill`(#ffd9d9)은 배지가 **스스로 서 있는** 색이라 hover 로 쓰면 눌리기도 전에 경고처럼 보입니다
+- **항목이 6개를 넘으면** 그룹(`DropdownMenuLabel`)으로 나누거나 별도 화면을 검토하세요
+- **비활성 항목은 왜 못 누르는지가 화면에 있어야** 합니다 — "인쇄 (행을 먼저 고르세요)" 처럼. 그냥 흐리기만 하면 고장으로 읽힙니다
+- 패널은 **떠 있는 패널 규칙 그대로** — `Radius/md`(6) · `Background/White` · `Border/Gray-Light` · 그림자. hover 와 방향키 커서를 Radix 가 `data-[highlighted]` 하나로 묶어 줍니다
+- 어디서 뜨나 — `TableCell(Action)` · `TableToolbar` 아이콘 버튼 · `Card` 의 Action 슬롯. **모바일에서 툴바 아이콘 4개를 2개 + `⋯` 로 줄이는 자리**입니다
+
 ### Tabs · TabItem — Radix 를 쓰지 않았습니다
 
 - **`closable` 때문입니다.** Radix 의 `Tabs.Trigger` 는 `<button>` 인데 탭 안에 닫기 버튼이 들어가야 합니다. **버튼 안의 버튼은 잘못된 HTML** 이라 브라우저가 마크업을 재배치합니다 — `SelectTrigger` 를 `<div role="combobox">` 로 만든 것과 같은 이유입니다. 탭도 **`<div role="tab">`** 이고 Enter·Space 를 직접 처리합니다
@@ -778,7 +797,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [x] ~~Dialog~~ — `@radix-ui/react-dialog` (2026-08-07)
 - [x] ~~Toast~~ — `@radix-ui/react-toast` (2026-08-07)
 - [x] ~~Tabs~~ — **Radix 없이 만들었습니다** (2026-08-07). 근거는 아래 Tabs 절
-- [ ] DropdownMenu
+- [x] ~~DropdownMenu~~ — `@radix-ui/react-dropdown-menu` (2026-08-11). **`ListItem` 을 쓰지 않습니다** — 아래 근거
 - [x] ~~DatePicker~~ — 단일·범위 × Day·Month·Year 전부. **모바일 시트까지 끝났습니다** (2026-08-11) — `PointerModeProvider` 가 갈라 줍니다
 
 ### Figma

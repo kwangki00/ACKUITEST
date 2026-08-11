@@ -193,6 +193,11 @@ const GROUPS: Group[] = [
         rule: "위치와 충돌 회피는 Radix 가 정합니다. Placement 는 희망일 뿐 화면 끝에서 뒤집힙니다",
       },
       {
+        name: "DropdownMenu",
+        what: "행 액션 · 더보기 메뉴",
+        rule: "**값을 고르면 `Combobox`, 동작을 실행하면 여기**입니다 — 선택 표식이 없습니다. 삭제는 마지막에 두고 구분선으로 떼어 놓으세요",
+      },
+      {
         name: "ListItem",
         what: "목록 한 줄 — 선택 표식 · 검색어 강조",
         rule: "선택을 배경으로 알리지 않습니다. 배경 하나가 hover · 커서 · 선택 세 가지를 뜻하기 때문",
