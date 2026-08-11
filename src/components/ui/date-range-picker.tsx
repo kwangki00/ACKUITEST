@@ -639,10 +639,10 @@ export interface DateRangePickerProps
  * | month | 129 | 145 | 197 | **204** |
  * | year | 83 | 87 | 151 | **156** |
  *
- * `quickSelect` 일 때도 **이 폭 그대로**입니다 — 남는 자리는 비워 둡니다.
- * `grow` 를 주면 컨테이너가 넓을수록 입력창만 혼자 커져서, 값의 길이는 그대로인데
- * 오른쪽이 비어 보입니다. 좁아지면 flex 항목이 알아서 줄고, 더 좁으면 칩이 다음 줄로
- * 내려갑니다.
+ * `quickSelect` 일 때도 **입력창은 이 폭 그대로**입니다 — 남는 자리는 **칩이** 먹습니다.
+ * 입력창을 늘리면 값의 길이는 그대로인데 오른쪽만 비어 보이지만, 칩은 원래 균등
+ * 분할이라 넓어져도 자연스럽습니다. 가로 한 줄에서는 묶음이 내용 폭이라 남는 자리가
+ * 아예 없고, 세로로 쌓일 때만 칩이 늘어나 옆 줄과 폭이 맞습니다.
  *
  * ### `w-full` 과 `w-fit` 은 주는 대상이 다릅니다
  *
@@ -920,8 +920,7 @@ function PopoverDateRangePicker({
  * 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에
  * 놓으면 조용히 무너집니다. `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
- * **남는 자리는 비워 둡니다** — `grow` 를 주지 않습니다. 늘리면 컨테이너가 넓을수록
- * 입력창만 혼자 커져서 값의 길이는 그대로인데 오른쪽이 비어 보입니다.
+ * **남는 자리는 칩이 먹습니다** — 입력창에는 `grow` 를 주지 않습니다.
  *
  * ### 팝오버냐 시트냐는 포인터가 정합니다
  *
@@ -967,7 +966,14 @@ export function DateRangePicker(props: DateRangePickerProps) {
       disabled={disabled}
       // 스스로 이름을 대므로 FormField 의 라벨을 집어가지 않습니다
       aria-label="빠른 선택"
-      className={sheet ? "w-full" : undefined}
+      /*
+        남는 자리는 **칩이** 먹습니다. 입력창이 먹으면 값의 길이는 그대로인데
+        오른쪽만 비어 보이는데, 칩은 원래 균등 분할이라 넓어져도 자연스럽습니다.
+
+        가로 한 줄(FilterRow 가 flex-row)에서는 이 묶음이 내용 폭이라 남는 자리가
+        아예 없어 80 그대로이고, 세로로 쌓일 때만(폭 100%) 늘어나 옆 줄과 맞습니다.
+      */
+      className={sheet ? "w-full" : "grow"}
     >
       {quick.map((p) => (
         <ToggleItem key={p.label} value={p.label} className="flex-1">
@@ -995,11 +1001,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
   return (
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
     <div className={cn("flex flex-wrap items-end gap-2", className)}>
-      {/*
-        grow 를 주지 않습니다. 남는 자리를 입력창이 먹어서 컨테이너가 넓을수록
-        혼자 커집니다 — 값의 길이는 그대로인데 오른쪽만 비어 보입니다.
-        좁아지면 flex 항목이 알아서 줄어들고, 더 좁으면 칩이 다음 줄로 내려갑니다.
-      */}
+      {/* grow 를 주지 않습니다 — 남는 자리는 칩이 먹습니다 (위 PICKER_WIDTH 참고) */}
       <PopoverDateRangePicker {...props} />
       {chips}
     </div>
