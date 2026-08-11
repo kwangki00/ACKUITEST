@@ -350,6 +350,10 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **제목은 질문형** — "삭제할까요?" 가 "삭제 확인" 보다 명확합니다. 되돌릴 수 없는 동작은 **설명으로 결과를 알립니다**
 - **취소가 왼쪽, 주 액션이 오른쪽.** 우상단 X 는 취소와 **같은 동작**이어야 합니다
 - 확인창은 **`ConfirmDialog`**(Figma 에 대응물 없는 완성형)를 쓰고, 폼이 들어가는 창만 프리미티브로 조립합니다. 매번 손으로 조립하면 버튼 순서나 톤이 조금씩 어긋납니다
+- **`ConfirmDialog` 는 모바일에서 시트로 뜹니다** (2026-08-11). 「시트 vs 전체 화면」의 *확인만 받으면 됨 → MobileSheet(Footer 켬)* 자리입니다 — 제목 + 설명 + 버튼 둘이라 뒤를 보면서 답만 하면 되고, 그럴 때 아래에서 올라오는 편이 엄지에 가깝습니다
+  - 껍데기는 **`PointerModeProvider`** 가 정합니다 — `Select` · `DateRangePicker` 와 같은 구조라 **호출부는 아무 판단도 하지 않습니다** (강제하려면 `overlay="dialog" | "sheet"`)
+  - 버튼은 `MobileSheet` 의 Footer 가 그립니다 — **취소가 왼쪽**인 순서도 한 곳에서 지켜집니다. `destructive` 톤과 로딩을 넘기려고 `confirmTone` · `confirmLoading` · `showCancel` 을 시트에 더했습니다
+  - **폼이 들어가는 창은 이 규칙에서 빠집니다** — 「입력이 길고 복잡함 → 전체 화면」이라 모바일에서는 화면을 따로 만드세요. 시트에서 긴 입력을 스크롤하면 답답하고 키보드가 올라오면 시트를 덮습니다. **내용이 정하는 것이라 컴포넌트가 갈라줄 수 없습니다**
 - 크기는 sm 400(짧은 확인) · default 512 · lg 640(폼·표). 폭만 다르고 여백·간격은 같습니다
 - **애니메이션은 `ack-theme.css` 에 정의한 것만 씁니다** — `animate-in` · `fade-in-0` 같은 `tailwindcss-animate` 유틸은 이 프로젝트에 없어서 **조용히 무시됩니다.** Scrim 용으로 `--animate-fade-in` 을 새로 넣었습니다 (2026-08-07)
 
@@ -397,7 +401,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 | | 무엇이 알아서 되나 | 기준 |
 |---|---|---|
-| `DateRangePicker` · `Select` · `Combobox` | 팝오버 ↔ **시트** | 포인터 (`PointerModeProvider`) |
+| `DateRangePicker` · `Select` · `Combobox` · **`ConfirmDialog`** | 팝오버·모달 ↔ **시트** | 포인터 (`PointerModeProvider`) |
 | `FilterBar` · `FilterRow` | 가로 한 줄 ↔ **세로** | **자기 폭** (`--container-pc` 880) |
 | `DateRangePicker` 의 칩 | 옆 ↔ **다음 줄** | `flex-wrap` (≈460) |
 | 컨트롤·행·달력 칸 높이 | PC ↔ 모바일 | **창 폭** (`--h-*`, 1024px) |
@@ -428,7 +432,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | TableToolbar 제목·건수  | MobileListHeader — 정렬은 필터 시트로       |
 | TableToolbar 아이콘 4개 | 2개 + `⋯` DropdownMenu                      |
 | Pagination              | 더 보기 / 무한 스크롤                       |
-| Dialog                  | MobileSheet                                 |
+| Dialog — 확인창          | **자동으로 MobileSheet** (`ConfirmDialog`)   |
+| Dialog — 폼             | 전체 화면 (내용이 정합니다)                  |
 | Combobox · Lookup       | MobileSelectContent + MobileSheet           |
 | DatePicker 두 달 패널   | MobileCalendar 한 달 + MobileSheet          |
 | 조회 조건 가로 한 줄    | **FilterBar 한 벌** — 자기 폭을 재서 갈립니다 |

@@ -1,5 +1,7 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { MobileSheet } from "@/components/ui/mobile-sheet";
+import { useOverlay } from "@/components/ui/pointer-mode";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -139,9 +141,32 @@ export interface ConfirmDialogProps {
   onConfirm: () => void;
   /** 확인 버튼이 도는 동안. 두 번 눌리는 것을 막습니다. */
   loading?: boolean;
+  /**
+   * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
+   * 마우스면 모달. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
+   */
+  overlay?: "dialog" | "sheet";
+  /** 시트를 문서·데모 틀 안에 가둘 때만. 실제 앱에서는 넘기지 마세요. */
+  container?: HTMLElement | null;
   children?: React.ReactNode;
 }
 
+/**
+ * 확인창입니다 — Figma 에 대응물이 없는 **완성형**입니다.
+ *
+ * ### 모바일에서는 시트로 뜹니다
+ *
+ * 「시트 vs 전체 화면」 규칙의 **“확인만 받으면 됨 → MobileSheet(Footer 켬)”** 자리입니다.
+ * 제목 + 설명 + 버튼 둘이라 뒤를 보면서 답만 하면 되고, 그럴 때 아래에서 올라오는
+ * 편이 엄지에 가깝습니다.
+ *
+ * 껍데기는 앱 루트의 `PointerModeProvider` 가 정합니다 — **호출부는 아무 판단도 하지
+ * 않습니다.** `Select` · `DateRangePicker` 와 같은 구조입니다.
+ *
+ * **폼이 들어가는 창은 이걸 쓰지 않습니다.** 프리미티브로 조립하고, 모바일에서는
+ * **전체 화면으로 옮기세요** — 시트에서 긴 입력을 스크롤하면 답답하고 키보드가
+ * 올라오면 시트를 덮습니다. 그건 내용이 정하는 것이라 컴포넌트가 갈라줄 수 없습니다.
+ */
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -154,8 +179,31 @@ export function ConfirmDialog({
   showCancel = true,
   onConfirm,
   loading,
+  overlay,
+  container,
   children,
 }: ConfirmDialogProps) {
+  if (useOverlay(overlay === "dialog" ? "popover" : overlay) === "sheet") {
+    return (
+      <MobileSheet
+        open={open}
+        onOpenChange={onOpenChange}
+        title={title}
+        footer
+        showCancel={showCancel}
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        confirmTone={tone}
+        confirmLoading={loading}
+        onConfirm={onConfirm}
+        container={container}
+      >
+        {description && <p className="text-sm text-text-subtle">{description}</p>}
+        {children}
+      </MobileSheet>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size={size}>

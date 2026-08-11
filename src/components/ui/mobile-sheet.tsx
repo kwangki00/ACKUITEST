@@ -48,6 +48,12 @@ export interface MobileSheetProps {
   cancelLabel?: string;
   onConfirm?: () => void;
   confirmDisabled?: boolean;
+  /** 확인 버튼이 도는 동안. 두 번 눌리는 것을 막습니다. */
+  confirmLoading?: boolean;
+  /** 되돌릴 수 없는 동작에만 `destructive`. `ConfirmDialog` 가 시트로 열릴 때 씁니다. */
+  confirmTone?: "default" | "destructive";
+  /** 끄면 확인 버튼만 남습니다 — 알림성 시트에 씁니다. */
+  showCancel?: boolean;
   children: React.ReactNode;
   className?: string;
   /**
@@ -69,6 +75,9 @@ export function MobileSheet({
   footer = true,
   confirmLabel = "확인",
   cancelLabel = "취소",
+  confirmLoading,
+  confirmTone = "default",
+  showCancel = true,
   onConfirm,
   confirmDisabled,
   children,
@@ -171,14 +180,24 @@ export function MobileSheet({
             {children}
           </div>
 
+          {/* 취소가 왼쪽, 주 액션이 오른쪽 — Dialog 와 같은 순서입니다 */}
           {footer && (
             <div className="flex shrink-0 gap-2 px-4 pt-3 pb-4">
-              <DialogPrimitive.Close asChild>
-                <Button variant="outline" size="lg" className="flex-1">
-                  {cancelLabel}
-                </Button>
-              </DialogPrimitive.Close>
-              <Button size="lg" className="flex-1" disabled={confirmDisabled} onClick={onConfirm}>
+              {showCancel && (
+                <DialogPrimitive.Close asChild>
+                  <Button variant="outline" size="lg" className="flex-1">
+                    {cancelLabel}
+                  </Button>
+                </DialogPrimitive.Close>
+              )}
+              <Button
+                variant={confirmTone === "destructive" ? "destructive" : "default"}
+                size="lg"
+                className="flex-1"
+                disabled={confirmDisabled}
+                loading={confirmLoading}
+                onClick={onConfirm}
+              >
                 {confirmLabel}
               </Button>
             </div>

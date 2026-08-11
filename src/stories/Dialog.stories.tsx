@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /**
@@ -267,6 +268,71 @@ export const 폼: Story = {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    );
+  },
+};
+
+/**
+ * **같은 코드가 두 가지로 열립니다.** 왼쪽은 마우스라 모달, 오른쪽은 손가락이라 시트 —
+ * 앱 루트의 `PointerModeProvider` 가 정하고 **호출부는 아무 판단도 하지 않습니다.**
+ * `Select` · `DateRangePicker` 와 같은 구조입니다.
+ *
+ * 「시트 vs 전체 화면」 규칙의 **“확인만 받으면 됨 → MobileSheet(Footer 켬)”** 자리입니다 —
+ * 제목 + 설명 + 버튼 둘이라 뒤를 보면서 답만 하면 되고, 그럴 때 아래에서 올라오는 편이
+ * 엄지에 가깝습니다. 취소가 왼쪽인 것도 그대로입니다.
+ *
+ * **폼이 들어가는 창은 이 규칙에서 빠집니다** — 「입력이 길고 복잡함 → 전체 화면」이라
+ * 모바일에서는 화면을 따로 만드세요. 내용이 정하는 것이라 컴포넌트가 갈라줄 수 없습니다.
+ */
+export const 오버레이: Story = {
+  name: "모달 · 시트",
+  parameters: { layout: "padded" },
+  render: function Overlay() {
+    const [a, setA] = useState(false);
+    const [b, setB] = useState(false);
+    const [frame, setFrame] = useState<HTMLDivElement | null>(null);
+
+    const props = {
+      title: "검사 항목을 삭제할까요?",
+      description: "삭제한 항목은 되돌릴 수 없습니다.",
+      tone: "destructive" as const,
+      confirmLabel: "삭제",
+    };
+
+    return (
+      <div className="flex flex-wrap items-start gap-8">
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">마우스 — 화면 가운데 모달</p>
+          <PointerModeProvider mode="mouse">
+            <Button variant="outline" onClick={() => setA(true)}>
+              삭제
+            </Button>
+            <ConfirmDialog {...props} open={a} onOpenChange={setA} onConfirm={() => setA(false)} />
+          </PointerModeProvider>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">손가락 — 아래에서 올라오는 시트 (390 틀)</p>
+          <PointerModeProvider mode="touch">
+            <div
+              ref={setFrame}
+              style={{ transform: "translateZ(0)" }}
+              className="ack-mobile relative h-[420px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+            >
+              <Button variant="outline" onClick={() => setB(true)}>
+                삭제
+              </Button>
+              <ConfirmDialog
+                {...props}
+                open={b}
+                onOpenChange={setB}
+                onConfirm={() => setB(false)}
+                container={frame}
+              />
+            </div>
+          </PointerModeProvider>
+        </div>
+      </div>
     );
   },
 };
