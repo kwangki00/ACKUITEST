@@ -47,6 +47,20 @@ import { Button } from "@/components/ui/button";
  *   화면으로 옮기세요 — 요약 줄이 길어져 못 읽고, 두 줄을 넘으면 결과가 몇 줄 안 보입니다
  * - 조건 줄은 `FilterRow` 로 감싸세요. **좁으면 세로, 넓으면 가로**로 알아서 바뀝니다.
  *   기간(`DateRangePicker quickSelect`)은 넓어서 자기 줄을 쓰는 편이 좋습니다
+ * - **조건의 폭은 컨트롤마다 다릅니다.** 날짜만 컴포넌트가 갖고 나머지는 감싸는 쪽이 정합니다
+ *
+ *   | | 기본 | 좁히려면 | 채우려면 |
+ *   |---|---|---|---|
+ *   | `Input` · `Select` · `Combobox` | **`w-full`** — 부모를 채움 | `FormField` 에 폭 | 그대로 |
+ *   | `DatePicker` · `DateRangePicker` | **값에 맞는 폭** | 그대로 | 컨트롤에 `w-full` |
+ *
+ *   날짜만 반대인 이유는 자릿수가 정해져 있어서입니다 — 목록은 얼마나 긴 이름이 올지
+ *   컴포넌트가 알 수 없습니다. **폭에는 `@pc/filter:` 를 붙이고 `FormField` 에 주세요** —
+ *   세로로 쌓일 때는 줄을 꽉 채워야 하고, 라벨·설명·에러까지 같은 폭이어야 합니다
+ *
+ *   ```tsx
+ *   <FormField label="검사 항목" className="@pc/filter:w-50"><Select … /></FormField>
+ *   ```
  * - **안에 넣는 컨트롤도 한 벌입니다** — `<DateRangePicker/>` · `<Select/>` · `<Combobox/>`
  *   를 그대로 쓰세요. 시트로 열지 팝오버로 열지는 CSS 로 못 고르지만
  *   **`PointerModeProvider` 가 정하므로** 호출부는 판단하지 않습니다.
