@@ -238,9 +238,35 @@ export function useDateRangeDraft({
     value.start && value.end ? null : value.start ? "end" : "start"
   );
   const [preview, setPreview] = React.useState<Date | null>(null);
-  const [cursor, setCursor] = React.useState<Date>(() =>
-    startOfMonth(value.start ?? new Date())
+  /**
+   * 보여줄 두 달을 정합니다 — 넘긴 달이 **오른쪽**에 오고 그 앞달이 왼쪽입니다.
+   *
+   * 조회 기간은 대개 **오늘에서 거슬러 올라갑니다.** 그런데 이번 달을 왼쪽에 두면
+   * 오른쪽은 아직 오지 않은 달이라, 화면의 절반이 고를 일 없는 자리로 남습니다.
+   * 최신 달을 오른쪽에 두면 그 앞달까지 함께 보여 "지난달 중순 ~ 오늘" 같은 기간을
+   * 한 화면에서 고를 수 있습니다.
+   *
+   * 한 달만 보여주는 모바일에서는 옮기지 않습니다 — 옮기면 지난달이 열립니다.
+   */
+  const frame = React.useCallback(
+    (rightMonth: Date) => startOfMonth(monthsVisible === 2 ? addMonths(rightMonth, -1) : rightMonth),
+    [monthsVisible]
   );
+
+  /**
+   * 열 때 어디를 보여줄지.
+   *
+   * 종료가 있으면 **종료를 오른쪽에** 둡니다 — 기간의 최신 끝이 거기입니다.
+   * 시작만 있으면(고르다 만 값) 옮기지 않습니다. 그때는 종료를 **앞으로** 골라야 해서
+   * 오른쪽에 자리가 있어야 합니다.
+   */
+  const initial = React.useCallback(
+    (v: DateRange) =>
+      v.end ? frame(v.end) : v.start ? startOfMonth(v.start) : frame(new Date()),
+    [frame]
+  );
+
+  const [cursor, setCursor] = React.useState<Date>(() => initial(value));
   // 오늘로 이동이 커서를 옮겨달라고 부탁하는 통로입니다. 매번 새 객체라 두 번 눌러도 반응합니다
   const [focusReq, setFocusReq] = React.useState<Date | null>(null);
 
@@ -321,7 +347,8 @@ export function useDateRangeDraft({
    */
   const goToday = () => {
     const today = startOfDay(new Date());
-    setCursor(startOfMonth(today));
+    // 오늘도 오른쪽입니다 — 여는 순간과 같은 자리에 있어야 어디로 갔는지 헷갈리지 않습니다
+    setCursor(frame(today));
     setFocusReq(startOfDay(new Date()));
   };
 
@@ -329,7 +356,7 @@ export function useDateRangeDraft({
   const applyPreset = (p: DatePreset) => {
     const r = p.range();
     setDraft(r);
-    setCursor(startOfMonth(r.start ?? new Date()));
+    setCursor(initial(r));
     setEditing(null);
   };
 
@@ -337,7 +364,7 @@ export function useDateRangeDraft({
   const restart = (v: DateRange) => {
     setDraft(v);
     setEditing(v.start && v.end ? null : v.start ? "end" : "start");
-    setCursor(startOfMonth(v.start ?? new Date()));
+    setCursor(initial(v));
     setPreview(null);
   };
 
@@ -587,6 +614,32 @@ export interface DateRangePickerProps
   container?: HTMLElement | null;
 }
 
+/**
+ * `quickSelect` 일 때 입력창의 기본 폭입니다. **단위마다 다릅니다** — 하나로 고정하면
+ * 월·연에서 오른쪽이 크게 빕니다 (256 고정일 때 month 59 · year 105 남았습니다).
+ *
+ * 필요한 폭 = 좌우 여백 24 + 글자 + 간격 8 + 우측 아이콘.
+ * 우측은 값이 있으면 지우기(16) + 간격(4) + 달력(16) = 36, 비어 있으면 달력 16 뿐입니다.
+ * 그래서 **`day` 는 자리표시가, 나머지는 값이** 폭을 정합니다 (Pretendard 14 실측).
+ *
+ * | | 값 | 자리표시 | 필요 | 여기 |
+ * |---|---|---|---|---|
+ * | day | 169 | 196 | 244 | **252** |
+ * | month | 129 | 145 | 197 | **208** |
+ * | year | 83 | 87 | 151 | **160** |
+ *
+ * Figma 는 250 · 200 · 180 입니다. 지우기 버튼을 그리지 않아 month 가 3px 모자라고
+ * year 는 반대로 넉넉합니다 — **코드 쪽이 실제에 가까워** 이 값을 씁니다 (2026-08-10).
+ *
+ * 폭을 직접 정하고 싶으면 `className` 으로 덮으세요. `quickSelect` 를 끄면 이 폭은
+ * 쓰이지 않습니다 — 그때는 `Input` 과 같이 **부모가 폭을 정합니다.**
+ */
+const PICKER_WIDTH: Record<DatePrecision, string> = {
+  day: "w-63",
+  month: "w-52",
+  year: "w-40",
+};
+
 const RANGE_PLACEHOLDER: Record<DatePrecision, string> = {
   day: "YYYY-MM-DD ~ YYYY-MM-DD",
   month: "YYYY-MM ~ YYYY-MM",
@@ -835,11 +888,11 @@ function PopoverDateRangePicker({
  *
  * ### 자리가 모자라면 칩이 다음 줄로 (`flex-wrap`)
  *
- * 입력창 256 + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** —
+ * 입력창 252(day) + 칩 넷은 한 줄에 **460** 쯤 필요합니다. **컨테이너 쿼리를 쓰지 않습니다** —
  * 그건 폭을 부모에서 받아야만 성립해서, 폭 없는 자리(내용만큼 넓어지는 flex 항목)에
  * 놓으면 조용히 무너집니다. `flex-wrap` 은 그런 조건이 없어 어디에 놓아도 동작합니다.
  *
- * 줄바꿈되면 각 줄이 폭을 꽉 채웁니다 (`w-64 grow`). `basis-64` 로 주면 **재는 값과 놓는
+ * 줄바꿈되면 각 줄이 폭을 꽉 채웁니다 (`w-* grow`). `basis-*` 로 주면 **재는 값과 놓는
  * 값이 달라져** 넓은 화면에서도 칩이 밀립니다.
  *
  * ### 팝오버냐 시트냐는 포인터가 정합니다
@@ -914,7 +967,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
   return (
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
     <div className={cn("flex flex-wrap items-end gap-2", className)}>
-      <PopoverDateRangePicker {...props} className="w-64 grow" />
+      {/* grow — 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 채웁니다 */}
+      <PopoverDateRangePicker {...props} className={cn(PICKER_WIDTH[precision], "grow")} />
       {chips}
     </div>
   );
