@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -365,7 +365,7 @@ export function Lookup<T>({
           >
             {label ?? placeholder}
           </span>
-          <ChevronDown aria-hidden className="shrink-0 text-icon-muted-foreground" />
+          {/* 화살표·지우기는 SelectTrigger 가 그립니다 — 여기서 또 넣으면 두 개가 됩니다 */}
         </SelectTrigger>
       </PopoverTrigger>
 

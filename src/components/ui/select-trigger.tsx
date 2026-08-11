@@ -13,6 +13,10 @@ import { useFieldBinding } from "@/components/ui/form-field";
  * 여기서는 껍데기(크기·상태·아이콘·Clear·Chevron)만 담당하고
  * 값 표현은 children 으로 받습니다.
  *
+ * **children 에 화살표·지우기를 넣지 마세요** — 여기가 이미 그립니다. `Lookup` 이
+ * 하나 더 넣고 있어서 우측에 화살표가 **두 개** 나왔습니다 (2026-08-11 수정).
+ * 지우기는 `onClear` 로 켭니다.
+ *
  * 상태·색 규칙은 Input 과 완전히 같습니다.
  *
  * <div role="combobox"> 인 이유 — 칩의 삭제 버튼이나 Clear 가 안에 들어가는데
