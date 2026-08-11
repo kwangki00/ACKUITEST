@@ -282,18 +282,18 @@ function Gallery() {
           title="DatePicker"
           note="단일 · 범위 × 날짜 · 월 · 연. 달력은 라이브러리 없이 직접 그렸습니다."
         >
-          {/* 폭은 부모가 정합니다 — 값이 차지하는 만큼만 주면 오른쪽이 비지 않습니다 */}
+          {/* 폭을 주지 않습니다 — 컴포넌트가 값에 맞는 기본 폭을 갖습니다 */}
           <div className="flex flex-wrap items-start gap-4">
-            <FormField label="보고일" className="w-37">
+            <FormField label="보고일" className="w-fit">
               <DatePicker value={reportDate} onValueChange={setReportDate} />
             </FormField>
-            <FormField label="정산 월" className="w-32">
+            <FormField label="정산 월" className="w-fit">
               <DatePicker precision="month" value={month} onValueChange={setMonth} />
             </FormField>
-            <FormField label="조회 기간" className="w-62">
+            <FormField label="조회 기간" className="w-fit">
               <DateRangePicker value={period} onValueChange={setPeriod} />
             </FormField>
-            <FormField label="통계 기간 (월 단위)" className="w-51">
+            <FormField label="통계 기간 (월 단위)" className="w-fit">
               <DateRangePicker precision="month" value={statRange} onValueChange={setStatRange} />
             </FormField>
           </div>

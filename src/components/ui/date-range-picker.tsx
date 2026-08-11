@@ -615,27 +615,33 @@ export interface DateRangePickerProps
 }
 
 /**
- * **칩과 한 줄에 놓일 때만** 쓰는 기본 폭입니다 (`quickSelect`).
+ * 입력창의 **기본 폭**입니다 — 단위마다 다릅니다.
  *
- * 그 밖에는 **부모가 폭을 정합니다** — `Input` · `Select` 와 같은 규칙입니다.
- * `FormField` 안에 홀로 놓이면 다른 필드와 나란히 칸을 채워야 하는데, 컴포넌트가
- * 폭을 쥐고 있으면 **날짜 칸만 혼자 짧아집니다.**
+ * 날짜는 자릿수가 정해져 있어 폭이 예측됩니다. 이 제품은 조회 화면이 대부분이라
+ * **좁은 자리가 기본**이고, 폼 격자처럼 칸을 꽉 채우는 자리가 예외입니다.
+ * 그래서 컴포넌트가 폭을 갖고, 채워야 할 때만 한 줄을 더 씁니다.
  *
- * 칩과 나란히 놓일 때는 반대입니다. 그 줄은 입력창과 칩이 폭을 나눠 갖는 자리라
- * 입력창이 먼저 자기 몫을 정해야 합니다 — 안 그러면 칩이 밀려납니다.
+ * ```tsx
+ * <DatePicker … />                        // 값에 맞는 폭
+ * <DatePicker className="w-full" … />     // 칸을 채웁니다
+ * ```
+ *
+ * **`FormField` 격자에서는 `w-full` 을 잊지 마세요** — 안 주면 옆 칸은 꽉 찼는데
+ * 날짜 칸만 짧아 줄이 어긋나 보입니다. tailwind-merge 가 기본 폭을 걷어냅니다.
  *
  * 필요한 폭 = 좌우 여백 24 + 글자 + 간격 8 + 우측 아이콘. 우측은 값이 있으면
  * 지우기 16 + 간격 4 + 달력 16 = **36**, 비어 있으면 달력 **16** 뿐이라
- * `day` 는 자리표시가, 나머지는 값이 폭을 정합니다 (Pretendard 14 실측 + 4).
+ * `day` 는 자리표시가, 월·연은 값이 폭을 정합니다 (Pretendard 14 실측 + 4).
  *
- * | | 값 | 자리표시 | 필요 | 여기 |
+ * | | 값 | 자리표시 | 필요 | 기본 |
  * |---|---|---|---|---|
  * | day | 169 | 196 | 244 | **248** |
  * | month | 129 | 145 | 197 | **204** |
  * | year | 83 | 87 | 151 | **156** |
  *
- * **Figma 값(250 · 200 · 180)을 따르지 않습니다** — 그림이 지우기 버튼을 그리지 않아
- * `month` 는 3px 모자라고 `year` 는 29px 남았습니다 (2026-08-11, Figma 를 코드에 맞춤).
+ * `quickSelect` 일 때는 이 폭이 **칩과 나눠 갖는 몫**이 됩니다 — 입력창이 먼저
+ * 자기 자리를 정하지 않으면 칩이 밀려납니다. 자리가 모자라면 칩이 다음 줄로 내려가고
+ * 그때는 각 줄이 꽉 찹니다 (`grow`).
  */
 const PICKER_WIDTH: Record<DatePrecision, string> = {
   day: "w-62",
@@ -791,7 +797,7 @@ function PopoverDateRangePicker({
             setDigits(rangeToDigits(value, precision));
           }}
           clearable={false}
-          className={className}
+          className={cn(PICKER_WIDTH[precision], className)}
           trailingIcon={
             <span className="flex items-center gap-1">
               {digits !== "" && !disabled && !readOnly && (
@@ -971,7 +977,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
     // items-end 라 한 줄일 때 칩 바닥이 입력창 바닥과 맞습니다
     <div className={cn("flex flex-wrap items-end gap-2", className)}>
       {/* grow — 칩이 다음 줄로 내려가면 이 줄을 혼자 쓰므로 꽉 채웁니다 */}
-      <PopoverDateRangePicker {...props} className={cn(PICKER_WIDTH[precision], "grow")} />
+      <PopoverDateRangePicker {...props} className="grow" />
       {chips}
     </div>
   );

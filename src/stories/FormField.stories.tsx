@@ -194,7 +194,8 @@ export const Control: Story = {
         </Cell>
         <Cell note="DatePicker — 기간">
           <FormField label="조회 기간" required>
-            <DateRangePicker value={range} onValueChange={setRange} />
+            {/* 격자에서는 옆 칸과 폭을 맞춥니다 — 기본 폭이 있어 안 주면 혼자 짧아집니다 */}
+            <DateRangePicker className="w-full" value={range} onValueChange={setRange} />
           </FormField>
         </Cell>
 
