@@ -125,6 +125,10 @@ function Cell({ note, children }: { note: string; children: React.ReactNode }) {
  *
  * 래퍼는 라벨 · 필수 표시 · 설명 · 에러만 담당하고, 안에 무엇이 들어가는지는
  * 모릅니다. 그래서 `Control` 은 코드에서 **prop 이 아니라 children** 입니다.
+ *
+ * **전부 눌러 볼 수 있습니다.** 에러가 붙은 칸은 값을 넣으면 에러가 사라집니다 —
+ * 실제 화면에서는 그 자리에 React Hook Form + Zod 의 검증 결과가 옵니다
+ * (에러를 손으로 켜지 마세요).
  */
 export const Control: Story = {
   parameters: { layout: "padded", ...design(figma.formField) },
@@ -134,6 +138,10 @@ export const Control: Story = {
     const [tests, setTests] = useState<string[]>(["cbc"]);
     const [period, setPeriod] = useState<string>("3m");
     const [range, setRange] = useState<DateRange>({ start: null, end: null });
+    const [kind, setKind] = useState<string | undefined>("cbc");
+    // 아래 셋은 **고르면 에러가 사라집니다** — 실제 화면에서는 Zod 검증 결과가 옵니다
+    const [kindReq, setKindReq] = useState<string | undefined>();
+    const [needOne, setNeedOne] = useState<string[]>([]);
 
     return (
       <div className="grid w-[760px] gap-x-6 gap-y-5 sm:grid-cols-2">
@@ -178,7 +186,7 @@ export const Control: Story = {
 
         <Cell note="Select — 단일">
           <FormField label="검사 종류">
-            <Select options={TESTS} value="cbc" onValueChange={() => {}} />
+            <Select options={TESTS} value={kind} onValueChange={setKind} />
           </FormField>
         </Cell>
         <Cell note="Combobox — 다중(칩)">
@@ -187,9 +195,19 @@ export const Control: Story = {
           </FormField>
         </Cell>
 
-        <Cell note="Select + Error">
-          <FormField label="검사 종류" required error="검사 종류를 선택해 주세요.">
-            <Select state="error" options={TESTS} onValueChange={() => {}} />
+        <Cell note="Select + Error — 고르면 사라집니다">
+          <FormField
+            label="검사 종류"
+            required
+            error={kindReq ? undefined : "검사 종류를 선택해 주세요."}
+          >
+            <Select
+              state={kindReq ? "default" : "error"}
+              options={TESTS}
+              value={kindReq}
+              onValueChange={setKindReq}
+              placeholder="선택해 주세요."
+            />
           </FormField>
         </Cell>
         <Cell note="DatePicker — 기간">
@@ -209,8 +227,17 @@ export const Control: Story = {
           </FormField>
         </Cell>
         <Cell note="Checkbox + Error — 하나 이상 필요">
-          <FormField label="검사 종류" required error="하나 이상 선택해 주세요.">
-            <CheckboxGroup value={[]} onValueChange={() => {}} error direction="horizontal">
+          <FormField
+            label="검사 종류"
+            required
+            error={needOne.length ? undefined : "하나 이상 선택해 주세요."}
+          >
+            <CheckboxGroup
+              value={needOne}
+              onValueChange={setNeedOne}
+              error={!needOne.length}
+              direction="horizontal"
+            >
               {TESTS.map((t) => (
                 <Checkbox key={t.value} value={t.value} label={t.label} />
               ))}

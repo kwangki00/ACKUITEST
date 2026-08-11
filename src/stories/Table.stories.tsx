@@ -196,8 +196,8 @@ export const 결과조회화면: Story = {
                   { value: "a", label: "접수번호순" },
                   { value: "b", label: "이름순" },
                 ]}
-                value="a"
-                onValueChange={() => {}}
+                value={sort}
+                onValueChange={setSort}
               />
             </FormField>
           </div>
@@ -311,3 +311,4 @@ export const 툴바건수: Story = {
     </div>
   ),
 };
+    const [sort, setSort] = useState<string | undefined>("a");

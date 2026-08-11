@@ -225,7 +225,9 @@ export const 처리중: Story = {
  * `lg`(640)를 쓰고, 내용이 길면 창 안에서 스크롤됩니다.
  */
 export const 폼: Story = {
-  render: () => (
+  render: function FormDialog() {
+    const [kind, setKind] = useState<string | undefined>("blood");
+    return (
     <Dialog>
       <DialogTrigger asChild>
         <Button>
@@ -251,8 +253,8 @@ export const 폼: Story = {
                 { value: "blood", label: "혈액" },
                 { value: "urine", label: "소변" },
               ]}
-              value="blood"
-              onValueChange={() => {}}
+              value={kind}
+              onValueChange={setKind}
             />
           </FormField>
         </div>
@@ -265,5 +267,6 @@ export const 폼: Story = {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  ),
+    );
+  },
 };
