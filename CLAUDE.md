@@ -731,6 +731,18 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 ---
 
+## Example — 화면 조립 예제
+
+`Example` 그룹에 **목록에서 행을 눌러 상세로 가는 흐름 전체**가 있습니다. 부품 하나를 보려면 각 컴포넌트 문서로 가고, 여기는 **셋이 실제로 만나는지** 보는 자리입니다.
+
+- **`Tabs` · `Card` · `Accordion` · `DropdownMenu` 가 여기서 처음 함께 놓입니다** — Figma 의 「다음 작업」에도 "상세 화면에서 Card · Accordion · Tabs 가 검증됩니다" 라고 적혀 있었습니다
+- **상세는 PC 에서 MDI 새 탭, 모바일에서 전체 화면**입니다. 탭바가 "열린 화면 목록" 이라 환자별로 탭이 하나 생기고, 여러 환자를 나란히 비교할 수 있습니다. 모바일은 「다른 화면으로 떠남 → 전체 화면」 규칙 그대로입니다
+  - **닫는 탭이 지금 탭이면 옆 탭으로 옮깁니다** — 규칙으로만 적어두고 돌려본 적이 없던 부분이라 여기서 확인합니다. **같은 환자를 다시 누르면 새로 열지 않고 그 탭으로** 갑니다
+  - **목록 탭은 `closable` 이 아닙니다** — 돌아올 곳이라 닫으면 안 됩니다. 닫을 수 있는 건 문서 탭뿐입니다
+- **접는 것과 안 접는 것** — 늘 보는 값(접수일 · 검체 · 담당의)은 `Card`, 가끔 보는 값(참고치 안내 · 검체 상세)은 `Accordion`. 표가 화면을 더 쓰게 하려고 접는 것이지 중요한 값을 숨기려는 게 아닙니다
+- **모바일 상세에는 표를 넣지 않습니다** — 좁은 폭에 표를 넣으면 가로로 밀려 무엇을 보는지 알 수 없습니다. 항목마다 `Accordion` 한 줄로 펼칩니다 (`Table` ↔ `MobileListCard` 와 같은 판단)
+- 조회 조건은 **PC 스토리와 글자 하나까지 같습니다** — 390 틀이 `mode="touch"` 라 시트로 열릴 뿐입니다
+
 ## PC 화면 구조
 
 ```
@@ -800,6 +812,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [x] ~~모바일 전용~~ — **전부 끝났습니다** (2026-08-07): MobileSheet · MobileSelect · MobileDateRangePicker · MobileListCard · MBottomTabBar · MobileTop · MobileMenuScreen (조회 조건은 `FilterBar` 한 벌로 합쳤습니다)
 - [x] ~~Sidebar · SidebarItem~~ — PC GNB 완료 (2026-08-07). 모바일 전체메뉴와 **같은 `SidebarItem`** 을 씁니다
 - [ ] React Hook Form + Zod 연동 예시
+- [x] ~~상세 화면 예제~~ — `Example/PC 화면` · `Example/모바일 화면` (2026-08-11)
 
 ### 코드 — Radix 프리미티브가 더 필요
 
@@ -819,7 +832,7 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 - [ ] `Color/Alpha/White/0` 직접 참조 약 2,400곳 — 코드로 옮긴 7개 세트만 `Alpha/Base0` 로 정리했습니다
 - [ ] ListItem 에 `Indeterminate` 값 추가 — 전체 선택 줄의 일부 선택 상태를 그릴 수 없습니다
 - [ ] Collapsible · ContextMenu (중순위)
-- [ ] 샘플 프로젝트 — 상세 화면이 아직 없습니다 (목록에서 행을 눌렀을 때)
+- [x] ~~상세 화면~~ — `Example` 그룹에 **목록 → 상세 흐름 전체**를 그렸습니다 (2026-08-11). PC 는 MDI 새 탭, 모바일은 전체 화면
 
 ---
 

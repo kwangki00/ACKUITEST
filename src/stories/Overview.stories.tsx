@@ -369,6 +369,10 @@ function Catalog() {
             <strong className="text-text-basic">조회 화면</strong>이면 Controls → Form → Data,{" "}
             <strong className="text-text-basic">껍데기</strong>면 Navigation, 모바일이면 Mobile.
           </p>
+          <p className="mt-2">
+            <strong className="text-text-basic">Example</strong> 에는 이것들이 실제 화면에서
+            어떻게 만나는지가 있습니다 — 목록에서 행을 눌러 상세로 가는 흐름 전체입니다.
+          </p>
         </div>
       </header>
 
