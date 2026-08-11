@@ -298,3 +298,92 @@ export const 월연선택: Story = {
     );
   },
 };
+
+/**
+ * **폭은 부모가 정합니다** — `Input` · `Select` 와 같은 규칙입니다.
+ * 컴포넌트는 폭을 쥐지 않습니다: `FormField` 안에 놓이면 다른 필드와 나란히 칸을
+ * 채워야 하는데, 자기 폭을 갖고 있으면 **날짜 칸만 혼자 짧아집니다.**
+ *
+ * ### 값이 실제로 차지하는 폭
+ *
+ * 좁게 두고 싶을 때 쓰는 값입니다. **여백 24 + 글자 + 간격 8 + 우측 아이콘** —
+ * 우측은 값이 있으면 지우기 16 + 간격 4 + 달력 16 = **36**, 비어 있으면 달력 **16** 뿐입니다.
+ * 그래서 `day` 는 **자리표시**(`YYYY-MM-DD`)가, 월·연은 **값**이 폭을 정합니다.
+ *
+ * | | 값 | 자리표시 | 필요 | 여유 있게 |
+ * |---|---|---|---|---|
+ * | `day` | 76 | 90 | **144** | `w-37` (148) |
+ * | `month` | 54 | 65 | **122** | `w-32` (128) |
+ * | `year` | 34 | 36 | **102** | `w-27` (108) |
+ *
+ * 글자는 Pretendard 14 로 실측했습니다. **더 좁히면 값이 잘립니다** —
+ * `<input>` 이 스크롤되면서 앞자리가 밀려 나갑니다.
+ *
+ * ### 어디에 주나
+ *
+ * `FormField` 에 주면 라벨·설명·에러까지 함께 좁아집니다. 입력창만 좁히려면
+ * `DatePicker` 에 직접 주세요 — `className` 은 tailwind-merge 를 거치므로
+ * `w-full` 로 되돌릴 수도 있습니다.
+ */
+export const 폭: Story = {
+  name: "폭 — 부모가 정합니다",
+  decorators: [],
+  parameters: { layout: "padded" },
+  render: function Widths() {
+    const today = startOfDay(new Date());
+    const [a, setA] = useState<Date | null>(today);
+    const [b, setB] = useState<Date | null>(startOfMonth(today));
+    const [c, setC] = useState<Date | null>(new Date(today.getFullYear(), 0, 1));
+    const [d, setD] = useState<Date | null>(today);
+    const [e, setE] = useState<Date | null>(null);
+
+    return (
+      <div className="flex flex-col gap-6">
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            값에 맞춘 폭 — <code>w-37</code> · <code>w-32</code> · <code>w-27</code>
+          </p>
+          <div className="flex flex-wrap items-start gap-3">
+            <FormField label="보고일" className="w-37">
+              <DatePicker value={a} onValueChange={setA} />
+            </FormField>
+            <FormField label="정산 월" className="w-32">
+              <DatePicker precision="month" value={b} onValueChange={setB} />
+            </FormField>
+            <FormField label="기준 연도" className="w-27">
+              <DatePicker precision="year" value={c} onValueChange={setC} />
+            </FormField>
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            폼 칸을 채웁니다 — 폭을 주지 않으면 부모(여기서는 320)를 따릅니다
+          </p>
+          <div className="w-80">
+            <FormField label="보고일" description="옆 칸과 폭이 같아야 줄이 어긋나 보이지 않습니다">
+              <DatePicker value={d} onValueChange={setD} />
+            </FormField>
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            <code>day</code> 는 <strong>자리표시가 폭을 정합니다</strong> —
+            비워 두고 폭을 줄이면 <code>YYYY-MM-DD</code> 가 먼저 잘립니다
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            {(["w-37", "w-30", "w-24"] as const).map((w) => (
+              <div key={w}>
+                <p className="mb-1 text-2xs text-text-muted-foreground">{w}</p>
+                <div className={w}>
+                  <DatePicker value={e} onValueChange={setE} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
