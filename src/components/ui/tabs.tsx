@@ -300,7 +300,10 @@ export function TabItem({
 /* -------------------------------------------------------------- TabPanel */
 
 export interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** 이 패널이 딸린 탭의 값. */
   value: string;
+  /** 지금 열린 탭의 값. 같을 때만 그립니다. */
+  current: string;
   children: React.ReactNode;
 }
 
@@ -308,9 +311,23 @@ export interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
  * 코드에만 있는 짝입니다 — Figma 는 탭 목록까지만 그립니다.
  * 활성일 때만 그립니다. 열어둔 화면을 살려두고 싶으면 (MDI) 이걸 쓰지 말고
  * 바깥에서 직접 다루세요.
+ *
+ * **`Tabs` 의 컨텍스트를 쓰지 않습니다.** `Tabs` 는 `<div role="tablist">` 그 자체라
+ * 컨텍스트가 목록 안에서만 살아 있는데, 패널을 목록 안에 넣으면 **잘못된 마크업**입니다
+ * (`tablist` 의 자식은 `tab` 뿐입니다). 그래서 패널은 형제로 두고 지금 값을
+ * `current` 로 받습니다 — 2026-08-11 이전에는 컨텍스트를 요구해서 **바르게 쓰면
+ * 반드시 던졌습니다.**
+ *
+ * ```tsx
+ * <Tabs value={v} onValueChange={setV} label="조회 결과 필터">
+ *   {FILTERS.map((f) => <TabItem key={f.value} value={f.value} label={f.label} />)}
+ * </Tabs>
+ * {FILTERS.map((f) => (
+ *   <TabPanel key={f.value} value={f.value} current={v}>…</TabPanel>
+ * ))}
+ * ```
  */
-export function TabPanel({ value, className, children, ...props }: TabPanelProps) {
-  const { value: current } = useTabs("TabPanel");
+export function TabPanel({ value, current, className, children, ...props }: TabPanelProps) {
   if (current !== value) return null;
   return (
     <div role="tabpanel" tabIndex={0} className={cn("outline-hidden", className)} {...props}>

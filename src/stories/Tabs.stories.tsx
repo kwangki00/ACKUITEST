@@ -79,9 +79,17 @@ export const 기본: Story = {
             <TabItem key={f.value} value={f.value} label={f.label} count={f.count} />
           ))}
         </Tabs>
-        <TabPanel value={v} className="pt-4 text-sm text-text-subtle">
-          {FILTERS.find((f) => f.value === v)?.label} — {FILTERS.find((f) => f.value === v)?.count}건
-        </TabPanel>
+        {/* 패널은 Tabs 의 **형제**입니다 — tablist 의 자식은 tab 뿐이라 안에 못 넣습니다 */}
+        {FILTERS.map((f) => (
+          <TabPanel
+            key={f.value}
+            value={f.value}
+            current={v}
+            className="pt-4 text-sm text-text-subtle"
+          >
+            {f.label} — {f.count}건
+          </TabPanel>
+        ))}
       </div>
     );
   },

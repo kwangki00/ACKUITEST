@@ -175,7 +175,9 @@ export const 빈결과: Story = {
 /** 조회 조건 + 표. 실제 화면 한 벌입니다. */
 export const 결과조회화면: Story = {
   parameters: { layout: "fullscreen", ...design(figma.tableToolbar) },
-  render: () => (
+  render: function Screen() {
+    const [sort, setSort] = useState<string | undefined>("a");
+    return (
     <div className="min-h-screen bg-background-gray-subtler">
       <div className="border-b border-border-gray-light bg-background-white px-6 py-4">
         <div className="flex flex-wrap items-end gap-4">
@@ -218,7 +220,8 @@ export const 결과조회화면: Story = {
         <ResultTable />
       </div>
     </div>
-  ),
+    );
+  },
 };
 
 /**
@@ -311,4 +314,3 @@ export const 툴바건수: Story = {
     </div>
   ),
 };
-    const [sort, setSort] = useState<string | undefined>("a");
