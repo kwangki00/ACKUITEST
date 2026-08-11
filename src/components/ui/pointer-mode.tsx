@@ -36,6 +36,19 @@ export type PointerMode = "touch" | "mouse";
 
 const PointerModeContext = React.createContext<PointerMode | null>(null);
 
+/**
+ * 시트·팝오버를 띄울 자리. **문서·데모 전용**입니다.
+ *
+ * 시트는 `fixed` 라 그냥 두면 브라우저 창 전체를 덮습니다. 390 틀 안에 가두려면
+ * Portal 대상을 그 틀로 줘야 하는데, **컨트롤마다 `container` 를 넘기게 하면 빠집니다** —
+ * 실제로 `DateRangePicker` 의 오버레이 스토리에서 빠져 시트가 창을 꽉 채웠습니다
+ * (2026-08-11). `FormField` 의 라벨 연결과 같은 종류의 실수입니다.
+ *
+ * 그래서 **틀이 알려줍니다.** `PointerModeProvider` 에 한 번 주면 그 안의 시트가
+ * 전부 따라옵니다 — 어차피 `mode="touch"` 와 같은 자리입니다.
+ */
+const OverlayContainerContext = React.createContext<HTMLElement | null>(null);
+
 const QUERY = "(pointer: coarse)";
 
 /** 브라우저에 직접 묻습니다. Provider 가 없을 때의 기본값이기도 합니다. */
@@ -55,13 +68,40 @@ const getServerSnapshot = (): PointerMode => "mouse";
 export interface PointerModeProviderProps {
   /** `auto` 는 `(pointer: coarse)` 로 판단합니다. 문서·데모에서는 고정하세요. */
   mode?: "auto" | PointerMode;
+  /**
+   * 시트를 띄울 자리. **문서·데모에서 390 틀 안에 가둘 때만** 씁니다 —
+   * 그 안의 시트가 전부 따라옵니다. 실제 앱에서는 넘기지 마세요, 화면이 곧 틀입니다.
+   *
+   * 틀에 `transform: translateZ(0)` 을 함께 줘야 갇힙니다 — transform 이 있는 조상이
+   * `fixed` 의 기준이 되기 때문입니다.
+   */
+  container?: HTMLElement | null;
   children: React.ReactNode;
 }
 
-export function PointerModeProvider({ mode = "auto", children }: PointerModeProviderProps) {
+export function PointerModeProvider({
+  mode = "auto",
+  container = null,
+  children,
+}: PointerModeProviderProps) {
   const detected = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const value = mode === "auto" ? detected : mode;
-  return <PointerModeContext.Provider value={value}>{children}</PointerModeContext.Provider>;
+  return (
+    <PointerModeContext.Provider value={value}>
+      <OverlayContainerContext.Provider value={container}>
+        {children}
+      </OverlayContainerContext.Provider>
+    </PointerModeContext.Provider>
+  );
+}
+
+/**
+ * 시트를 띄울 자리. **직접 준 것이 이깁니다** — `container` prop 을 넘겼으면 그것,
+ * 아니면 감싸고 있는 `PointerModeProvider` 의 것, 둘 다 없으면 `document.body`.
+ */
+export function useOverlayContainer(container?: HTMLElement | null) {
+  const ctx = React.useContext(OverlayContainerContext);
+  return container ?? ctx ?? undefined;
 }
 
 /**

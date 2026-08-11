@@ -2,6 +2,7 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOverlayContainer } from "@/components/ui/pointer-mode";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -119,6 +120,12 @@ export function MobileSheet({
     if (shouldClose) onOpenChange(false);
   };
 
+  /*
+    틀 안에 가두는 자리는 감싸고 있는 PointerModeProvider 가 알려줍니다 —
+    컨트롤마다 container 를 넘기게 하면 빠집니다. 직접 준 것이 이깁니다
+  */
+  const target = useOverlayContainer(container);
+
   return (
     /*
       **`modal` 을 끄지 마세요.** Radix 는 modal 이 아니면 `Overlay` 를 **아예 안 그립니다**
@@ -126,7 +133,7 @@ export function MobileSheet({
       (2026-08-11).
     */
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal container={container ?? undefined}>
+      <DialogPrimitive.Portal container={target}>
         {/* Scrim 은 시트에 딸려 있습니다 — 쓰는 쪽에서 따로 깔지 않습니다 */}
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay-scrim data-[state=open]:animate-fade-in" />
 

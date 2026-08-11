@@ -317,6 +317,8 @@ export const 오버레이: Story = {
   render: function Overlay(args) {
     const [a, setA] = useState<DateRange>(week());
     const [b, setB] = useState<DateRange>(week());
+    // 시트를 390 틀 안에 가둡니다 — 안 넘기면 document.body 로 나가 브라우저 창을 덮습니다
+    const [frame, setFrame] = useState<HTMLDivElement | null>(null);
     return (
       <div className="flex flex-wrap items-start gap-8">
         <div>
@@ -333,8 +335,10 @@ export const 오버레이: Story = {
           <p className="mb-2 text-xs text-text-subtle">
             손가락 — 시트가 아래에서 올라옵니다 (390 틀)
           </p>
-          <PointerModeProvider mode="touch">
+          {/* 틀을 Provider 에 한 번만 알려주면 그 안의 시트가 전부 따라옵니다 */}
+          <PointerModeProvider mode="touch" container={frame}>
             <div
+              ref={setFrame}
               style={{ transform: "translateZ(0)" }}
               className="ack-mobile relative h-[560px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
             >

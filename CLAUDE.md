@@ -448,6 +448,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - Dialog 와 **같은 Radix 프리미티브**를 씁니다. 포커스 가두기 · ESC · 배경 스크롤 잠금이 시트에도 똑같이 필요합니다
 - 손잡이 색은 **`Sheet/Handle`** 입니다 (코드 `--color-sheet-handle`). Figma 가 `Color/gray/300` 을 직접 참조하고 있어 Semantic 변수를 새로 만들어 바인딩했습니다 (2026-08-07). 회색 팔레트를 손대면 손잡이까지 함께 바뀌는 걸 막습니다
 - **문서·데모에서는 `container` 로 390×844 틀 안에 가둡니다.** 시트가 `fixed` 라 그냥 두면 브라우저 창 전체를 덮습니다 — 틀에 `transform: translateZ(0)` 을 함께 줘야 갇힙니다 (transform 이 있는 조상이 fixed 의 기준이 됩니다). 실제 앱에서는 넘기지 마세요, 화면이 곧 틀입니다
+  - **틀은 `PointerModeProvider` 에 알려줍니다** (2026-08-11). `<PointerModeProvider mode="touch" container={frame}>` 한 번이면 그 안의 시트가 전부 따라옵니다 — 컨트롤마다 `container` 를 넘기게 하면 **반드시 빠집니다.** 실제로 `DateRangePicker` 의 오버레이 스토리에서 빠져 시트가 브라우저 창을 꽉 채웠습니다. 「연결을 호출부에 시키면 반드시 빠집니다」와 같은 종류입니다
+    - 컨트롤의 `container` prop 은 남겨 둡니다 — **직접 준 것이 이깁니다.** Provider 밖에서 한 곳만 가둘 때 씁니다
   - **열 때 뒤 화면이 움직이면 `focus({ preventScroll: true })` 입니다** (2026-08-11). 시트는 화면 아래쪽에 있어서 그냥 `focus()` 하면 브라우저가 그걸 보이게 하려고 **조상들을 스크롤합니다** — 긴 문서에서는 시트가 아니라 뒤가 움직이는 것처럼 보입니다. 시트는 이미 `fixed` 라 스크롤할 이유가 없습니다. `Select` · `Combobox` 의 패널도 같은 사정이라 함께 고쳤습니다
   - **`modal` 을 끄지 마세요.** 위 증상을 스크롤 잠금 탓으로 보고 `modal={!container}` 로 껐다가 되돌렸습니다 — **Radix 는 `modal` 이 아니면 `Overlay` 를 아예 안 그려서 Scrim 이 통째로 사라집니다.** 잠금은 원인이 아니었습니다
 - 애니메이션은 `--animate-slide-up`. `prefers-reduced-motion` 에서는 페이드로 바뀝니다 — 화면 높이만큼 움직이는 건 어지럼을 만들기 쉽습니다
