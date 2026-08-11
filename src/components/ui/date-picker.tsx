@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { MobileSheet } from "@/components/ui/mobile-sheet";
+import { useFormFieldLabel } from "@/components/ui/form-field";
+import { useOverlay, type OverlayMode } from "@/components/ui/pointer-mode";
 import { CalendarMonth } from "@/components/ui/calendar";
 import { CalendarUnitGrid } from "@/components/ui/calendar-unit";
 import {
@@ -157,6 +160,16 @@ export function DatePickerPanel({
  * | month | 54 | 65 | 122 | **128** |
  * | year | 34 | 36 | 102 | **108** |
  *
+ * ### 팝오버냐 시트냐는 포인터가 정합니다
+ *
+ * 앱 루트의 `PointerModeProvider` — 손가락이면 시트, 마우스면 팝오버.
+ * 호출부는 아무 판단도 하지 않습니다 (`DateRangePicker` · `Select` 와 같은 구조).
+ *
+ * **달력은 한 벌입니다** — 껍데기만 갈리고 안에는 같은 `DatePickerPanel` 이 들어갑니다.
+ * **시트에는 확인 버튼이 없습니다** — 한 번 누르면 끝나는데 버튼을 또 누르게 하면
+ * 번거롭습니다. 두 날짜를 골라야 하는 범위만 Footer 로 확정합니다 (Figma 의 Confirm 축).
+ * **시트에서는 입력창을 직접 칠 수 없습니다** — 키보드가 올라오면 달력을 덮습니다.
+ *
  * ### `w-full` 과 `w-fit` 은 주는 대상이 다릅니다
  *
  * `DatePicker` 냐 `DateRangePicker` 냐로 갈리지 않습니다 — 둘 다 같은 규칙입니다.
@@ -199,6 +212,13 @@ export interface DatePickerProps
   min?: Date;
   /** 고를 수 있는 가장 늦은 날. 경계는 포함입니다. */
   max?: Date;
+  /**
+   * 어떻게 열지. **기본은 `PointerModeProvider` 가 정합니다** — 손가락이면 시트,
+   * 마우스면 팝오버. 화면 하나만 예외로 두고 싶을 때만 직접 넘기세요.
+   */
+  overlay?: OverlayMode;
+  /** 시트를 문서·데모 틀 안에 가둘 때만. 보통은 `PointerModeProvider` 가 알려줍니다. */
+  container?: HTMLElement | null;
   /** 값이 없을 때 보여줄 문구. 비우면 형식에 맞춰 자동으로 붙습니다. */
   placeholder?: string;
 }
@@ -240,8 +260,18 @@ export function DatePicker({
   readOnly,
   className,
   onKeyDown,
+  overlay,
+  container,
   ...props
 }: DatePickerProps) {
+  const sheet = useOverlay(overlay) === "sheet";
+  /*
+    시트 머리글은 감싸고 있는 FormField 가 알려줍니다 — 안 그러면 같은 글자를 두 번
+    적어야 하고, 빠뜨리면 “날짜” 라는 기본값으로 조용히 밋밋해집니다
+    (MobileSelect · MobileDateRangePicker 와 같은 규칙)
+  */
+  const fieldLabel = useFormFieldLabel();
+  const heading = fieldLabel ?? "날짜";
   const [open, setOpen] = React.useState(false);
   const [month, setMonth] = React.useState<Date>(() => startOfMonth(value ?? new Date()));
   const size = PRECISION_DIGITS[precision];
@@ -335,6 +365,67 @@ export function DatePicker({
     setOpen(false);
   };
 
+  /*
+    달력은 한 벌입니다 — 껍데기(팝오버 vs 시트)만 갈립니다. 시트에서도 같은
+    DatePickerPanel 을 그대로 씁니다 (MobileSelect 가 목록을 다시 만들지 않는 것과 같은 규칙)
+  */
+  const panel = (
+    <DatePickerPanel
+      month={month}
+      onMonthChange={setMonth}
+      selected={value}
+      onSelect={pick}
+      precision={precision}
+      min={min}
+      max={max}
+      onClear={() => onValueChange(null)}
+    />
+  );
+
+  /*
+    **시트에는 확인 버튼이 없습니다.** 단일 날짜는 한 번 누르면 끝나는데 버튼을 또
+    누르게 하면 번거롭습니다 — 범위(MobileDateRangePicker)만 Footer 로 확정합니다.
+    Figma 의 Confirm 축과 같은 기준입니다.
+
+    입력창은 readOnly 입니다. 값은 달력으로 바꾸고, 시트에서 키보드가 올라오면
+    달력을 덮습니다 — MobileDateRangePicker 와 같습니다.
+  */
+  if (sheet) {
+    return (
+      <>
+        <Input
+          {...props}
+          readOnly
+          value={formatDigitsByPrecision(digits, precision)}
+          onChange={() => {}}
+          onClick={() => !disabled && !readOnly && setOpen(true)}
+          placeholder={placeholder ?? PLACEHOLDER[precision]}
+          disabled={disabled}
+          clearable={false}
+          // readOnly 는 키보드를 막으려고 준 것이라 Readonly 회색을 덮습니다
+          className={cn(
+            PICKER_WIDTH[precision],
+            "cursor-pointer border-input-border bg-input-surface",
+            className
+          )}
+          trailingIcon={
+            <span className="grid place-items-center text-icon-muted-foreground">
+              <Calendar />
+            </span>
+          }
+        />
+        <MobileSheet
+          open={open}
+          onOpenChange={setOpen}
+          title={heading}
+          container={container}
+        >
+          <div className="flex justify-center">{panel}</div>
+        </MobileSheet>
+      </>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
@@ -410,16 +501,7 @@ export function DatePicker({
         // 타이핑하던 사람이 흐름을 잃습니다. 달력은 Tab 으로 갑니다
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DatePickerPanel
-          month={month}
-          onMonthChange={setMonth}
-          selected={value}
-          onSelect={pick}
-          precision={precision}
-          min={min}
-          max={max}
-          onClear={() => onValueChange(null)}
-        />
+        {panel}
       </PopoverContent>
     </Popover>
   );

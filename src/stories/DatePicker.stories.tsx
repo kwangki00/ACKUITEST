@@ -6,6 +6,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addDays, addMonths, formatDate, startOfDay, startOfMonth } from "@/lib/date";
+import { PointerModeProvider } from "@/components/ui/pointer-mode";
 import { design, figma } from "./figma";
 
 /**
@@ -433,6 +434,71 @@ export const 폭: Story = {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * **같은 코드가 두 가지로 열립니다.** 왼쪽은 마우스라 팝오버, 오른쪽은 손가락이라
+ * 시트 — 앱 루트의 `PointerModeProvider` 가 정하고 **호출부는 아무 판단도 하지
+ * 않습니다.** `DateRangePicker` · `Select` · `ConfirmDialog` 와 같은 구조입니다.
+ *
+ * ### 달력은 한 벌입니다
+ *
+ * 껍데기만 갈리고 안에는 **같은 `DatePickerPanel`** 이 들어갑니다 — `MobileSelect` 가
+ * 목록을 다시 만들지 않는 것과 같은 규칙입니다. 두 벌로 두면 한쪽만 고쳐도 아무도
+ * 모릅니다.
+ *
+ * ### 시트에는 확인 버튼이 없습니다
+ *
+ * 단일 날짜는 **한 번 누르면 끝나는데** 버튼을 또 누르게 하면 번거롭습니다.
+ * 두 날짜를 골라야 하는 범위(`DateRangePicker`)만 시트 Footer 로 확정합니다 —
+ * Figma 의 `Confirm` 축과 같은 기준입니다.
+ *
+ * ### 시트에서는 입력창을 직접 칠 수 없습니다
+ *
+ * `readOnly` 로 두고 값은 달력으로 바꿉니다 — 키보드가 올라오면 달력을 덮습니다.
+ * 팝오버 쪽은 그대로 여덟 자리를 칠 수 있습니다.
+ */
+export const 오버레이: Story = {
+  name: "팝오버 · 시트",
+  decorators: [],
+  parameters: { layout: "padded" },
+  render: function Overlay(args) {
+    const [a, setA] = useState<Date | null>(startOfDay(new Date()));
+    const [b, setB] = useState<Date | null>(startOfDay(new Date()));
+    // 틀을 Provider 에 한 번만 알려주면 그 안의 시트가 따라옵니다
+    const [frame, setFrame] = useState<HTMLDivElement | null>(null);
+
+    return (
+      <div className="flex flex-wrap items-start gap-8">
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">마우스 — 팝오버가 트리거에 붙습니다</p>
+          <PointerModeProvider mode="mouse">
+            <FormField label="보고일" className="w-fit">
+              <DatePicker {...args} value={a} onValueChange={setA} />
+            </FormField>
+          </PointerModeProvider>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            손가락 — 시트가 아래에서 올라옵니다 (390 틀)
+          </p>
+          <PointerModeProvider mode="touch" container={frame}>
+            <div
+              ref={setFrame}
+              style={{ transform: "translateZ(0)" }}
+              className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+            >
+              {/* 시트 머리글은 이 라벨을 그대로 씁니다 — 같은 글자를 두 번 적지 않습니다 */}
+              <FormField label="보고일" className="w-fit">
+                <DatePicker {...args} value={b} onValueChange={setB} />
+              </FormField>
+            </div>
+          </PointerModeProvider>
         </div>
       </div>
     );
