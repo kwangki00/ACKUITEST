@@ -156,6 +156,24 @@ export function DatePickerPanel({
  * | day | 76 | 90 | 144 | **148** |
  * | month | 54 | 65 | 122 | **128** |
  * | year | 34 | 36 | 102 | **108** |
+ *
+ * ### `w-full` 과 `w-fit` 은 주는 대상이 다릅니다
+ *
+ * `DatePicker` 냐 `DateRangePicker` 냐로 갈리지 않습니다 — 둘 다 같은 규칙입니다.
+ *
+ * | 어디에 | 무슨 뜻 | 언제 |
+ * |---|---|---|
+ * | **컨트롤**에 `w-full` | 필드 **안에서** 칸을 채워라 | 격자 — 옆 칸과 폭을 맞출 때 |
+ * | **`FormField`** 에 `w-fit` | 필드 **자체가** 내용만큼만 | 가로 나열 — 한 줄에 여러 필드 |
+ * | 아무것도 안 줌 | 컨트롤은 기본 폭, 필드는 부모 폭 | 세로로 쌓는 보통 폼 |
+ *
+ * ```tsx
+ * <FormField label="보고일"><DatePicker className="w-full" … /></FormField>   // 격자
+ * <FormField label="보고일" className="w-fit"><DatePicker … /></FormField>    // 가로 나열
+ * ```
+ *
+ * `FormField` 는 기본이 `w-full` 이라 `flex flex-wrap` 줄에 그냥 넣으면 항목마다
+ * 100% 를 요구해 **한 줄에 하나씩 떨어집니다.**
  */
 const PICKER_WIDTH: Record<DatePrecision, string> = {
   day: "w-37",

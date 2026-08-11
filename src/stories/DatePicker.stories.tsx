@@ -330,6 +330,19 @@ export const 월연선택: Story = {
  *
  * 글자는 Pretendard 14 로 실측하고 4px 만 얹었습니다. **더 좁히면 값이 잘립니다** —
  * `<input>` 이 스크롤되면서 앞자리가 밀려 나갑니다.
+ *
+ * ### `w-full` 과 `w-fit` 은 주는 대상이 다릅니다
+ *
+ * `DatePicker` 냐 `DateRangePicker` 냐로 갈리지 않습니다 — 둘 다 같은 규칙입니다.
+ *
+ * | 어디에 | 무슨 뜻 | 언제 |
+ * |---|---|---|
+ * | **컨트롤**에 `w-full` | 필드 **안에서** 칸을 채워라 | 격자 — 옆 칸과 폭을 맞출 때 |
+ * | **`FormField`** 에 `w-fit` | 필드 **자체가** 내용만큼만 | 가로 나열 — 한 줄에 여러 필드 |
+ * | 아무것도 안 줌 | 컨트롤은 기본 폭, 필드는 부모 폭 | 세로로 쌓는 보통 폼 |
+ *
+ * `FormField` 는 기본이 `w-full` 입니다. `flex flex-wrap` 줄에 그냥 넣으면 항목마다
+ * 100% 를 요구해 **한 줄에 하나씩 떨어집니다** — 아래 세 번째 묶음에서 확인하세요.
  */
 export const 폭: Story = {
   name: "폭",
@@ -364,7 +377,32 @@ export const 폭: Story = {
 
         <div>
           <p className="mb-2 text-xs text-text-subtle">
-            격자에서는 <code>className=&quot;w-full&quot;</code> — 위는 준 것, 아래는 빠뜨린 것
+            가로 나열 — <code>FormField</code> 에 <code>w-fit</code>. 아래는 빠뜨린 것
+          </p>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-start gap-4 rounded-md border border-border-gray-light p-3">
+              <FormField label="보고일" className="w-fit">
+                <DatePicker value={a} onValueChange={setA} />
+              </FormField>
+              <FormField label="정산 월" className="w-fit">
+                <DatePicker precision="month" value={b} onValueChange={setB} />
+              </FormField>
+            </div>
+            {/* w-fit 이 없으면 FormField 가 100% 를 요구해 한 줄에 하나씩 떨어집니다 */}
+            <div className="flex flex-wrap items-start gap-4 rounded-md border border-border-danger p-3">
+              <FormField label="보고일">
+                <DatePicker value={a} onValueChange={setA} />
+              </FormField>
+              <FormField label="정산 월">
+                <DatePicker precision="month" value={b} onValueChange={setB} />
+              </FormField>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs text-text-subtle">
+            격자 — <strong>컨트롤</strong>에 <code>w-full</code>. 위는 준 것, 아래는 빠뜨린 것
           </p>
           <div className="grid w-[520px] grid-cols-2 gap-x-6 gap-y-4">
             <FormField label="검사 코드">
