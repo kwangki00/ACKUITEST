@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Card, CardBody, CardHeader, CardRow } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -59,13 +60,26 @@ export function PatientDetail({
 
   return (
     <Panel className="min-w-0 flex-1 overflow-y-auto">
-      <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-2">
-        <h2 className="text-lg font-bold text-text-basic">{patient.name}</h2>
-        <span className="text-sm text-text-subtle">차트번호 : {patient.chart}</span>
-        <span className="text-sm text-text-subtle">접수번호 : {patient.receipt}</span>
-        <span className="text-sm text-text-basic">{patient.sex}</span>
-        <span className="text-sm text-text-basic">{patient.age}세</span>
-        <Badge tone="warning" size="sm" styleVariant="outline">
+      {/*
+        이름 줄 — Figma `ResultList` 의 규격입니다 (2026-08-12).
+        이름 16 SemiBold · 항목 사이 gap 10 · **세로선 12px `Divider/Gray`**.
+
+        선이 없으면 「차트번호 : 2312350 접수번호 : …」가 한 덩어리로 읽혀서
+        어디서 끊어야 할지 눈이 매번 찾습니다. 값과 값 사이를 여백만으로 벌리려면
+        간격을 크게 잡아야 하는데, 그러면 줄이 화면을 가로질러 길어집니다.
+      */}
+      <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-2.5 gap-y-2">
+        <h2 className="text-base font-semibold text-text-basic">{patient.name}</h2>
+        <NameDivider />
+        <PatientMeta label="차트번호">{patient.chart}</PatientMeta>
+        <NameDivider />
+        <PatientMeta label="접수번호">{patient.receipt}</PatientMeta>
+        <NameDivider />
+        <span className="text-sm font-medium text-text-basic">{patient.sex}</span>
+        <NameDivider />
+        <span className="text-sm font-medium text-text-basic">{patient.age}세</span>
+        {/* 이름 줄에서 유일한 상태 표시라 한 단계 큽니다 — sm(20)은 이름 옆에서 묻힙니다 */}
+        <Badge tone="warning" size="default" styleVariant="outline">
           {DONE[patient.done].label}
         </Badge>
 
@@ -138,10 +152,19 @@ export function PatientDetail({
         </div>
       </div>
 
-      {/* 늘 보는 값이라 Card 입니다 — 여백이 필요한 내용 블록입니다 */}
+      {/*
+        늘 보는 값이라 Card 입니다 — 여백이 필요한 내용 블록입니다.
+
+        **`size="sm"` 은 라이브러리 `Card Size=sm` 그대로**입니다 (2026-08-12) —
+        제목 14 · 라벨·값 12 · 여백 16. `default`(제목 16 · 글자 14 · 여백 20)는
+        이 자리에 과했습니다. 색은 원래부터 `Card/Label` · `Card/Value` 라 그대로입니다.
+
+        화면 목업(`ResultList`)은 라벨 12 / 값 14 에 라벨 색도 `#364153` 인데,
+        **라이브러리 어느 사이즈에도 없는 조합**이라 따르지 않았습니다.
+      */}
       {open && (
         <div className="grid shrink-0 gap-3 lg:grid-cols-3">
-          <Card variant="filled">
+          <Card variant="filled" size="sm">
             <CardHeader title="접수정보" />
             <CardBody>
               <CardRow label="접수일">{patient.date}</CardRow>
@@ -150,7 +173,7 @@ export function PatientDetail({
               <CardRow label="차트번호">{patient.chart}</CardRow>
             </CardBody>
           </Card>
-          <Card variant="filled">
+          <Card variant="filled" size="sm">
             <CardHeader title="개인정보" />
             <CardBody>
               <CardRow label="주민등록번호">950203-2******</CardRow>
@@ -158,7 +181,7 @@ export function PatientDetail({
               <CardRow label="나이">{patient.age}</CardRow>
             </CardBody>
           </Card>
-          <Card variant="filled">
+          <Card variant="filled" size="sm">
             <CardHeader title="검사정보" />
             <CardBody>
               <CardRow label="검사명">Vaginal</CardRow>
@@ -221,5 +244,32 @@ export function PatientDetail({
         </Table>
       </TableFrame>
     </Panel>
+  );
+}
+
+/* ------------------------------------------------- 이름 줄 부품 */
+
+/**
+ * 이름 줄의 세로 구분선 — **12px · `Divider/Gray`** (Figma `ResultList`).
+ *
+ * `Separator` 의 기본 색(`Separator/Line` #e5e7eb)은 이 줄에서 거의 안 보입니다.
+ * 글자 사이에 서는 선이라 표를 나누는 선보다 진해야 합니다.
+ */
+function NameDivider() {
+  return <Separator direction="vertical" className="h-3 bg-divider-gray" />;
+}
+
+/**
+ * 「차트번호 : 2312350」처럼 **라벨과 값의 크기·색이 갈리는** 한 덩어리.
+ *
+ * 통짜 문자열로 두면 라벨까지 값과 같은 크기가 되어, 훑을 때 숫자가 안 잡힙니다.
+ * 라벨 12 · 값 14 는 정보 카드(`CardRow`)와 같은 규칙입니다.
+ */
+function PatientMeta({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <span className="flex items-baseline gap-1">
+      <span className="text-xs text-text-muted-foreground">{label} :</span>
+      <span className="text-sm font-medium text-text-basic">{children}</span>
+    </span>
   );
 }
