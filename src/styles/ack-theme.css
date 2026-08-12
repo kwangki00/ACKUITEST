@@ -9,7 +9,9 @@
    디자인 시스템은 토큰 전체가 존재해야 하므로 트리셰이킹을 끕니다. */
 @theme static {
   /* ---------- Font ---------- */
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+  /* 정적 Pretendard 가 앞입니다 — Variable 을 앞에 두면 로컬에 설치된 Variable 이
+     우리가 부른 정적을 이겨서 Figma 와 다시 갈립니다 (2026-08-12) */
+  --font-sans: Pretendard, "Pretendard Variable", -apple-system, BlinkMacSystemFont,
     system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
     "Noto Sans KR", "Malgun Gothic", sans-serif;
 
