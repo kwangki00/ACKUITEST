@@ -13,6 +13,22 @@ export const DONE = {
 
 export type DoneKey = keyof typeof DONE;
 
+/**
+ * 완료여부와 **다른 축**입니다 — 그 결과가 있는지를 알리는 표식입니다.
+ * Figma 화면의 범례가 여섯 칸인 것은 이 둘이 뒤에 붙기 때문입니다.
+ *
+ * **`DONE` 에 합치지 않습니다.** 완료여부는 넷 중 하나를 고르는 값이고
+ * 이것은 있고 없고라, 한 목록에 섞으면 점 하나가 두 가지를 뜻하게 됩니다.
+ *
+ * `P` 의 보라는 **디자인 시스템에 없는 색**입니다 — 브랜드 8램프에 보라가 없어
+ * Figma 화면이 Tailwind 색을 직접 참조하고 있었습니다. Semantic 토큰을 만들지
+ * 결정이 필요합니다 (2026-08-12).
+ */
+export const MARKS = {
+  p: { label: "P: 검진결과 유무", cls: "bg-purple-500" },
+  s: { label: "S: 스페셜결과 유무", cls: "bg-icon-secondary" },
+} as const;
+
 export interface Patient {
   no: number;
   /** 묶음 접수 — 순번 대신 폴더 아이콘이 나옵니다. */

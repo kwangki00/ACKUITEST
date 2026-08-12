@@ -89,7 +89,14 @@ export function TableFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("overflow-y-auto rounded-md border border-table-border", className)}>
+    /* 흰 바탕은 표가 짧을 때를 위한 것입니다 — 표 자체도 흰색이지만 마지막 행 아래는
+       표의 바깥이라, 안 칠하면 그 자리에만 판의 회색이 남습니다 */
+    <div
+      className={cn(
+        "overflow-y-auto rounded-md border border-table-border bg-table-row-surface",
+        className
+      )}
+    >
       {children}
     </div>
   );

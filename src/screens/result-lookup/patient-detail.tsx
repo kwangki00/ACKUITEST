@@ -74,12 +74,30 @@ export function PatientDetail({
             <UserSearch />
             검사이력조회
           </Button>
-          <Button variant="outline" size="sm" disabled={!onPrev} onClick={onPrev}>
+          {/*
+            **아이콘만 남깁니다** (2026-08-12). 환자 이름 옆의 좌우 화살표는 무엇을
+            하는지 그 자체로 읽히고, 툴바에서 가장 자주 누르는 둘이라 폭을 줄이는
+            값이 큽니다.
+
+            **`aria-label` 은 필수입니다** — 화면에 글자가 없으면 보조기술이 읽을
+            것이 아무것도 없습니다. 아이콘 전용 크기는 라벨이 없으면 타입이 막습니다.
+          */}
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label="이전환자"
+            disabled={!onPrev}
+            onClick={onPrev}
+          >
             <ChevronLeft />
-            이전환자
           </Button>
-          <Button variant="outline" size="sm" disabled={!onNext} onClick={onNext}>
-            다음환자
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label="다음환자"
+            disabled={!onNext}
+            onClick={onNext}
+          >
             <ChevronRight />
           </Button>
           <Button variant="ghost" size="icon-sm" aria-label="다운로드">
