@@ -61,9 +61,12 @@ export function SectionTitle({
   return (
     <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
       <span className="text-base font-semibold text-table-text">{title}</span>
-      {/* 톤은 늘 neutral 입니다. 건수에 색을 주면 상태처럼 읽힙니다 */}
+      {/*
+        톤은 늘 neutral 입니다. 건수에 색을 주면 상태처럼 읽힙니다.
+        크기는 default(12) — 옆에 나란히 서는 범례가 12 라 sm(10)이면 혼자 작습니다
+      */}
       {count && (
-        <Badge tone="neutral" size="sm">
+        <Badge tone="neutral" size="default">
           {count}
         </Badge>
       )}
