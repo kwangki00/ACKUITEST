@@ -64,20 +64,56 @@ Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 
 
 ---
 
-## 글꼴 — Figma 와 같은 조건으로
+## 글꼴 — Noto Sans KR
 
-**Pretendard 정적(static) 빌드**를 씁니다 (2026-08-12). Figma 는 **설치된 정적 글꼴**을 쓰므로 그래야 같은 조건이 됩니다.
+**Noto Sans KR** 을 씁니다 (2026-08-12). Google Fonts 에서 **굵기 넷**(400 · 500 · 600 · 700)만 받습니다.
 
-- **Variable 을 쓰면 갈립니다** — 400 을 보간으로 만들어 내서 힌팅이 달라집니다. 같은 Regular 인데 웹에서만 조금 다르게 보였습니다. `dist/web/variable/…` → `dist/web/static/…` 로 바꿨습니다
-- **`dynamic-subset` 은 유지합니다** — 한글 전체를 담은 정적 파일은 굵기당 1MB 가 넘어 네 굵기만 써도 4MB 입니다. 쓰는 글자만 내려받는 쪽이 맞습니다
-- **스택에서 `Pretendard` 가 앞**입니다. `"Pretendard Variable"` 을 앞에 두면 **로컬에 설치된 Variable 이 우리가 부른 정적을 이겨서** 다시 갈립니다
+### 왜 Pretendard 에서 바꿨나
+
+**Windows Chrome 에서 작은 크기의 한글이 흐리고 깨져 보였습니다.** 브라우저는 ClearType 서브픽셀로 그리는데 Pretendard 웹 빌드의 힌팅이 그 조건을 못 버팁니다. Figma 는 자체 렌더러라 매끈해서 **같은 Regular 인데 웹에서만** 그랬습니다.
+
+같은 날 이런 것들을 먼저 시도했고, 전부 원인을 못 없앴습니다.
+
+| 시도 | 결과 |
+|---|---|
+| Variable → **정적** 빌드 | 힌팅 보간 문제는 사라졌지만 깨짐은 남음 |
+| `-webkit-font-smoothing: antialiased` | **Windows 에서는 아무 일도 안 합니다** (macOS 전용) |
+| `will-change: transform` 으로 그레이스케일 강제 | 효과는 있지만 화면 전체가 GPU 레이어로 올라가고 더 흐려 보입니다 |
+| **굵기 올리기** | 글꼴 교체와 **함께** 씁니다 — 10px 은 여전히 흐려서 기본을 SemiBold 로 올렸습니다 |
+
+**굵기만으로는 안 됩니다** — 12px 까지 올리면 `FormField` 의 설명·에러가 굵어져 14 라벨과의 위계가 흐려지고, 10px 을 올리면 굵기로 상태를 알리던 곳이 딸려 무너집니다. 원인(글꼴)을 바꾸고, 굵기는 **가장 작은 크기 하나만** 손봤습니다.
+
+### 10px 만 기본 굵기가 SemiBold 입니다
+
+한글은 획이 많아 이 크기에서 먼저 뭉갭니다. Medium 으로 먼저 올렸다가 **여전히 흐려서 한 단계 더** 갔습니다. **크기 토큰이 굵기를 함께 갖습니다** — `--text-2xs--font-weight: 600` (Tailwind 4 기능).
+
+- **호출부에서 손으로 붙이지 마세요.** 10px 을 쓰는 일곱 곳 중 `DropdownMenu` 한 곳만 `font-medium` 이 붙어 있었습니다 — 손으로 시키면 반드시 빠집니다
+- **덮어야 하면 `font-bold` · `font-normal`.** 유틸리티가 `--tw-font-weight` 를 세우고 토큰은 fallback 이라 **덮은 쪽이 이깁니다**
+- **12px 은 그대로 Regular** 입니다. 함께 올리면 `FormField` 의 설명·에러(12)가 굵어져 14 라벨과의 위계가 흐려집니다
+
+#### 굵기로 상태를 알리던 곳은 한 단계씩 밀립니다
+
+`MBottomTabBar` 의 활성이 SemiBold → **Bold** 가 되었습니다. 비활성이 기본값(SemiBold)을 받으므로 그대로 두면 **둘이 같아져 색만 남고**, 색각 이상에서는 어느 탭에 있는지 알 수 없게 됩니다.
+
+`TabItem` 은 영향이 없습니다 — 라벨이 `text-xs`(12)이고 활성·비활성 굵기를 **둘 다 명시**하고 있어 토큰이 끼어들 자리가 없습니다. 안의 건수만 10px 이라 항상 SemiBold 가 되는데, 그건 상태를 알리는 값이 아닙니다.
+
+### 규칙
+
+- **Variable 을 쓰지 않습니다** — `wght@100..900` 대신 `wght@400;500;600;700`. 보간으로 만든 400 은 힌팅이 달라져 Figma 의 설치 글꼴과 갈립니다 (Pretendard 때 겪은 것과 같습니다)
+- **스택 맨 앞이 한글 글꼴**입니다. 라틴을 다른 글꼴에 물리면 밑선과 굵기가 미묘하게 어긋납니다
 - **`src/index.css` 한 곳에서 부릅니다.** 앱과 Storybook 이 둘 다 이 파일을 import 하므로 여기만 지키면 됩니다
   - 처음에는 `index.html` 에만 걸었는데 **Storybook 은 `index.html` 을 쓰지 않아서** 스토리 전부가 대체 글꼴(Segoe UI · 맑은 고딕)로 그려지고 있었습니다. 자간·굵기가 전부 달라지는데 **화면은 멀쩡해 보여서 알아채기 어렵습니다**
   - HTML 두 곳에 나눠 걸어 고쳤다가, **또 어긋날 자리**라 CSS 한 곳으로 옮겼습니다 (2026-08-12). `@import` 는 다른 규칙보다 앞에 와야 합니다
   - 대신 HTML `<link>` 보다 **발견이 한 박자 늦습니다** — 브라우저가 CSS 를 받아 파싱해야 폰트 주소를 압니다. 테스트 앱이라 그 값을 치르고 한 곳을 택했습니다
-- **바꿔도 반영이 안 되면 개발 서버를 다시 띄우세요.** `index.css` 의 `@import` 는 Vite 가 CSS 를 다시 만들어야 반영되고, 브라우저가 옛 CSS 를 캐시하고 있으면 강력 새로고침(`Ctrl+Shift+R`)이 필요합니다. **DevTools → Elements → Computed 맨 아래 「Rendered Fonts」** 에 실제로 그린 글꼴 이름이 나옵니다 — 거기가 `Pretendard` 가 아니면 아직 안 받은 것입니다
+- **바꿔도 반영이 안 되면 개발 서버를 다시 띄우세요.** `index.css` 의 `@import` 는 Vite 가 CSS 를 다시 만들어야 반영되고, 브라우저가 옛 CSS 를 캐시하고 있으면 강력 새로고침(`Ctrl+Shift+R`)이 필요합니다. **DevTools → Elements → Computed 맨 아래 「Rendered Fonts」** 에 실제로 그린 글꼴 이름이 나옵니다 — 거기가 `Noto Sans KR` 이 아니면 아직 안 받은 것입니다
 - **여기까지 해도 픽셀은 같지 않습니다.** 브라우저는 OS 래스터라이저(Windows 는 ClearType 서브픽셀)로 그리고 Figma 는 자체 렌더러라 안티에일리어싱이 다릅니다. 글자 모양·굵기는 맞고 가장자리 느낌만 남습니다
   - `-webkit-font-smoothing: antialiased`(`index.css`)는 **macOS 에만** 걸립니다. Windows 에서는 아무 일도 하지 않습니다
+
+### 글꼴을 바꾸면 폭이 따라옵니다
+
+**`DatePicker` · `DateRangePicker` 의 입력창 폭(148 · 248 …)은 Pretendard 14 로 실측한 값**입니다. 글꼴이 바뀌면 그 근거가 무효라, 값이 잘리면 여기부터 보세요 (`date-picker.tsx` · `date-range-picker.tsx` 의 `PICKER_WIDTH`).
+
+폭을 컴포넌트가 갖는 컨트롤은 이 둘뿐이라 확인할 자리도 둘뿐입니다 — 나머지는 부모가 폭을 정합니다.
 
 ## 토큰 — 가장 중요한 규칙
 

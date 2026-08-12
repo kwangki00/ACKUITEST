@@ -108,8 +108,12 @@ function Tab({
       {icon}
       <span
         className={cn(
+          // text-2xs 는 기본이 SemiBold 입니다 — 비활성이 그 값이고, 활성은 한 단계
+          // 위인 Bold 로 갈라집니다. 예전에는 Regular ↔ SemiBold 였는데 10px 이
+          // 흐려서 기본을 올렸고(2026-08-12), 그대로 두면 둘이 같아져 굵기 축이
+          // 사라집니다 — 색만 남으면 색각 이상에서 구분되지 않습니다
           "text-2xs",
-          active ? "font-semibold text-text-primary" : "text-text-subtle"
+          active ? "font-bold text-text-primary" : "text-text-subtle"
         )}
       >
         {label}

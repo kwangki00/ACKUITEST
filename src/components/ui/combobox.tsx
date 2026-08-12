@@ -384,7 +384,8 @@ function PopoverCombobox({
                 </Chip>
               ))}
               {rest > 0 && (
-                <span className="shrink-0 pl-0.5 text-xs font-medium text-text-muted-foreground">
+                // font-medium 을 적지 않습니다 — text-xs 가 기본으로 SemiBold 입니다
+                <span className="shrink-0 pl-0.5 text-xs text-text-muted-foreground">
                   +{rest}
                 </span>
               )}

@@ -140,7 +140,11 @@ function About() {
               "Tabs · Combobox · DatePicker 는 새 의존성 없이 직접 만들었습니다",
             ],
             ["lucide", "아이콘 201", "코드에서 같은 이름으로 import 합니다"],
-            ["Pretendard", "본문 글꼴", "한글이 많아 12px 에서 먼저 뭉갭니다 — 본문 14 가 기본"],
+            [
+              "Noto Sans KR",
+              "본문 글꼴",
+              "한글이 많아 12px 에서 먼저 뭉갭니다 — 본문 14 가 기본. 2026-08-12 에 Pretendard 에서 바꿨습니다",
+            ],
             ["React Hook Form + Zod", "폼 검증", <>에러는 검증 결과로 자동 — <B>손으로 켜지 마세요</B></>],
           ]}
         />

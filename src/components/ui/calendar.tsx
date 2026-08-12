@@ -379,7 +379,8 @@ export function CalendarMonth({
               key={w}
               role="columnheader"
               className={cn(
-                "grid w-[var(--h-calendar-cell)] place-items-center py-0.5 text-xs font-medium",
+                // font-medium 을 적지 않습니다 — text-xs 가 기본으로 SemiBold 입니다
+                "grid w-[var(--h-calendar-cell)] place-items-center py-0.5 text-xs",
                 // 일요일만 빨강입니다. 토요일은 평일과 같습니다 — Figma 도 그렇습니다
                 i === 0 ? "text-cal-text-weekend" : "text-cal-header-text"
               )}

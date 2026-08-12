@@ -63,10 +63,11 @@ const TooltipContent = React.forwardRef<
       // 화살표가 6 만큼 튀어나오므로 그만큼 더 띄웁니다 — 안 그러면 촉이 트리거에 박힙니다
       sideOffset={sideOffset ?? (arrow ? 6 : 4)}
       className={cn(
-        // 여백 10/6 · 반경 6 · 12 Medium — Figma 값 그대로입니다.
-        // 그림자는 없습니다. 어두운 바탕(대비 16.98:1)이 이미 배경과 분리됩니다
+        // 여백 10/6 · 반경 6 — Figma 값 그대로입니다.
+        // 그림자는 없습니다. 어두운 바탕(대비 16.98:1)이 이미 배경과 분리됩니다.
+        // 굵기는 적지 않습니다 — text-xs 가 기본으로 SemiBold 입니다 (Figma 는 Medium)
         "z-50 rounded-md bg-tooltip-surface px-2.5 py-1.5",
-        "text-xs font-medium text-tooltip-text",
+        "text-xs text-tooltip-text",
         // 말풍선이 화면을 가로지르지 않게. 한 줄 라벨용이라 좁게 잡습니다
         "max-w-56",
         // Popover 와 같은 등장 — 열린 방향에서 짧게 밀려나옵니다

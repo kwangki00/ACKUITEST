@@ -1,6 +1,15 @@
 /*
-  Pretendard **정적(static)** 빌드. Figma 는 설치된 정적 글꼴을 쓰므로 같은 조건이
-  됩니다 — Variable 은 400 을 보간으로 만들어 내서 힌팅이 달라집니다.
+  **Noto Sans KR** 입니다 (2026-08-12. 그전에는 Pretendard).
+
+  Pretendard 는 Windows Chrome 에서 작은 크기의 한글이 흐리고 깨져 보였습니다 —
+  ClearType 서브픽셀로 그리는데 힌팅이 그 조건을 견디지 못했습니다. 10px·12px 의
+  기본 굵기를 올려 덮어보려 했지만 그건 증상을 가리는 것이라 되돌리고,
+  **작은 크기에서 잘 버티는 글꼴로 바꿨습니다.** Noto Sans KR 은 Google 이 힌팅을
+  손본 글꼴이라 Windows 래스터라이저에서 안정적입니다.
+
+  굵기는 **넷만** 받습니다 (400·500·600·700) — 디자인 시스템이 쓰는 전부입니다.
+  Variable(`wght@100..900`)을 쓰지 않는 이유는 Pretendard 때와 같습니다: 보간으로
+  만든 400 은 힌팅이 달라져 Figma 의 설치 글꼴과 갈립니다.
 
   **여기서 부릅니다.** index.html 과 .storybook/preview-head.html 에 나눠 걸면
   하나가 빠져도 화면은 멀쩡해 보입니다 — 실제로 Storybook 쪽이 빠져 있어서 스토리
@@ -9,7 +18,7 @@
 
   @import 는 다른 규칙보다 앞에 와야 합니다.
 */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "./styles/ack-theme.css";
 

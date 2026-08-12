@@ -144,7 +144,8 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Label
     ref={ref}
-    className={cn("px-3 py-1.5 text-2xs font-medium text-text-muted-foreground", className)}
+    // font-medium 을 적지 않습니다 — text-2xs 가 기본으로 SemiBold 입니다
+    className={cn("px-3 py-1.5 text-2xs text-text-muted-foreground", className)}
     {...props}
   />
 ));

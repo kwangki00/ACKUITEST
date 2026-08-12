@@ -9,11 +9,12 @@
    디자인 시스템은 토큰 전체가 존재해야 하므로 트리셰이킹을 끕니다. */
 @theme static {
   /* ---------- Font ---------- */
-  /* 정적 Pretendard 가 앞입니다 — Variable 을 앞에 두면 로컬에 설치된 Variable 이
-     우리가 부른 정적을 이겨서 Figma 와 다시 갈립니다 (2026-08-12) */
-  --font-sans: Pretendard, "Pretendard Variable", -apple-system, BlinkMacSystemFont,
-    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
-    "Noto Sans KR", "Malgun Gothic", sans-serif;
+  /* Noto Sans KR 입니다 (2026-08-12. 그전에는 Pretendard) — Windows Chrome 에서
+     작은 크기의 한글이 흐리고 깨져 보여 바꿨습니다. 근거는 src/index.css 머리말.
+     맨 앞이 한글 글꼴이라 라틴 글자도 같은 글꼴이 그립니다 — 둘을 나눠 물리면
+     밑선과 굵기가 미묘하게 어긋납니다. */
+  --font-sans: "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 
   /* ---------- Font Size (Primitive) ----------
      행간은 xl 까지 140%, 2xl 부터 130% 입니다 — 제목은 촘촘해야 덩어리로 읽힙니다.
@@ -21,9 +22,20 @@
   --text-2xs: 10px;
   --text-2xs--line-height: 1.4;
   --text-2xs--letter-spacing: -0.01em;
+  /* 10px 만 기본이 SemiBold 입니다 (2026-08-12) — 한글은 획이 많아 이 크기에서 먼저
+     뭉개집니다. Medium 으로 먼저 올려봤지만 여전히 흐렸습니다.
+     크기 토큰이 굵기를 갖는 것은 Tailwind 4 기능이라, 호출부에서 손으로 font-medium 을
+     붙이는 방식이면 반드시 빠집니다 (실제로 DropdownMenu 한 곳만 붙어 있었습니다).
+     덮어야 하면 font-bold · font-normal 로 — 유틸리티가 --tw-font-weight 를 세우고
+     이 값은 fallback 이라 덮은 쪽이 이깁니다.
+     굵기로 활성을 알리던 MBottomTabBar 는 활성을 Bold 로 한 단계 올렸습니다. */
+  --text-2xs--font-weight: 600;
   --text-xs: 12px;
   --text-xs--line-height: 1.4;
   --text-xs--letter-spacing: -0.015em;
+  /* 12px 도 SemiBold 입니다 (2026-08-12) — 10px 과 같은 이유입니다.
+     14px 부터는 Regular 이라, 작은 두 크기만 굵기로 버팁니다. */
+  --text-xs--font-weight: 600;
   --text-sm: 14px;
   --text-sm--line-height: 1.4;
   --text-sm--letter-spacing: -0.02em;
