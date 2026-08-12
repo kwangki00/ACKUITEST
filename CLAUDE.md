@@ -50,13 +50,15 @@ MobileDateRangePicker · MobileListCard · MobileListHeader
 MBottomTabBar · MobileTop · MobileMenuScreen · MobileMenuContent
 Sidebar · SidebarItem · Tabs · TabItem · TabPanel
 Lookup · LookupPanel · LookupRow · FilterBar · EmptyState
-DropdownMenu · SidebarGroup · Accordion
+DropdownMenu · SidebarGroup · Accordion · DataTable
 ```
 
 **Input · Selection Controls · Loading & Divider · Chip & Badge 페이지는 전부 옮겼습니다.**
 Table 페이지도 AccordionItem 을 뺀 나머지가 끝났습니다.
 
 **Radix 는 Popover · Tooltip · Dialog · Toast · DropdownMenu · Accordion 여섯을 들였습니다** (`@radix-ui/react-popover` · `-tooltip` · `-dialog` · `-toast` · `-dropdown-menu` · `-accordion`). **Combobox 는 새 의존성 없이** Popover + Input + ListItem 조립으로 만들었습니다. **DatePicker 도 새 의존성 없이** 만들었습니다 (`react-day-picker` 를 쓰지 않았습니다 — 아래 근거). `Lookup` · `Tabs` 도 새 의존성 없이 만들었습니다 (2026-08-07). **코드로 옮길 컴포넌트는 다 끝났습니다** (2026-08-11).
+
+**`@tanstack/react-table` 은 2026-08-12 에 들였습니다** — 표의 정렬·선택·페이지네이션 **계산**만 맡깁니다. headless 라 마크업을 만들지 않아서 `Table` 프리미티브는 그대로 두고 `DataTable` 완성형만 새로 만들었습니다 (아래 근거). **v9 라 인터넷 예제(대부분 v8)가 그대로 안 됩니다.**
 
 Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 설정과 자체 토큰 이름(`bg-popover` 등)을 끌고 오는데, 어차피 색을 전부 갈아끼워야 해서 손해입니다. 프리미티브만 설치하고 컴포넌트는 직접 씁니다.
 
@@ -154,6 +156,23 @@ var(--color-gray-300) 안 됨  — 변수가 CSS 에 없음
 
 그래서 회색이 필요하면 `gray` 를 직접 쓰지 말고 Semantic 을 쓰세요. 규칙상으로도 그게 맞습니다.
 
+### `text-text-basic` — 접두사가 두 번인 것은 오타가 아닙니다
+
+Tailwind 는 **유틸리티 접두사와 토큰 이름을 각각** 붙입니다. 토큰 이름이 `text-` 로 시작하면 두 번 나옵니다.
+
+```
+--color-text-basic          →  text-text-basic            글자색
+                            →  bg-text-basic              같은 색을 배경으로
+--color-border-gray-light   →  border-border-gray-light
+--color-background-white    →  bg-background-white
+```
+
+겹치는 그룹은 셋입니다 — `text` 21개 · `border` 21개 · `background` 5개.
+
+**이름은 Figma 에서 왔습니다** (`Text/Basic` · `Border/Gray-Light` · `Background/White`). 짧게 줄이면(`--color-fg-basic`) 클래스는 나아지지만 **Figma 변수 이름과 갈립니다** — 이 저장소는 그 1:1 대응을 규칙으로 삼고 있어서, 변수 이름을 그대로 읽으면 클래스가 나오는 쪽을 택했습니다.
+
+**축이 갈릴 때 오히려 이득입니다** — 글자색으로 정의한 값을 배경에 써야 할 때가 있는데, `fg-` 였으면 `bg-fg-basic` 이 되어 더 이상합니다.
+
 ### 반응형은 CSS 변수 + 미디어쿼리
 
 Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈립니다.**
@@ -186,6 +205,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 - **`outline` 테두리는 `Button/Tertiary-Fill-Border`** 입니다. Figma 는 값이 같은 `Border/Gray`(둘 다 gray/300)에 묶고 있었는데, 버튼 전용 이름을 쓰는 쪽이 나중에 버튼 테두리만 바꿀 때 안전해서 Figma 를 코드에 맞췄습니다 (2026-08-07, Default 16변형. Disabled 는 `Button/Disabled-Border` 그대로)
 - **로딩은 비활성이 아닙니다** — Figma 가 `Loading` 을 `State` 와 별개 축으로 둔 이유입니다. "지금 처리 중" 과 "지금은 누를 수 없음" 은 다른 이야기고, 회색으로 변하면 눌러서 시작한 동작이 취소된 것처럼 보입니다. 코드는 `disabled` 속성을 켜지 않고 `aria-disabled` · `aria-busy` + `pointer-events-none` 으로 색을 지키면서 누르기만 막습니다. 키보드 Enter 는 `onClick` 에서 끊습니다 — 폼 안이면 제출까지 이어집니다 (2026-08-07 수정. 그전에는 `disabled={disabled || loading}` 이라 로딩만으로 회색이 됐습니다)
 - **아이콘 전용 크기는 `aria-label` 이 없으면 컴파일되지 않습니다** — 화면에 글자가 없어서 라벨을 빠뜨리면 보조기술이 읽을 것이 아무것도 없습니다. Figma 문서에는 원래 "필수" 라고 적혀 있었지만 코드가 강제하지 않아 빠뜨려도 통과했습니다 (2026-08-07 타입 유니온으로 막음). `size` 를 변수로 넘기면 타입이 좁혀지지 않아 항상 라벨을 요구합니다 — 어떤 크기가 올지 모른다는 뜻이니 그게 맞습니다
+- **`type` 기본은 `button` 입니다** (2026-08-12). HTML 기본값은 `submit` 이라 폼 안에 놓기만 해도 누르는 순간 제출됩니다 — 「취소」·「조건 변경」처럼 제출과 상관없는 버튼이 폼에 들어가는 날 조용히 터집니다. `{...props}` 보다 앞에 두었으니 **진짜 제출 버튼은 `type="submit"` 을 적어서** 이깁니다
 - **`asChild` 는 없습니다** — Figma 문서에 "asChild 로 Link 를 감싸면" 이라 적혀 있었지만 구현된 적이 없습니다. 쓸 자리가 생기면 `@radix-ui/react-slot` 을 들여 추가하기로 하고, 문서를 코드에 맞췄습니다 (2026-08-07)
 - **`link` 만 좌우 여백이 0** 입니다 — 글자 자체가 누름 대상이라 여백이 있으면 밑줄과 클릭 영역이 어긋나 보입니다. `size` 의 `px-*` 를 이겨야 해서 `compoundVariants` 에 둡니다
 
@@ -247,11 +267,56 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 ### Table
 
 - **헤더·본문 글자 모두 14** — 굵기로만 구분합니다
+- **표면은 표가 스스로 칠합니다** (2026-08-12). Figma 의 `TableCell` 기본 채움이 `Table/Row-Surface`(흰색)이고 머리칸만 `Table/Header-Surface`(gray/100)입니다
+
+  | | 색 | 어디에 |
+  |---|---|---|
+  | 몸통 | `Table/Row-Surface` **#ffffff** | `<table>` |
+  | 머리 | `Table/Header-Surface` **#f3f4f6** | `<thead>` — 위를 덮습니다 |
+  | 머리 hover | `Table/Border` **#e5e7eb** | Figma 도 border 토큰에 묶여 있습니다 |
+  | 몸통 hover · 선택 | `Table/Row-Hover` · `Table/Row-Selected` | `<tr>` |
+
+  - **그전에는 흰색이 아예 없었습니다** — 행이 투명이라 뒤 배경이 비쳤습니다. 스토리는 감싸는 div 에 `bg-table-row-surface` 를 손으로 발라 가리고 있었고, 그래서 **스토리에서는 멀쩡해 보였습니다.** 화면에 그냥 놓으면 회색이 올라옵니다
+  - **표가 짧으면 마지막 행 아래는 표의 바깥**입니다. 담는 자리(`TableFrame`)에도 흰 바탕을 주세요
+- **머리줄에는 hover·선택 배경이 없습니다.** `TableRow` 가 머리·몸통 양쪽에 쓰이는데, 컨텍스트로 어느 쪽인지 알려줍니다 — 줄마다 `header` 를 넘기게 하면 하나만 빠뜨려도 그 표의 머리줄이 마우스에 반응합니다 (`SidebarCollapsedContext` 와 같은 이유). 아래 선도 머리줄은 긋지 않습니다 — `TableHead` 가 `Border-Strong` 으로 긋고 **칸의 테두리가 줄의 테두리를 이깁니다**
 - **페이지네이션과 스크롤 둘 다 씁니다** — 건수는 툴바에 표시합니다. 한 화면에서 훑는 목록은 스크롤, 건수가 많고 "몇 번째 페이지를 보고 있었는지"를 기억해야 하면 페이지네이션 (2026-08-06 방침 변경 — 이전에는 스크롤만이었습니다)
 - **헤더 행은 스크롤 영역 밖에** — 스크롤해도 열 이름이 남아야 합니다
 - 편집·삭제는 행이 선택됐을 때만 보입니다. 선택 없이 편집 버튼이 있으면 눌러도 아무 일이 없습니다
 - **건수는 칩입니다** (`TableToolbar` 의 `count`). 제목 옆 회색 글자로 두면 부제처럼 읽혀 세는 값이라는 게 흐려집니다. 선택이 있으면 `총 13건 / 3건 선택됨` 처럼 **한 칩에** 적습니다 — 둘로 나누면 어느 쪽이 전체인지 매번 읽어야 합니다. 톤은 늘 neutral (2026-08-07 수정, 그전에는 그냥 텍스트였습니다)
 - **정렬은 `TableHead` 의 `sort` · `onSortChange`** 입니다. **정렬할 수 있는 열에만** 넘기세요 — 불가능한 열에 화살표가 보이면 사용자가 눌러 봅니다. 정렬되지 않은 열의 화살표는 **hover 에서만** 나타납니다 (늘 보이면 어느 열이 정렬됐는지 흐려지고, 없으면 정렬되는 줄 모릅니다). `aria-sort` 도 함께 나갑니다 (2026-08-07 추가 — 그전에는 정렬 표시가 아예 없었습니다)
+
+### DataTable — 계산만 TanStack 에 맡깁니다 (2026-08-12)
+
+`@tanstack/react-table` 을 들였습니다. **`Table` 프리미티브는 손대지 않았습니다** — TanStack 은 headless 라 마크업을 만들지 않으므로, 정렬·선택·페이지네이션 **계산만** 가져오고 그림은 지금 부품이 그대로 그립니다. Figma 1:1 이 유지됩니다.
+
+| | |
+|---|---|
+| `Table` · `TableRow` · `TableCell` | **표현** — Figma 와 1:1 |
+| **`DataTable`** | **표현 + 상태** — Figma 에 대응물 없는 완성형 (`Select` · `ConfirmDialog` 와 같은 층위) |
+
+- **화면마다 `useTable` 을 직접 부르지 마세요** — 정렬 화살표를 `TableHead` 에 잇는 방식, 전체 선택의 indeterminate, 빈 결과의 `colSpan` 이 화면마다 조금씩 달라집니다. 「연결을 호출부에 시키면 반드시 빠집니다」와 같은 종류입니다
+- **체크박스 열을 열 정의에 직접 넣지 마세요.** `selectable` 이 전체 선택까지 함께 처리합니다
+- **`getRowId` 를 꼭 넘기세요.** 안 넘기면 배열 index 라 정렬·페이지 이동에서 **선택이 엉뚱한 행으로 옮겨갑니다**
+- **열 폭·정렬은 `meta`** 로 줍니다 (`{ width: "w-20", align: "right" }`). `align` 은 `TableHead`·`TableCell` 이 이미 갖고 있던 축입니다
+- **마지막 한 열은 끌 수 없습니다** — 전부 끄면 열 이름조차 안 남아 무엇을 보던 화면인지 알 수 없습니다
+- 열 제어 팝오버는 **`ListItem` 도 `DropdownMenu` 도 아닙니다.** `ListItem` 은 `<button>` 이라 안에 순서 버튼을 넣으면 버튼 안의 버튼이 되고(`LookupRow` 와 같은 사정), `DropdownMenu` 는 「누르면 실행하고 끝나는」 메뉴라 표식이 없는데 여기는 지금 무엇이 켜져 있는지 계속 보여야 합니다
+- **서버 페이지네이션이 붙으면** `paginated` 를 끄고 바깥에서 `Pagination` 을 쓰세요. 지금 것은 받은 배열을 잘라 쓰는 클라이언트 방식입니다
+
+#### v9 입니다 — 인터넷 예제는 대부분 v8 이라 그대로 안 됩니다
+
+| | v8 | **v9 (여기)** |
+|---|---|---|
+| 훅 | `useReactTable` | **`useTable`** |
+| 기능 | 항상 전부 포함 | **`tableFeatures({...})` 로 켠 것만** — 트리셰이킹됩니다 |
+| 행 모델 | `getSortedRowModel()` | **`createSortedRowModel()`** 을 features 에 넘김 |
+| 상태 읽기 | `table.getState()` | **`table.state`** |
+| 열 타입 | `ColumnDef<TData, TValue>` | **`ColumnDef<TFeatures, TData, TValue>`** |
+
+`useLegacyTable`(v8 API 흉내)도 있지만 **`@deprecated`** 라 쓰지 않습니다. 메서드 이름(`getIsSorted` · `getToggleAllRowsSelectedHandler` …)은 v8 과 같아서, **설정만 다르고 사용은 같습니다.**
+
+- **`tableFeatures(...)` 는 모듈 최상단에 한 번만** 만듭니다 (`dataTableFeatures`). 컴포넌트 안에서 만들면 렌더마다 새 객체가 되어 테이블이 통째로 다시 만들어집니다
+- 필터링 · 그룹핑 · 열 너비 조절 · 가상 스크롤은 **켜지 않았습니다.** 켜면 번들에 들어오는데 쓸 자리가 없습니다 — 필요해지면 한 줄 더하면 됩니다
+- **제네릭이라 Storybook 이 `TData` 를 못 좁힙니다.** `component: DataTable as React.FC<DataTableProps<T>>` 로 고정하세요 (`AccordionFlatProps` · `SidebarItemFlatProps` 와 같은 사정)
 
 ### Select · Combobox — 트리거는 하나
 
@@ -791,7 +856,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 src/App.tsx                       Provider 셋 + 화면 하나
 src/screens/result-lookup/
   index.tsx      ResultLookupScreen — Sidebar + MDI 탭 + Content
-  query-bar.tsx  조회 조건 한 줄
+  query-bar.tsx  조회 조건 — QueryFilter (PC·모바일 한 벌)
+  mobile.tsx     좁은 화면 껍데기 — 목록 · 상세 전체화면 · 전체메뉴
   patient-list.tsx   왼쪽 판
   patient-detail.tsx 오른쪽 판
   panel.tsx      Panel · SectionTitle · TableFrame (두 판이 함께 씁니다)
@@ -812,7 +878,7 @@ src/screens/component-gallery.tsx  옛 App — 토큰·컴포넌트 갤러리
 
 ```
 Sidebar 256 + MDI 탭바                     (원본은 사이드바 212)
-└ 조회 조건 한 줄 (기간설정 · 검색 · 정렬 · 초기화/조회)
+└ 조회 조건 — FilterBar (조회하면 접힙니다)
 └ 좌우 분할
    ├ 왼쪽 540 고정 — 환자리스트 (범례 + 표 + Pagination)
    └ 오른쪽 나머지 — 상세 (요약 카드 3장 + 검사목록 표)
@@ -833,7 +899,10 @@ Sidebar 256 + MDI 탭바                     (원본은 사이드바 212)
   - **`Card` 도 아닙니다.** `Card` 는 제목·내용을 묶는 표면이고, 이 판은 **섹션 여러 개를 담는 자리**입니다. `Card` 는 여백을 갖는 표면(`p-4`~`p-6`)이라 표를 넣으면 헤더 행 배경이 모서리까지 안 닿습니다. **Figma 도 이 두 판은 `Card` 인스턴스가 아니라 그냥 프레임**입니다. 안에 든 **요약 카드 3장만 진짜 `Card`**
   - 좌우 두 판은 **같은 대접**입니다 — 같은 층위인데 다른 테두리를 쓰면 하나가 더 진해 보여 위계가 있는 것처럼 읽힙니다
   - **반경은 8**(`Radius/lg`). 원본은 10 이지만 8 이면 `Card` · `Dialog` 와 같아 화면에서 모서리가 한 종류로 유지됩니다
-- **`FilterBar` 를 쓰지 않았습니다** — `FilterBar` 는 조회 뒤에 접어서 **표에 세로 자리를 내주는** 장치입니다. 좌우로 나눠 세로가 넉넉하면 접을 이유가 없고, 접는 장치를 두면 누를 것만 하나 늘어납니다
+- **조회 조건은 `FilterBar` 한 벌입니다** (2026-08-12 통합). PC·모바일이 **같은 `QueryFilter`** 를 씁니다 — 배치는 `FilterBar` 가 자기 폭을 재서 정하므로 화면은 판단하지 않습니다
+  - **이전 방침은 「PC 는 접지 않는다」였습니다.** 좌우로 나눠 세로가 넉넉하면 접을 이유가 없다고 적어뒀는데, 모바일이 `FilterBar` 를 쓰게 되면서 **컨트롤 다섯이 두 곳에 각각 적히는** 상태가 됐습니다 — 조건을 하나 더하면 한쪽만 고치기 딱 좋은 모양이라, `PCFilterBar` · `MobileFilterBar` 를 합쳤던 것과 같은 판단으로 뒤집었습니다
+  - 접는 장치가 하나 늘어나는 것은 감수합니다 — **조회하면 자동으로 접히므로** 누를 일은 드뭅니다
+  - 접힘 상태(`filterOpen`)는 **화면이 들고 있습니다.** 껍데기 안에 두면 창 폭이 바뀔 때 도로 펼쳐집니다
 - **완료여부는 점 + 범례**입니다. 「상태가 2종이면 점, 3종 이상이면 배지」 규칙대로면 배지지만, **979행이 오는 목록**에서 배지를 세로로 쌓으면 표가 배지밭이 됩니다. 대신 범례를 표 위에 두고 점마다 `aria-label` 로 이름을 답니다. **검사목록(12행)에서는 규칙대로 배지**입니다 — 행이 적어 표를 덮지 않습니다
 - **이상결과 L · H** 는 색만으로 구분하지 않고 **글자를 함께** 씁니다
 - 헤더 행은 `sticky` 로 남기고, **페이지네이션은 스크롤 영역 밖**에 둡니다 — 몇 쪽을 보고 있었는지가 사라지면 안 됩니다
