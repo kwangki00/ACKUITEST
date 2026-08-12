@@ -161,23 +161,35 @@ export function FilterBar({
         )}
       >
       {/* ── Head ─────────────────────────────────────────────────── */}
+      {/*
+        **줄 전체가 누름 대상입니다 — 좁든 넓든** (2026-08-12).
+        전에는 좁을 때만 그랬고 넓을 때는 화살표·「조건 변경」 버튼만 눌렸습니다.
+        마우스로도 32px 짜리 화살표를 겨냥하는 것은 번거롭습니다.
+
+        **클릭은 이 줄이 받고, 안쪽 버튼들은 자기 onClick 을 갖지 않습니다** —
+        여기로 올려보냅니다(버블링). 각자 onClick 을 두면 버튼을 눌렀을 때 둘 다
+        불려 두 번 토글되어 아무 일도 안 일어난 것처럼 보입니다.
+
+        안쪽 버튼을 지우지 않는 이유는 **키보드와 신호** 때문입니다 — div 는 탭으로
+        닿지 않고, 「조건 변경」은 누를 수 있다는 것을 눈에 보이게 합니다.
+        여기에 여는 것 말고 다른 일을 하는 버튼을 넣지 마세요. 그것도 접힙니다.
+      */}
       <div
+        onClick={() => setOpen(!open)}
         className={cn(
-          "relative flex items-center gap-2 py-3 pr-3 pl-4",
+          "relative flex cursor-pointer items-center gap-2 py-3 pr-3 pl-4",
           "@pc/filter:h-8 @pc/filter:gap-2.5 @pc/filter:p-0"
         )}
       >
         {/*
-          좁을 때는 줄 전체가 누름 대상입니다. 넓을 때는 이 줄 안에 버튼이 둘이라
-          같은 요소를 <button> 으로 둘 수 없습니다 — 버튼 안의 버튼은 잘못된 HTML 이라
-          브라우저가 마크업을 재배치합니다 (SelectTrigger · TabItem 과 같은 이유).
-          그래서 투명한 오버레이 버튼을 깔고 넓어지면 숨깁니다.
+          좁을 때 **키보드로 닿는 자리**입니다. 넓을 때는 화살표·「조건 변경」 버튼이
+          그 일을 하므로 숨깁니다 — 셋이 다 보이면 같은 일을 하는 탭 정지가 셋이 됩니다.
+          클릭은 위 줄이 받으므로 여기에는 onClick 이 없습니다.
         */}
         <button
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
-          onClick={() => setOpen(!open)}
           className={cn(
             // z-10 이 필요합니다 — 이 줄의 자식 중 하나라도 transform 이 걸리면
             // (화살표의 rotate-180) 스택 문맥이 생겨 오버레이보다 위로 올라옵니다.
@@ -225,7 +237,6 @@ export function FilterBar({
             variant="outline"
             size="sm"
             className="hidden @pc/filter:inline-flex"
-            onClick={() => setOpen(true)}
           >
             {changeLabel}
           </Button>
@@ -248,7 +259,6 @@ export function FilterBar({
           aria-expanded={open}
           aria-controls={panelId}
           className="hidden @pc/filter:inline-flex"
-          onClick={() => setOpen(!open)}
         >
           <ChevronDown className={cn("transition-transform", open && "rotate-180")} />
         </Button>

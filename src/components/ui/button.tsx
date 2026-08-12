@@ -137,6 +137,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        /*
+          **기본은 `button` 입니다** (2026-08-12). HTML 기본값은 `submit` 이라, 폼 안에
+          놓기만 해도 누르는 순간 제출됩니다 — 「취소」나 「조건 변경」처럼 제출과
+          상관없는 버튼이 폼에 들어가는 날 조용히 터집니다.
+
+          **`{...props}` 보다 앞에 둡니다** — 진짜 제출 버튼은 `type="submit"` 을
+          적어서 이깁니다.
+        */
+        type="button"
         className={cn(
           buttonVariants({ variant, size: s, shape }),
           busy && "pointer-events-none",

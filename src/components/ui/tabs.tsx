@@ -151,8 +151,15 @@ export function Tabs({
         onKeyDown={onKeyDown}
         className={cn(
           listVariants({ variant, size }),
-          // 알약은 그림자가 잘리므로 스크롤을 켜지 마세요
-          scrollable && "overflow-x-auto",
+          /*
+            알약은 그림자가 잘리므로 스크롤을 켜지 마세요.
+
+            overflow-y-hidden 을 함께 적어야 합니다 — CSS 는 한 축이 visible 이
+            아니면 나머지 축의 visible 을 auto 로 계산합니다. overflow-x-auto 만
+            주면 세로도 auto 가 되어, 내용이 1px 만 높아도 오른쪽에 세로 스크롤바가
+            생깁니다 (MDI 탭바에서 실제로 그랬습니다).
+          */
+          scrollable && "overflow-x-auto overflow-y-hidden",
           className
         )}
         {...props}
