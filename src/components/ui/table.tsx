@@ -11,21 +11,49 @@ import { Badge } from "@/components/ui/badge";
  * 페이지네이션과 스크롤 둘 다 씁니다 — 한 화면에서 훑는 목록은 스크롤,
  * 건수가 많고 위치를 기억해야 하면 페이지네이션. 건수는 툴바에 표시합니다.
  */
+/**
+ * 표가 머리인지 몸통인지 — `TableRow` 가 스스로 알기 위한 것입니다.
+ *
+ * `TableRow` 는 머리·몸통 양쪽에 쓰이는데 **hover·선택 배경은 몸통에만** 있어야
+ * 합니다. 줄마다 `header` 를 넘기게 하면 하나만 빠뜨려도 그 표의 머리줄이 마우스를
+ * 올릴 때 색이 바뀝니다 (`SidebarCollapsedContext` · `AccordionSizeContext` 와 같은 이유).
+ */
+const TableSectionContext = React.createContext<"head" | "body">("body");
+
+/**
+ * 표면은 **흰색**입니다 (`Table/Row-Surface`). Figma 의 `TableCell` 기본 채움이
+ * 그것이고, 머리줄만 `Table/Header-Surface`(회색)로 그 위를 덮습니다.
+ *
+ * 2026-08-12 이전에는 이 흰색이 없어서 **행이 투명**이었습니다 — 스토리는 감싸는 div 에
+ * `bg-table-row-surface` 를 손으로 발라 가리고 있었고, 화면에 그냥 놓으면 뒤의 회색이
+ * 그대로 비쳤습니다.
+ */
 export function Table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) {
   return (
     <table
-      className={cn("w-full border-collapse text-sm text-table-text", className)}
+      className={cn(
+        "w-full border-collapse bg-table-row-surface text-sm text-table-text",
+        className
+      )}
       {...props}
     />
   );
 }
 
-export function TableHeader(props: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className="bg-table-header-surface" {...props} />;
+export function TableHeader({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return (
+    <TableSectionContext.Provider value="head">
+      <thead className={cn("bg-table-header-surface", className)} {...props} />
+    </TableSectionContext.Provider>
+  );
 }
 
 export function TableBody(props: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody {...props} />;
+  return (
+    <TableSectionContext.Provider value="body">
+      <tbody {...props} />
+    </TableSectionContext.Provider>
+  );
 }
 
 export function TableRow({
@@ -33,12 +61,22 @@ export function TableRow({
   selected,
   ...props
 }: React.HTMLAttributes<HTMLTableRowElement> & { selected?: boolean }) {
+  const isHead = React.useContext(TableSectionContext) === "head";
   return (
     <tr
       data-selected={selected || undefined}
       className={cn(
-        "border-b border-table-border transition-colors",
-        "hover:bg-table-row-hover data-[selected]:bg-table-row-selected",
+        "transition-colors",
+        /*
+          머리줄은 아무것도 더하지 않습니다 — 아래 선은 `TableHead` 가 자기
+          `Border-Strong` 으로 긋고(칸의 테두리가 줄의 테두리를 이깁니다),
+          hover·선택은 몸통에만 있는 상태입니다. 머리에 hover 배경이 걸리면
+          정렬하려고 마우스를 올렸을 때 줄 전체가 눌린 것처럼 보입니다.
+        */
+        !isHead && [
+          "border-b border-table-border",
+          "hover:bg-table-row-hover data-[selected]:bg-table-row-selected",
+        ],
         className
       )}
       {...props}
@@ -133,7 +171,16 @@ export function TableCell({
   return (
     <td
       className={cn(
-        "h-[var(--h-datagrid)] px-3",
+        /*
+          **줄바꿈하지 않습니다** — 행 높이가 --h-datagrid 로 고정이라, 두 줄이 되면
+          그 행만 커져 격자가 깨집니다. `2025-06-01` 처럼 하이픈이 든 값은 폭이
+          조금만 모자라도 하이픈에서 잘려 두 줄이 됩니다 (2026-08-12에 겪었습니다).
+          `TableHead` 는 원래 nowrap 이었는데 칸만 빠져 있었습니다.
+
+          긴 글이 들어가면 표가 가로로 넓어집니다 — 담는 자리가 스크롤하거나,
+          그 열에 `truncate` 를 주세요.
+        */
+        "h-[var(--h-datagrid)] px-3 whitespace-nowrap",
         numeric && "text-right tabular-nums",
         !numeric && align === "right" && "text-right",
         align === "center" && "text-center",
