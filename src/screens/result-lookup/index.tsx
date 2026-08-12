@@ -6,11 +6,13 @@ import { SidebarItem } from "@/components/ui/sidebar-item";
 import { TabItem, TabPanel, Tabs } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { addDays, startOfDay } from "@/lib/date";
-import { QueryBar, type Query } from "./query-bar";
+import { QueryFilter, type Query } from "./query-bar";
 import { PatientList } from "./patient-list";
 import { PatientDetail } from "./patient-detail";
-import { PATIENTS } from "./data";
+import { PATIENTS, TOTAL_PATIENTS } from "./data";
 import { ComponentGallery } from "@/screens/component-gallery";
+import { useIsMobileLayout } from "@/lib/use-media-query";
+import { MobileResultLookup } from "./mobile";
 
 /**
  * 결과조회 화면입니다 — 이 저장소의 **첫 실제 화면**입니다.
@@ -37,6 +39,19 @@ import { ComponentGallery } from "@/screens/component-gallery";
  * ```
  *
  * **탭바를 Content 안에 두지 마세요** — 탭을 바꾸면 자기 자신도 갈리는 모순이 생깁니다.
+ *
+ * ### 좁아지면 통째로 갈립니다 (2026-08-12)
+ *
+ * **1024px 미만이면 `MobileResultLookup`** 입니다 — `--h-input-default` 같은 반응형
+ * 변수가 쓰는 것과 같은 지점이라, 높이와 구조가 한 번에 바뀝니다.
+ *
+ * CSS 로 못 하는 이유는 **마크업 자체가 다르기** 때문입니다 (「아직 갈리는 것」).
+ * 둘 다 그려놓고 하나를 숨기면 안 보이는 쪽의 상태·포커스·스크롤이 살아 있어서,
+ * 창을 줄였다 늘리면 엉뚱한 자리로 돌아옵니다.
+ *
+ * **조회 조건·고른 환자 같은 값은 여기(위)에 있습니다.** 껍데기 안에 두면 창 폭이
+ * 바뀔 때 컴포넌트가 통째로 갈리면서 값이 초기화됩니다 — 조회해 둔 조건이 창을
+ * 줄였다고 사라지면 안 됩니다.
  */
 
 const MENU = [
@@ -87,11 +102,21 @@ export function ResultLookupScreen() {
   };
 
   const [query, setQuery] = React.useState<Query>(EMPTY_QUERY);
+  /* 접힘 상태도 여기 둡니다 — 껍데기 안에 두면 창 폭이 바뀔 때 도로 펼쳐집니다 */
+  const [filterOpen, setFilterOpen] = React.useState(false);
   const [listPage, setListPage] = React.useState(1);
   const [chart, setChart] = React.useState(PATIENTS[5].chart);
 
   const index = PATIENTS.findIndex((p) => p.chart === chart);
   const patient = PATIENTS[index];
+
+  /*
+    모바일은 목록과 상세가 **다른 화면**이라 "아무도 안 고른" 상태가 필요합니다.
+    PC 는 좌우 분할이라 늘 하나가 골라져 있습니다 — 그래서 값을 하나 더 둡니다.
+  */
+  const [mobileChart, setMobileChart] = React.useState<string | null>(null);
+
+  const isMobile = useIsMobileLayout();
 
   const closeTab = (name: string) => {
     setTabs((prev) => {
@@ -106,6 +131,28 @@ export function ResultLookupScreen() {
       return next;
     });
   };
+
+  if (isMobile) {
+    return (
+      <MobileResultLookup
+        query={query}
+        onQueryChange={setQuery}
+        onSearch={() => setListPage(1)}
+        onReset={() => setQuery(EMPTY_QUERY)}
+        filterOpen={filterOpen}
+        onFilterOpenChange={setFilterOpen}
+        chart={mobileChart}
+        onSelect={(c) => {
+          setMobileChart(c);
+          // 상세로 들어간 환자는 PC 로 돌아갔을 때도 그대로 보여야 합니다
+          if (c) setChart(c);
+        }}
+        menu={MENU}
+        page={page}
+        onOpenScreen={openScreen}
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen bg-surface-gray-subtle">
@@ -178,11 +225,14 @@ export function ResultLookupScreen() {
         </Tabs>
 
         <TabPanel value="검사결과" current={tab} className="flex min-h-0 flex-1 flex-col">
-          <QueryBar
+          <QueryFilter
             value={query}
             onChange={setQuery}
             onSearch={() => setListPage(1)}
             onReset={() => setQuery(EMPTY_QUERY)}
+            open={filterOpen}
+            onOpenChange={setFilterOpen}
+            count={TOTAL_PATIENTS}
           />
 
           <div className="flex min-h-0 flex-1 gap-4 p-6">
