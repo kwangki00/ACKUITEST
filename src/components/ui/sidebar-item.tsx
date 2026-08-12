@@ -124,7 +124,8 @@ export function SidebarItem({
         // 라벨이 화면에서 사라지므로 보조기술에는 이름을 남겨야 합니다
         aria-label={label}
         className={cn(
-          "flex h-11 w-12 items-center justify-center rounded-md outline-hidden transition-colors",
+          // cursor-pointer 를 적어야 합니다 — Tailwind 4 는 button 기본 커서가 default 입니다
+          "flex h-11 w-12 cursor-pointer items-center justify-center rounded-md outline-hidden transition-colors",
           "focus-visible:ring-2 focus-visible:ring-action-focus-ring",
           "[&_svg]:size-4.5",
           active
@@ -161,7 +162,7 @@ export function SidebarItem({
       aria-haspopup={ariaHasPopup}
       aria-expanded={ariaExpanded ?? (isL1 && chevron ? !!expanded : undefined)}
       className={cn(
-        "relative flex w-full items-center rounded-md text-left outline-hidden transition-colors",
+        "relative flex w-full cursor-pointer items-center rounded-md text-left outline-hidden transition-colors",
         "focus-visible:ring-2 focus-visible:ring-action-focus-ring",
         isL1 ? "h-11 gap-2.5 px-3" : "h-9 gap-2 pr-3 pl-8",
         active

@@ -82,7 +82,7 @@ function FooterAction({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-md",
+        "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md",
         "text-sidebar-text-muted outline-hidden transition-colors",
         "hover:bg-sidebar-item-hover focus-visible:ring-2 focus-visible:ring-action-focus-ring",
         "[&_svg]:size-4.5"
@@ -133,7 +133,7 @@ export function Sidebar({
                   aria-expanded={false}
                   onClick={toggle}
                   className={cn(
-                    "flex h-9 w-full items-center justify-center rounded-md",
+                    "flex h-9 w-full cursor-pointer items-center justify-center rounded-md",
                     "outline-hidden transition-colors",
                     "hover:bg-sidebar-item-hover focus-visible:ring-2 focus-visible:ring-action-focus-ring"
                   )}
@@ -155,7 +155,7 @@ export function Sidebar({
                 aria-expanded
                 onClick={toggle}
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-md",
+                  "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md",
                   "text-sidebar-text-muted outline-hidden transition-colors",
                   "hover:bg-sidebar-item-hover focus-visible:ring-2 focus-visible:ring-action-focus-ring"
                 )}
