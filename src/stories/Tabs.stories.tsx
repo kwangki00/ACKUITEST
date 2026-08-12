@@ -214,7 +214,7 @@ export const MDI: Story = {
 
     return (
       <div className="w-[560px]">
-        <Tabs value={v} onValueChange={setV} size="sm" scrollable label="열린 화면">
+        <Tabs value={v} onValueChange={setV} scrollable label="열린 화면">
           {tabs.map((t) => (
             <TabItem
               key={t.value}
@@ -317,7 +317,6 @@ export const PC화면: Story = {
           <Tabs
             value={v}
             onValueChange={setV}
-            size="sm"
             scrollable
             label="열린 화면"
             className="shrink-0 bg-background-white px-2"

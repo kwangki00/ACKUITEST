@@ -447,7 +447,6 @@ export const PC화면: Story = {
           <Tabs
             value={tab}
             onValueChange={setTab}
-            size="sm"
             scrollable
             label="열린 화면"
             className="shrink-0 bg-background-white px-2"
