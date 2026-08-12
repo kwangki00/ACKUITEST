@@ -80,15 +80,27 @@ export function CardHeader({ title, action, className, ...props }: CardHeaderPro
   );
 }
 
-/** 라벨-값 줄을 담습니다. 줄 사이 간격은 4 입니다. */
+/**
+ * 값 줄들을 담습니다. **줄 사이는 6px** — Figma `ResultList` 의 정보 열과 같은 값입니다.
+ *
+ * 줄 자체는 내용만큼만 높으므로(`CardRow`), 여기 gap 이 유일한 간격 조절 손잡이입니다.
+ */
 export function CardBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col gap-1", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1.5", className)} {...props} />;
 }
 
+/**
+ * **줄 높이를 못박지 않습니다** (2026-08-12). 전에는 `min-h-8`(32) 이라 20px 짜리
+ * 글자 줄이 32px 을 차지해서, 네 줄짜리 카드가 필요 이상으로 헐거워 보였습니다.
+ *
+ * 그 높이가 지키던 것이 없었습니다 — `CardRow` 안에 들어가는 것은 `Badge sm`(20)이
+ * 가장 크고, 글자 줄 높이 안에 이미 들어옵니다. 줄 간격은 `CardBody` 의 gap 이
+ * 맡습니다 (Figma `ResultList` 도 gap 6 입니다).
+ */
 const rowSize: Record<Size, { root: string; label: string }> = {
-  sm: { root: "min-h-7 text-xs", label: "w-22" },
-  default: { root: "min-h-8 text-sm", label: "w-26" },
-  lg: { root: "min-h-8 text-sm", label: "w-26" },
+  sm: { root: "text-xs", label: "w-22" },
+  default: { root: "text-sm", label: "w-26" },
+  lg: { root: "text-sm", label: "w-26" },
 };
 
 export interface CardRowProps extends React.HTMLAttributes<HTMLDivElement> {
