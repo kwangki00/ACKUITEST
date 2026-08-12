@@ -732,6 +732,26 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 ---
 
+## 앱 코드 — 실제 화면
+
+**`npm run dev` 로 뜨는 것이 결과조회 화면**입니다 (2026-08-12). Storybook 은 부품을 하나씩 보는 자리이고, 여기는 앱이 실제로 도는 코드입니다.
+
+```
+src/App.tsx                       Provider 셋 + 화면 하나
+src/screens/result-lookup/
+  index.tsx      ResultLookupScreen — Sidebar + MDI 탭 + Content
+  query-bar.tsx  조회 조건 한 줄
+  patient-list.tsx   왼쪽 판
+  patient-detail.tsx 오른쪽 판
+  panel.tsx      Panel · SectionTitle · TableFrame (두 판이 함께 씁니다)
+  data.ts        자료 — **API 로 갈아끼울 자리**
+src/screens/component-gallery.tsx  옛 App — 토큰·컴포넌트 갤러리
+```
+
+- **자료를 `data.ts` 로 뺐습니다** — 서버가 붙으면 그 파일만 fetch 로 바꾸고 화면은 그대로 둡니다. 화면 안에 배열을 박아두면 갈아끼울 때 화면을 다시 읽어야 합니다
+- **`panel.tsx` 의 셋은 이 화면 전용**입니다. `components/ui` 에 올리지 않았습니다 — 아직 이 화면에서만 쓰고, 다른 화면에서 같은 모양이 필요해질 때 올리는 편이 낫습니다. 지금 올리면 "판이란 무엇인가" 를 한 화면만 보고 정하게 됩니다
+- **갤러리는 지우지 않았습니다** — 빌드된 앱에서 토큰이 실제로 나오는지 눈으로 보는 자리라 남겼습니다. 보려면 `App.tsx` 에서 `ResultLookupScreen` 을 `ComponentGallery` 로 갈아 끼우세요
+
 ## Example — 화면 조립 예제
 
 `Example` 그룹에 **실제 조회 화면**이 있습니다 (PC **1920** · 모바일 390). PC 쪽은 Figma `SCL_페이지 디자인`(파일 키 `xyoXv6FjXx4d6DdG04Nftu`)의 `결과조회-기본` 을 옮긴 것입니다 — **컴포넌트 라이브러리와 다른 파일**이니 헷갈리지 마세요. 부품 하나를 보려면 각 컴포넌트 문서로 가고, 여기는 **그것들이 실제로 만나는지** 보는 자리입니다.

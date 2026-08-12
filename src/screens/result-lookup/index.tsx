@@ -1,0 +1,205 @@
+import * as React from "react";
+import { ChartColumn, ClipboardList, Mail, Settings } from "lucide-react";
+import { Sidebar } from "@/components/ui/sidebar";
+import { SidebarGroup } from "@/components/ui/sidebar-group";
+import { SidebarItem } from "@/components/ui/sidebar-item";
+import { TabItem, TabPanel, Tabs } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/ui/empty-state";
+import { addDays, startOfDay } from "@/lib/date";
+import { QueryBar, type Query } from "./query-bar";
+import { PatientList } from "./patient-list";
+import { PatientDetail } from "./patient-detail";
+import { PATIENTS } from "./data";
+
+/**
+ * 결과조회 화면입니다 — 이 저장소의 **첫 실제 화면**입니다.
+ *
+ * Storybook 은 부품을 하나씩 보는 자리이고, 여기는 **앱이 실제로 도는 코드**입니다.
+ * 자료는 `data.ts` 에 모아 두었습니다 — 서버가 붙으면 그 파일만 갈아끼우면 됩니다.
+ *
+ * ### 좌우 분할입니다
+ *
+ * 결과 확인은 **환자를 옮겨 다니며** 합니다. 목록을 떠나 상세로 갔다가 돌아오는 것보다
+ * 왼쪽에서 고르고 오른쪽에서 보는 편이 손이 덜 갑니다 — 「이전환자 · 다음환자」 버튼이
+ * 그 흐름을 그대로 잇습니다.
+ *
+ * ### 화면 구조
+ *
+ * ```
+ * Screen
+ * ├ Sidebar 256          접으면 72
+ * └ Workspace
+ *    ├ MDI TabBar 40     열린 화면 목록 (탭바는 Content 밖입니다)
+ *    └ Content
+ *       ├ QueryBar       조회 조건 한 줄
+ *       └ 좌우 분할       PatientList 540 · PatientDetail 나머지
+ * ```
+ *
+ * **탭바를 Content 안에 두지 마세요** — 탭을 바꾸면 자기 자신도 갈리는 모순이 생깁니다.
+ */
+
+const MENU = [
+  { name: "검사관리", icon: <ClipboardList />, items: ["통합결과조회", "검사결과", "검사이력"] },
+  { name: "통계관리", icon: <ChartColumn />, items: ["기간별 통계", "검사별 통계"] },
+  { name: "고객SMS관리", icon: <Mail />, items: ["SMS 발송", "발송 이력"] },
+  { name: "환경설정", icon: <Settings />, items: [] },
+];
+
+const today = startOfDay(new Date());
+
+const EMPTY_QUERY: Query = {
+  period: { start: addDays(today, -6), end: today },
+  keyword: "",
+  test: "all",
+  sort: "receipt",
+  excludeBlocked: false,
+};
+
+export function ResultLookupScreen() {
+  const [collapsed, setCollapsed] = React.useState(false);
+  const [openGroups, setOpenGroups] = React.useState<string[]>(["검사관리"]);
+  const [page, setPage] = React.useState("검사결과");
+
+  const [tabs, setTabs] = React.useState([
+    { id: "results", label: "검사결과" },
+    { id: "stats", label: "통계관리" },
+    { id: "sms", label: "고객 SMS관리" },
+  ]);
+  const [tab, setTab] = React.useState("results");
+
+  const [query, setQuery] = React.useState<Query>(EMPTY_QUERY);
+  const [listPage, setListPage] = React.useState(1);
+  const [chart, setChart] = React.useState(PATIENTS[5].chart);
+
+  const index = PATIENTS.findIndex((p) => p.chart === chart);
+  const patient = PATIENTS[index];
+
+  const closeTab = (id: string) => {
+    setTabs((prev) => {
+      const i = prev.findIndex((t) => t.id === id);
+      const next = prev.filter((t) => t.id !== id);
+      // 닫는 탭이 지금 탭이면 옆 탭으로 — 빈 화면을 보여주지 않습니다
+      if (tab === id && next.length) setTab((next[i] ?? next[i - 1]).id);
+      return next;
+    });
+  };
+
+  return (
+    <div className="flex h-screen bg-surface-gray-subtle">
+      <Sidebar
+        collapsed={collapsed}
+        onCollapsedChange={setCollapsed}
+        title="결과조회 시스템"
+        user={{ name: "관리자님", email: "admin@ack.co.kr", initial: "관" }}
+        onSettings={() => {}}
+        onLogout={() => {}}
+      >
+        {MENU.map((g) =>
+          g.items.length === 0 ? (
+            // 하위가 없으면 화살표를 끕니다 — 눌러도 안 펼쳐지는데 있으면 눌러 봅니다
+            <SidebarItem
+              key={g.name}
+              icon={g.icon}
+              label={g.name}
+              active={page === g.name}
+              chevron={false}
+              onClick={() => setPage(g.name)}
+            />
+          ) : (
+            <SidebarGroup
+              key={g.name}
+              icon={g.icon}
+              label={g.name}
+              active={g.items.includes(page)}
+              expanded={openGroups.includes(g.name)}
+              onExpandedChange={() =>
+                setOpenGroups((p) =>
+                  p.includes(g.name) ? p.filter((x) => x !== g.name) : [...p, g.name]
+                )
+              }
+              className="flex flex-col gap-0.5"
+            >
+              {g.items.map((it) => (
+                <SidebarItem
+                  key={it}
+                  level={2}
+                  label={it}
+                  active={page === it}
+                  onClick={() => setPage(it)}
+                />
+              ))}
+            </SidebarGroup>
+          )
+        )}
+      </Sidebar>
+
+      {/* 오른쪽은 남는 폭을 씁니다 — 고정 폭을 주면 사이드바를 접을 때 빈칸이 생깁니다 */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Tabs
+          value={tab}
+          onValueChange={setTab}
+          scrollable
+          label="열린 화면"
+          className="shrink-0 bg-background-white px-2"
+        >
+          {tabs.map((t) => (
+            <TabItem
+              key={t.id}
+              value={t.id}
+              label={t.label}
+              closable
+              onClose={() => closeTab(t.id)}
+            />
+          ))}
+        </Tabs>
+
+        <TabPanel value="results" current={tab} className="flex min-h-0 flex-1 flex-col">
+          <QueryBar
+            value={query}
+            onChange={setQuery}
+            onSearch={() => setListPage(1)}
+            onReset={() => setQuery(EMPTY_QUERY)}
+          />
+
+          <div className="flex min-h-0 flex-1 gap-4 p-6">
+            <PatientList
+              chart={chart}
+              onSelect={setChart}
+              page={listPage}
+              onPageChange={setListPage}
+            />
+            {patient ? (
+              <PatientDetail
+                patient={patient}
+                onPrev={index > 0 ? () => setChart(PATIENTS[index - 1].chart) : undefined}
+                onNext={
+                  index < PATIENTS.length - 1
+                    ? () => setChart(PATIENTS[index + 1].chart)
+                    : undefined
+                }
+              />
+            ) : (
+              // 조회했는데 0건이면 조건을 바꾸라고 알립니다
+              <div className="flex min-w-0 flex-1 items-center justify-center rounded-lg border border-table-border bg-background-white">
+                <EmptyState type="no-result" onAction={() => setQuery(EMPTY_QUERY)} />
+              </div>
+            )}
+          </div>
+        </TabPanel>
+
+        {tabs
+          .filter((t) => t.id !== "results")
+          .map((t) => (
+            <TabPanel
+              key={t.id}
+              value={t.id}
+              current={tab}
+              className="flex flex-1 items-center justify-center text-sm text-text-subtle"
+            >
+              {t.label} 화면
+            </TabPanel>
+          ))}
+      </div>
+    </div>
+  );
+}
