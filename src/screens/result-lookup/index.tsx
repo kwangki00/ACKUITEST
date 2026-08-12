@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChartColumn, ClipboardList, Mail, Settings } from "lucide-react";
+import { ChartColumn, ClipboardList, Component, Mail, Settings } from "lucide-react";
 import { Sidebar } from "@/components/ui/sidebar";
 import { SidebarGroup } from "@/components/ui/sidebar-group";
 import { SidebarItem } from "@/components/ui/sidebar-item";
@@ -10,6 +10,7 @@ import { QueryBar, type Query } from "./query-bar";
 import { PatientList } from "./patient-list";
 import { PatientDetail } from "./patient-detail";
 import { PATIENTS } from "./data";
+import { ComponentGallery } from "@/screens/component-gallery";
 
 /**
  * 결과조회 화면입니다 — 이 저장소의 **첫 실제 화면**입니다.
@@ -43,7 +44,18 @@ const MENU = [
   { name: "통계관리", icon: <ChartColumn />, items: ["기간별 통계", "검사별 통계"] },
   { name: "고객SMS관리", icon: <Mail />, items: ["SMS 발송", "발송 이력"] },
   { name: "환경설정", icon: <Settings />, items: [] },
+  /*
+    테스트 빌드 전용입니다. 빌드된 앱에서 토큰과 컴포넌트가 실제로 나오는지 눈으로
+    보는 자리라 메뉴에 넣어 두었습니다 — Storybook 은 별도 빌드라 배포본에 없습니다.
+    실제 제품에서는 이 줄을 지우세요.
+  */
+  { name: "컴포넌트", icon: <Component />, items: [] },
 ];
+
+/** 사이드바에서 고른 화면이 무엇을 그리는지. 없으면 자리표시만 나옵니다. */
+const SCREENS: Record<string, () => React.ReactNode> = {
+  컴포넌트: () => <ComponentGallery />,
+};
 
 const today = startOfDay(new Date());
 
@@ -60,12 +72,19 @@ export function ResultLookupScreen() {
   const [openGroups, setOpenGroups] = React.useState<string[]>(["검사관리"]);
   const [page, setPage] = React.useState("검사결과");
 
-  const [tabs, setTabs] = React.useState([
-    { id: "results", label: "검사결과" },
-    { id: "stats", label: "통계관리" },
-    { id: "sms", label: "고객 SMS관리" },
-  ]);
-  const [tab, setTab] = React.useState("results");
+  /*
+    탭바는 **열린 화면 목록**입니다. 사이드바에서 화면을 고르면 탭이 하나 생기고,
+    이미 열려 있으면 새로 열지 않고 그 탭으로 갑니다 — 같은 화면이 두 번 열리면
+    어느 쪽이 지금 보던 것인지 알 수 없습니다.
+  */
+  const [tabs, setTabs] = React.useState<string[]>(["검사결과"]);
+  const [tab, setTab] = React.useState("검사결과");
+
+  const openScreen = (name: string) => {
+    setPage(name);
+    setTabs((prev) => (prev.includes(name) ? prev : [...prev, name]));
+    setTab(name);
+  };
 
   const [query, setQuery] = React.useState<Query>(EMPTY_QUERY);
   const [listPage, setListPage] = React.useState(1);
@@ -74,12 +93,16 @@ export function ResultLookupScreen() {
   const index = PATIENTS.findIndex((p) => p.chart === chart);
   const patient = PATIENTS[index];
 
-  const closeTab = (id: string) => {
+  const closeTab = (name: string) => {
     setTabs((prev) => {
-      const i = prev.findIndex((t) => t.id === id);
-      const next = prev.filter((t) => t.id !== id);
+      const i = prev.indexOf(name);
+      const next = prev.filter((t) => t !== name);
       // 닫는 탭이 지금 탭이면 옆 탭으로 — 빈 화면을 보여주지 않습니다
-      if (tab === id && next.length) setTab((next[i] ?? next[i - 1]).id);
+      if (tab === name && next.length) {
+        const moved = next[i] ?? next[i - 1];
+        setTab(moved);
+        setPage(moved);
+      }
       return next;
     });
   };
@@ -103,7 +126,7 @@ export function ResultLookupScreen() {
               label={g.name}
               active={page === g.name}
               chevron={false}
-              onClick={() => setPage(g.name)}
+              onClick={() => openScreen(g.name)}
             />
           ) : (
             <SidebarGroup
@@ -125,7 +148,7 @@ export function ResultLookupScreen() {
                   level={2}
                   label={it}
                   active={page === it}
-                  onClick={() => setPage(it)}
+                  onClick={() => openScreen(it)}
                 />
               ))}
             </SidebarGroup>
@@ -142,18 +165,19 @@ export function ResultLookupScreen() {
           label="열린 화면"
           className="shrink-0 bg-background-white px-2"
         >
-          {tabs.map((t) => (
+          {tabs.map((name) => (
             <TabItem
-              key={t.id}
-              value={t.id}
-              label={t.label}
-              closable
-              onClose={() => closeTab(t.id)}
+              key={name}
+              value={name}
+              label={name}
+              // 마지막 하나는 닫지 않습니다 — 빈 화면을 보여줄 수 없습니다
+              closable={tabs.length > 1}
+              onClose={() => closeTab(name)}
             />
           ))}
         </Tabs>
 
-        <TabPanel value="results" current={tab} className="flex min-h-0 flex-1 flex-col">
+        <TabPanel value="검사결과" current={tab} className="flex min-h-0 flex-1 flex-col">
           <QueryBar
             value={query}
             onChange={setQuery}
@@ -188,15 +212,20 @@ export function ResultLookupScreen() {
         </TabPanel>
 
         {tabs
-          .filter((t) => t.id !== "results")
-          .map((t) => (
+          .filter((name) => name !== "검사결과")
+          .map((name) => (
             <TabPanel
-              key={t.id}
-              value={t.id}
+              key={name}
+              value={name}
               current={tab}
-              className="flex flex-1 items-center justify-center text-sm text-text-subtle"
+              className={
+                SCREENS[name]
+                  ? "min-h-0 flex-1 overflow-y-auto"
+                  : "flex flex-1 items-center justify-center text-sm text-text-subtle"
+              }
             >
-              {t.label} 화면
+              {/* 아직 안 만든 화면은 자리만 잡아 둡니다 */}
+              {SCREENS[name] ? SCREENS[name]() : `${name} 화면은 아직 없습니다`}
             </TabPanel>
           ))}
       </div>
