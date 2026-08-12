@@ -1,6 +1,9 @@
 import * as React from "react";
 import {
   Bell,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChartColumn,
   ClipboardList,
   Download,
@@ -11,8 +14,9 @@ import {
   Search,
   Share2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardBody, CardRow } from "@/components/ui/card";
+import { Card, CardBody, CardHeader, CardRow } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -92,6 +96,9 @@ export interface MobileResultLookupProps {
   /** 고른 환자. 없으면 목록을 보여줍니다 — 상세는 전체 화면입니다. */
   chart: string | null;
   onSelect: (chart: string | null) => void;
+  /** 상세에서 환자를 옮겨 다닙니다. 끝이면 넘기지 마세요 — 버튼이 비활성됩니다. */
+  onPrev?: () => void;
+  onNext?: () => void;
   /** 사이드바와 **같은 메뉴 구조**입니다 — PC 로 익힌 위치를 다시 배우지 않아도 됩니다. */
   menu: { name: string; icon: React.ReactNode; items: string[] }[];
   page: string;
@@ -107,6 +114,8 @@ export function MobileResultLookup({
   onFilterOpenChange,
   chart,
   onSelect,
+  onPrev,
+  onNext,
   menu,
   page,
   onOpenScreen,
@@ -120,7 +129,12 @@ export function MobileResultLookup({
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-surface-gray-subtle">
       {patient ? (
-        <PatientDetailScreen patient={patient} onBack={() => onSelect(null)} />
+        <PatientDetailScreen
+          patient={patient}
+          onBack={() => onSelect(null)}
+          onPrev={onPrev}
+          onNext={onNext}
+        />
       ) : (
         <>
           {/*
@@ -277,7 +291,24 @@ function doneTone(p: Patient) {
  * 항목별 결과는 표가 아니라 `Accordion` 입니다. 좁은 폭에 8열 표를 넣으면 가로로
  * 밀려서 무엇을 보는지 알 수 없습니다.
  */
-function PatientDetailScreen({ patient, onBack }: { patient: Patient; onBack: () => void }) {
+function PatientDetailScreen({
+  patient,
+  onBack,
+  onPrev,
+  onNext,
+}: {
+  patient: Patient;
+  onBack: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+}) {
+  /*
+    **세부정보는 접혀 있습니다.** 늘 보는 것은 접수일·접수번호·차트번호 셋이고,
+    나머지(개인정보 · 검사정보)는 가끔 확인합니다 — 좁은 화면에서 전부 펼쳐두면
+    정작 보러 온 검사목록이 한참 아래로 밀립니다.
+  */
+  const [detailOpen, setDetailOpen] = React.useState(false);
+
   return (
     <>
       {/* back 변형만 타이틀이 절대 배치로 가운데입니다 — 오른쪽 아이콘이 늘어도 안 밀립니다 */}
@@ -302,49 +333,147 @@ function PatientDetailScreen({ patient, onBack }: { patient: Patient; onBack: ()
         }
       />
 
+      {/*
+        여백은 Figma `Mobile-Detail` 그대로입니다 — 바깥 16 · 블록 사이 12 ·
+        흰 카드 안 20. 반경만 10 → 8(`Radius/lg`)로, 토큰에 없는 값을 안 쓰는
+        이 저장소 규칙을 따릅니다.
+      */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex flex-wrap items-center gap-2 border-b border-border-gray-light bg-background-white px-4 py-3">
-          <span className="text-sm text-text-subtle">차트 {patient.chart}</span>
-          <Badge tone={doneTone(patient)}>{DONE[patient.done].label}</Badge>
-        </div>
+        <div className="flex flex-col gap-3 p-4">
+          {/* ── 기본정보 ─────────────────────────────────────── */}
+          <div className="flex flex-col gap-3 rounded-lg bg-background-white p-5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <h2 className="text-base font-semibold text-text-basic">{patient.name}</h2>
+              <span className="text-sm text-text-subtle">
+                {patient.sex} · {patient.age}세
+              </span>
+              {/* 톤은 자료에서 옵니다 — 완료여부 넷이 각자 색을 갖습니다 */}
+              <Badge tone={doneTone(patient)} styleVariant="outline" className="ml-auto">
+                {DONE[patient.done].label}
+              </Badge>
+            </div>
 
-        <div className="p-4">
-          <Card>
+            {/* 늘 보는 셋 */}
             <CardBody>
               <CardRow label="접수일">{patient.date}</CardRow>
               <CardRow label="접수번호">{patient.receipt}</CardRow>
-              <CardRow label="성별 · 나이">{`${patient.sex} · ${patient.age}세`}</CardRow>
-              <CardRow label="검사수">{`${patient.tests}건`}</CardRow>
+              <CardRow label="차트번호">{patient.chart}</CardRow>
             </CardBody>
-          </Card>
-        </div>
 
-        <Accordion
-          type="multiple"
-          size="sm"
-          defaultValue={[`r0`]}
-          className="border-t border-card-border bg-card-surface"
-        >
-          {RESULTS.map((r, i) => (
-            <AccordionItem key={r.barcode} value={`r${i}`}>
-              <AccordionTrigger>
-                <span className="flex w-full items-center gap-2">
-                  <span className="min-w-0 flex-1 truncate">{r.name}</span>
-                  <Badge tone={STATE_TONE[r.state]} size="sm">
-                    {r.state}
-                  </Badge>
-                </span>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="flex flex-col gap-1">
-                  <CardRow label="결과">{`${r.value} ${r.unit}`}</CardRow>
-                  <CardRow label="바코드">{r.barcode}</CardRow>
-                  <CardRow label="보고예정일">{r.due}</CardRow>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+            {/* 펼치면 PC 와 **같은 세 카드**가 나옵니다 — 같은 값을 다시 정의하지 않습니다 */}
+            {detailOpen && (
+              <div className="flex flex-col gap-3">
+                <Card variant="filled" size="sm">
+                  <CardHeader title="접수정보" />
+                  <CardBody>
+                    <CardRow label="접수일">{patient.date}</CardRow>
+                    <CardRow label="접수번호">{patient.receipt}</CardRow>
+                    <CardRow label="성명">{patient.name}</CardRow>
+                    <CardRow label="차트번호">{patient.chart}</CardRow>
+                  </CardBody>
+                </Card>
+                <Card variant="filled" size="sm">
+                  <CardHeader title="개인정보" />
+                  <CardBody>
+                    <CardRow label="주민등록번호">950203-2******</CardRow>
+                    <CardRow label="성별">{patient.sex}</CardRow>
+                    <CardRow label="나이">{patient.age}</CardRow>
+                  </CardBody>
+                </Card>
+                <Card variant="filled" size="sm">
+                  <CardHeader title="검사정보" />
+                  <CardBody>
+                    <CardRow label="검사명">Vaginal</CardRow>
+                    <CardRow label="출고장">-</CardRow>
+                    <CardRow label="기타">J97810208892</CardRow>
+                    <CardRow label="검사일">{patient.date}</CardRow>
+                  </CardBody>
+                </Card>
+              </div>
+            )}
+
+            {/*
+              **알약 버튼**입니다 (Figma 40 · r30 · `#f3f4f6`). 화살표는 지금 상태를
+              말합니다 — 펼쳐져 있으면 위 (`Accordion` · `Sidebar` 와 같은 규칙).
+              `Button` 을 쓰지 않은 이유는 폭을 꽉 채우는 알약이 variant 에 없어서입니다.
+            */}
+            <button
+              type="button"
+              aria-expanded={detailOpen}
+              onClick={() => setDetailOpen((v) => !v)}
+              className={cn(
+                "flex h-[var(--h-input-default)] cursor-pointer items-center justify-center gap-2.5 rounded-full",
+                "bg-surface-gray-subtler text-sm font-medium text-text-basic",
+                "outline-hidden transition-colors hover:bg-action-accent",
+                "focus-visible:ring-2 focus-visible:ring-action-focus-ring"
+              )}
+            >
+              <ChevronDown
+                aria-hidden
+                className={cn("size-5 transition-transform", detailOpen && "rotate-180")}
+              />
+              세부정보 {detailOpen ? "접기" : "더보기"}
+            </button>
+          </div>
+
+          {/* ── 검사목록 ─────────────────────────────────────── */}
+          <div className="flex flex-col gap-3 rounded-lg bg-background-white p-5">
+            <h3 className="text-base font-semibold text-text-basic">검사목록</h3>
+
+            {/*
+              결과는 지금 모양을 그대로 둡니다 — 좁은 폭에 표를 넣으면 가로로 밀리는데
+              항목마다 접었다 펴는 쪽이 읽힙니다.
+              트리거·내용의 좌우 여백만 뺍니다 — 카드가 이미 20 을 갖고 있어 겹칩니다.
+            */}
+            <Accordion type="multiple" size="sm" defaultValue={["r0"]}>
+              {RESULTS.map((r, i) => (
+                <AccordionItem key={r.barcode} value={`r${i}`}>
+                  <AccordionTrigger className="px-0">
+                    <span className="flex w-full items-center gap-2">
+                      <span className="min-w-0 flex-1 truncate">{r.name}</span>
+                      <Badge tone={STATE_TONE[r.state]} size="sm">
+                        {r.state}
+                      </Badge>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-0">
+                    <CardBody>
+                      <CardRow label="결과">{`${r.value} ${r.unit}`}</CardRow>
+                      <CardRow label="바코드">{r.barcode}</CardRow>
+                      <CardRow label="보고예정일">{r.due}</CardRow>
+                    </CardBody>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </div>
+
+      {/*
+        **스크롤 영역 밖**입니다 (Figma `Mobile-Detail` 의 `Frame 25`) — 결과를 훑는
+        내내 손 닿는 곳에 있어야 합니다. 목록으로 돌아갔다 다음 환자를 다시 고르는
+        것보다 훨씬 짧습니다. PC 의 「이전환자 · 다음환자」와 같은 흐름입니다.
+
+        높이 40 · 반경 8 · 좌우 16 · 아래 20 · 사이 10. **글자를 남깁니다** —
+        PC 는 툴바가 빽빽해서 아이콘만 남겼지만 여기는 자리가 넉넉하고,
+        화살표만 있으면 페이지 넘김으로 읽힙니다.
+
+        **위에도 여백을 둡니다** — 목록이 길면 스크롤 중간에 잘린 카드가 버튼 바로
+        위에 맞닿아 한 덩어리로 보입니다. 바탕이 회색이라 이 여백이 띠가 되어
+        「여기서부터는 스크롤되지 않는 자리」라고 알립니다. Figma 는 맨 아래까지
+        내려간 그림이라 이 자리가 안 보입니다.
+      */}
+      <div className="flex shrink-0 gap-2.5 bg-surface-gray-subtle px-4 pt-3 pb-5">
+        {/* 높이는 주지 않습니다 — Button 의 default 가 --h-input-default 라 모바일에서 40 입니다 */}
+        <Button variant="outline" className="flex-1" disabled={!onPrev} onClick={onPrev}>
+          <ChevronLeft />
+          이전환자
+        </Button>
+        <Button variant="outline" className="flex-1" disabled={!onNext} onClick={onNext}>
+          다음환자
+          <ChevronRight />
+        </Button>
       </div>
     </>
   );

@@ -116,6 +116,18 @@ export function ResultLookupScreen() {
   */
   const [mobileChart, setMobileChart] = React.useState<string | null>(null);
 
+  /*
+    상세에서 환자를 옮겨 다니는 길입니다 — PC 의 「이전환자 · 다음환자」와 같은 흐름을
+    모바일에도 둡니다. 목록으로 돌아갔다 다시 고르는 것보다 훨씬 짧습니다.
+    고른 값은 PC 쪽(`chart`)에도 함께 넣습니다 — 창을 넓히면 그 환자가 보여야 합니다.
+  */
+  const mobileIndex = PATIENTS.findIndex((p) => p.chart === mobileChart);
+  const goMobile = (i: number) => {
+    const next = PATIENTS[i].chart;
+    setMobileChart(next);
+    setChart(next);
+  };
+
   const isMobile = useIsMobileLayout();
 
   const closeTab = (name: string) => {
@@ -147,6 +159,12 @@ export function ResultLookupScreen() {
           // 상세로 들어간 환자는 PC 로 돌아갔을 때도 그대로 보여야 합니다
           if (c) setChart(c);
         }}
+        onPrev={mobileIndex > 0 ? () => goMobile(mobileIndex - 1) : undefined}
+        onNext={
+          mobileIndex >= 0 && mobileIndex < PATIENTS.length - 1
+            ? () => goMobile(mobileIndex + 1)
+            : undefined
+        }
         menu={MENU}
         page={page}
         onOpenScreen={openScreen}
