@@ -1,3 +1,15 @@
+/*
+  Pretendard **정적(static)** 빌드. Figma 는 설치된 정적 글꼴을 쓰므로 같은 조건이
+  됩니다 — Variable 은 400 을 보간으로 만들어 내서 힌팅이 달라집니다.
+
+  **여기서 부릅니다.** index.html 과 .storybook/preview-head.html 에 나눠 걸면
+  하나가 빠져도 화면은 멀쩡해 보입니다 — 실제로 Storybook 쪽이 빠져 있어서 스토리
+  전부가 대체 글꼴로 그려지고 있었습니다 (2026-08-12). 이 파일은 둘 다 import 하므로
+  한 곳만 지키면 됩니다.
+
+  @import 는 다른 규칙보다 앞에 와야 합니다.
+*/
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
 @import "tailwindcss";
 @import "./styles/ack-theme.css";
 

@@ -71,7 +71,11 @@ Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 
 - **Variable 을 쓰면 갈립니다** — 400 을 보간으로 만들어 내서 힌팅이 달라집니다. 같은 Regular 인데 웹에서만 조금 다르게 보였습니다. `dist/web/variable/…` → `dist/web/static/…` 로 바꿨습니다
 - **`dynamic-subset` 은 유지합니다** — 한글 전체를 담은 정적 파일은 굵기당 1MB 가 넘어 네 굵기만 써도 4MB 입니다. 쓰는 글자만 내려받는 쪽이 맞습니다
 - **스택에서 `Pretendard` 가 앞**입니다. `"Pretendard Variable"` 을 앞에 두면 **로컬에 설치된 Variable 이 우리가 부른 정적을 이겨서** 다시 갈립니다
-- **`index.html` 과 `.storybook/preview-head.html` 둘 다 걸어야 합니다.** Storybook 은 `index.html` 을 쓰지 않아서, 빠뜨리면 스토리가 대체 글꼴(Segoe UI · 맑은 고딕)로 그려집니다 — 자간·굵기가 전부 달라지는데 **화면은 멀쩡해 보여서 알아채기 어렵습니다.** 실제로 그 상태였습니다
+- **`src/index.css` 한 곳에서 부릅니다.** 앱과 Storybook 이 둘 다 이 파일을 import 하므로 여기만 지키면 됩니다
+  - 처음에는 `index.html` 에만 걸었는데 **Storybook 은 `index.html` 을 쓰지 않아서** 스토리 전부가 대체 글꼴(Segoe UI · 맑은 고딕)로 그려지고 있었습니다. 자간·굵기가 전부 달라지는데 **화면은 멀쩡해 보여서 알아채기 어렵습니다**
+  - HTML 두 곳에 나눠 걸어 고쳤다가, **또 어긋날 자리**라 CSS 한 곳으로 옮겼습니다 (2026-08-12). `@import` 는 다른 규칙보다 앞에 와야 합니다
+  - 대신 HTML `<link>` 보다 **발견이 한 박자 늦습니다** — 브라우저가 CSS 를 받아 파싱해야 폰트 주소를 압니다. 테스트 앱이라 그 값을 치르고 한 곳을 택했습니다
+- **바꿔도 반영이 안 되면 개발 서버를 다시 띄우세요.** `index.css` 의 `@import` 는 Vite 가 CSS 를 다시 만들어야 반영되고, 브라우저가 옛 CSS 를 캐시하고 있으면 강력 새로고침(`Ctrl+Shift+R`)이 필요합니다. **DevTools → Elements → Computed 맨 아래 「Rendered Fonts」** 에 실제로 그린 글꼴 이름이 나옵니다 — 거기가 `Pretendard` 가 아니면 아직 안 받은 것입니다
 - **여기까지 해도 픽셀은 같지 않습니다.** 브라우저는 OS 래스터라이저(Windows 는 ClearType 서브픽셀)로 그리고 Figma 는 자체 렌더러라 안티에일리어싱이 다릅니다. 글자 모양·굵기는 맞고 가장자리 느낌만 남습니다
   - `-webkit-font-smoothing: antialiased`(`index.css`)는 **macOS 에만** 걸립니다. Windows 에서는 아무 일도 하지 않습니다
 
