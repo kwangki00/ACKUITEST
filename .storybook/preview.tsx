@@ -101,6 +101,8 @@ const preview: Preview = {
           "Display",
           ["Accordion", "Avatar", "Badge", "Card", "Chip"],
           "Data",
+          // 표현 부품(Table) → 상태까지 얹은 완성형(DataTable) → 쪽 나누기
+          ["Table", "DataTable", "Pagination"],
           "Feedback",
           ["Alert", "Dialog", "EmptyState", "Loading & Divider", "Toast"],
           // 조립 부품만 남깁니다 — 완성형 컨트롤(Combobox · Select)은 Controls 로 갑니다
