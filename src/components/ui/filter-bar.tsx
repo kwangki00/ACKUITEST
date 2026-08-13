@@ -233,13 +233,16 @@ export function FilterBar({
           </Badge>
         )}
 
-        {/* 넓을 때만 — 화살표만으로는 누를 수 있다는 신호가 약합니다 */}
+        {/*
+          넓을 때만 — 화살표만으로는 누를 수 있다는 신호가 약합니다.
+
+          **`ghost` 입니다** (2026-08-12. 그전에는 `outline`). 머리줄 자체가 이미
+          누를 수 있는 줄이라, 그 안에 테두리 있는 버튼이 또 서면 **누를 곳이 둘로**
+          보입니다. 여기서는 「누를 수 있다」는 신호만 있으면 되고 그건 글자와 hover
+          로 충분합니다 — `MobileListHeader` 의 필터 버튼이 ghost 인 것과 같은 이유입니다.
+        */}
         {!open && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden @pc/filter:inline-flex"
-          >
+          <Button variant="ghost" size="sm" className="hidden @pc/filter:inline-flex">
             {changeLabel}
           </Button>
         )}
