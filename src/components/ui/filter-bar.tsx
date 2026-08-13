@@ -220,23 +220,32 @@ export function FilterBar({
 
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 @pc/filter:flex-row @pc/filter:items-center @pc/filter:gap-2.5">
           {/*
-            좁을 때는 펼치면 제목처럼 커집니다 — 그때 이 줄이 영역의 머리이고,
-            접히면 요약이 주인공이라 캡션이 뒤로 물러납니다.
-            넓을 때는 옆에 요약이 붙는 자리라 크기가 바뀌면 줄 높이가 흔들립니다 — 늘 sm.
+            **펼치면 캡션이 주인공, 접히면 요약이 주인공입니다** (2026-08-13 정리).
+
+            펼쳤을 때 이 줄은 영역의 머리라 캡션이 제목처럼 섭니다. 접히면 캡션은
+            **안 변하는 라벨**이라 알릴 것이 없고, 걸린 조건이 그 줄의 내용입니다 —
+            그래서 캡션이 뒤로 물러나고 요약이 진해집니다.
+
+            **넓을 때가 반대로 되어 있었습니다** — 캡션이 SemiBold·`Text/Basic` 이고
+            요약이 Regular·`Text/Subtle` 이라, 매번 바뀌는 값이 안 바뀌는 라벨보다
+            흐렸습니다. 좁을 때는 처음부터 지금 모양이었습니다.
+
+            크기는 넓을 때 늘 `sm` 입니다 — 옆에 요약이 붙는 자리라 캡션이 커졌다
+            작아졌다 하면 줄 높이가 흔들립니다.
           */}
           <span
             className={cn(
-              "shrink-0 text-text-subtle @pc/filter:text-sm @pc/filter:font-semibold @pc/filter:text-text-basic",
-              open ? "text-base font-semibold" : "text-xs"
+              "shrink-0",
+              open
+                ? "text-base font-semibold text-text-basic @pc/filter:text-sm"
+                : "text-xs text-text-subtle @pc/filter:text-sm"
             )}
           >
             {caption}
           </span>
           {/* 접혔을 때만 — 펼치면 아래 필드에 같은 정보가 있습니다 */}
           {!open && (
-            <span className="truncate text-sm font-medium text-text-basic @pc/filter:font-normal @pc/filter:text-text-subtle">
-              {summary}
-            </span>
+            <span className="truncate text-sm font-medium text-text-basic">{summary}</span>
           )}
         </span>
 
