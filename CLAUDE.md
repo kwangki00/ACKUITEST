@@ -158,6 +158,44 @@ var(--color-gray-300) 안 됨  — 변수가 CSS 에 없음
 
 그래서 회색이 필요하면 `gray` 를 직접 쓰지 말고 Semantic 을 쓰세요. 규칙상으로도 그게 맞습니다.
 
+### 그룹이 곧 축입니다 — 무엇에 쓰는 색인가
+
+Semantic 321개는 **그룹 이름이 용도**입니다. `Button/*` · `Badge/*` · `Table/*` 처럼 컴포넌트 이름이 붙은 것은 읽으면 바로 알지만, **가로지르는 일곱 그룹**은 정의가 없으면 고를 수 없습니다.
+
+| 그룹 | 무엇에 쓰나 |
+|---|---|
+| `Background/*` | **영역이 깔고 앉는 바탕** — 화면 · 판 · 떠 있는 패널 |
+| `Surface/*` | **요소가 스스로 갖는 면.** 톤이 있는 표면(`*-Subtler` 일곱)은 전부 여기입니다 |
+| `Border/*` | 요소를 **두르는** 선 |
+| `Divider/*` | 요소 **사이를 긋는** 선 — 값이 같아도 축이 다릅니다 |
+| `Text/*` · `Icon/*` | 글자 · 아이콘 |
+| `Action/*` | **상호작용 상태** — hover · selected · pressed · focus ring |
+
+**값이 겹치는 묶음이 27개인데 대부분은 정상입니다** — `Border/Primary` · `Text/Primary` · `Icon/Primary` 는 같은 파랑이지만 **축이 다릅니다.** 축이 이름에 있으니 헷갈리지 않습니다.
+
+#### `Background` 와 `Surface` 는 지금 섞여 있습니다
+
+규칙을 정한 것은 2026-08-12 이고, **그전에 만든 것들은 이 규칙을 안 따릅니다.**
+
+| | Figma 바인딩 |
+|---|---|
+| `Background/White` | 338 |
+| `Surface/White` | **72** ← 같은 일인데 갈림 |
+| `Surface/Gray-Subtler` | 364 |
+| `Background/Gray-Subtler` | **64** |
+
+코드도 같습니다 — `bg-surface-white` 는 `MobileTop` · `MBottomTabBar` 둘뿐이고 나머지 열한 곳은 `bg-background-white` 입니다. **새로 쓸 때만 위 표를 따르세요.** 900곳을 옮기는 것은 값이 안 바뀌는 대공사라 하지 않았습니다.
+
+#### 아무도 안 쓰는 토큰이 아홉입니다
+
+`Background/Dim` · `Background/Inverse` · `Surface/Inverse` · `Surface/Inverse-Static` · `Surface/White-Subtle` · `Surface/White-Subtler` · `Surface/White-Static` · `Surface/Secondary-Subtler` · `Surface/Information2-Subtler` — Figma 바인딩 0, 코드 0.
+
+`Surface/Disabled` 는 **코드에서만** 10곳 씁니다 (Figma 0).
+
+#### `-Static` 11개는 지금 짝과 완전히 같습니다
+
+`Semantic` 컬렉션은 **모드가 하나**(`Mode 1`)뿐이라 `Icon/Primary` 와 `Icon/Primary-Static` 이 같은 값입니다. 다크모드를 염두에 두고 만든 이름인데 **바뀔 테마가 없습니다.** 지우지 않고 설명만 달아 뒀습니다 — 지우면 다크모드를 넣는 날 다시 만들고 바인딩도 다시 해야 합니다.
+
 ### `text-text-basic` — 접두사가 두 번인 것은 오타가 아닙니다
 
 Tailwind 는 **유틸리티 접두사와 토큰 이름을 각각** 붙입니다. 토큰 이름이 `text-` 로 시작하면 두 번 나옵니다.
