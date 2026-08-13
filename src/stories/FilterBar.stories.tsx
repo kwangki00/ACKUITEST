@@ -5,6 +5,8 @@ import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import type { FilterSummaryItem } from "@/components/ui/filter-bar";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Select } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
@@ -70,6 +72,13 @@ const TESTS = [
   { value: "ua", label: "소변검사" },
   { value: "img", label: "영상의학" },
 ];
+
+/**
+ * 담당자 — **「전체」 항목이 없습니다.** `editable` 은 비어 있는 것이 곧 전체라
+ * 자리표시가 그렇게 말하고, 지우기(X)로 언제든 돌아갑니다. 항목으로 두면 쳐서 거를 때
+ * 사람 이름들 사이에 섞여 나옵니다.
+ */
+const OWNERS = ["김검사", "이검사", "박검사", "최검사"].map((v) => ({ value: v, label: v }));
 
 const SORTS = [
   { value: "recv", label: "접수번호순" },
@@ -556,37 +565,98 @@ export const PC화면: Story = {
  * 이름이라 값만으로는 구분되지 않습니다. 위 두 칩은 값이 스스로 말하므로 아이콘이 없습니다.
  *
  * 좁은 쪽은 칩이 **다음 줄로 내려가고**, 넓은 쪽은 한 줄에 섭니다.
+ *
+ * **펼쳐서 값을 바꾸고 조회를 눌러 보세요** — 칩이 따라 바뀝니다. 담당자를 지우면(X)
+ * 그 칩이 사라집니다. 요약에 있는 조건은 펼쳤을 때 **반드시 그 자리에 있어야 합니다** —
+ * 없으면 어디서 고치는지 찾을 수 없습니다.
  */
 export const 접힘: Story = {
   parameters: { layout: "padded" },
   render: function Collapsed(args) {
-    const [a, setA] = useState<DateRange>({ start: null, end: null });
-    const [b, setB] = useState<DateRange>({ start: null, end: null });
-    const summary: FilterSummaryItem[] = [
-      { value: `${formatDate(addDays(today, -6))} ~ ${formatDate(today)}` },
-      { value: "일반혈액검사" },
-      { icon: <User />, label: "담당자", value: "이검사" },
-      { icon: <Search />, label: "검색어", value: "김지훈" },
-    ];
+    /*
+      **조건 넷을 값으로 들고 있습니다.** 요약은 그 값에서 계산합니다 —
+      펼쳐서 바꾸고 조회를 누르면 칩이 따라 바뀝니다.
+
+      요약에 있는 조건이 펼쳤을 때 없으면 안 됩니다. 접힌 줄은 「지금 뭐가 걸려
+      있나」를 말하는 자리라, 없는 조건을 말하면 어디서 고치는지 찾을 수 없습니다.
+    */
+    const useFilter = () => {
+      const [period, setPeriod] = useState<DateRange>({ start: addDays(today, -6), end: today });
+      const [test, setTest] = useState("cbc");
+      const [owner, setOwner] = useState<string[]>(["이검사"]);
+      const [keyword, setKeyword] = useState("김지훈");
+
+      const summary: FilterSummaryItem[] = [];
+      if (period.start && period.end)
+        summary.push({ value: `${formatDate(period.start)} ~ ${formatDate(period.end)}` });
+      // 검사 항목은 값이 스스로 말하므로 아이콘이 없습니다
+      if (test !== "all") summary.push({ value: TESTS.find((t) => t.value === test)!.label });
+      // 담당자와 검색어는 둘 다 사람 이름이라 값만으로는 구분되지 않습니다
+      if (owner.length) summary.push({ icon: <User />, label: "담당자", value: owner[0] });
+      if (keyword) summary.push({ icon: <Search />, label: "검색어", value: keyword });
+
+      return { period, setPeriod, test, setTest, owner, setOwner, keyword, setKeyword, summary };
+    };
+
+    /*
+      **컴포넌트가 아니라 함수입니다.** 렌더 안에서 `const Fields = () => …` 로 만들면
+      매 렌더마다 새 컴포넌트 타입이 되어 React 가 아래를 통째로 다시 마운트합니다 —
+      검색어를 한 글자 칠 때마다 포커스가 빠집니다.
+    */
+    const fields = (f: ReturnType<typeof useFilter>) => (
+      <>
+        <FilterRow>
+          <FormField label="기간 선택">
+            <DateRangePicker
+              quickSelect
+              value={f.period}
+              onValueChange={f.setPeriod}
+              presets={DEMO_PRESETS}
+            />
+          </FormField>
+        </FilterRow>
+        <FilterRow>
+          <FormField label="검사 항목" className="@pc/filter:w-44">
+            <Select options={TESTS} value={f.test} onValueChange={f.setTest} />
+          </FormField>
+          {/* 이름을 알면 쳐서 거르는 편이 빠릅니다 — 비어 있는 것이 곧 「전체」입니다 */}
+          <FormField label="담당자" className="@pc/filter:w-36">
+            <Combobox
+              type="single"
+              render="editable"
+              options={OWNERS}
+              value={f.owner}
+              onValueChange={f.setOwner}
+              placeholder="전체"
+              clearable
+            />
+          </FormField>
+          <FormField label="검색어" className="@pc/filter:w-56">
+            <Input
+              leadingIcon={<Search />}
+              placeholder="환자명 또는 차트번호"
+              value={f.keyword}
+              onChange={(e) => f.setKeyword(e.target.value)}
+              onClear={f.keyword ? () => f.setKeyword("") : undefined}
+            />
+          </FormField>
+        </FilterRow>
+      </>
+    );
+
+    const narrow = useFilter();
+    const wide = useFilter();
 
     return (
       <div className="flex flex-col gap-6">
         <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
-          <FilterBar {...args} defaultOpen={false} summary={summary}>
-            <FilterRow>
-              <FormField label="기간 선택">
-                <DateRangePicker quickSelect value={a} onValueChange={setA} />
-              </FormField>
-            </FilterRow>
+          <FilterBar {...args} defaultOpen={false} summary={narrow.summary}>
+            {fields(narrow)}
           </FilterBar>
         </div>
         <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
-          <FilterBar {...args} defaultOpen={false} summary={summary}>
-            <FilterRow>
-              <FormField label="기간 선택">
-                <DateRangePicker quickSelect value={b} onValueChange={setB} />
-              </FormField>
-            </FilterRow>
+          <FilterBar {...args} defaultOpen={false} summary={wide.summary}>
+            {fields(wide)}
           </FilterBar>
         </div>
       </div>
