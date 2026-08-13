@@ -7,6 +7,7 @@ import type { DataTableColumn } from "@/components/ui/data-table";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
+import type { FilterSummaryItem } from "@/components/ui/filter-bar";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -154,25 +155,33 @@ function OrderFilter({
 }) {
   const set = <K extends keyof Query>(key: K, v: Query[K]) => onChange({ ...value, [key]: v });
 
-  // 걸린 조건만 · 로 이어 씁니다 — 「전체」는 조건이 아니라 안 건 것입니다
-  const summary =
-    [
-      value.period.start && value.period.end
-        ? `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`
-        : null,
-      value.test || null,
-      value.state !== "all" ? value.state : null,
-      value.owner || null,
-      value.keyword || null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || "조건 없음";
+  /*
+    걸린 조건만 이어 씁니다 — 「전체」는 조건이 아니라 **안 건 것**이라 뺍니다.
+    넣으면 `전체 · 전체 · …` 가 되어 무엇을 걸었는지가 오히려 안 보입니다.
+
+    **라벨을 함께 넘깁니다** (2026-08-13). 값만 나열하면 `이검사`(담당자)와
+    `김지훈`(검색어)이 나란히 서서 어느 쪽이 무엇인지 알 수 없습니다 — 접힌 줄의
+    일이 「지금 뭐가 걸려 있나」를 한눈에 보여주는 것인데 그걸 못 하게 됩니다.
+
+    **라벨은 위 필드의 것과 같은 말**입니다. 펼쳤을 때와 이어져야 어디를 고쳐야
+    하는지 바로 찾습니다.
+  */
+  const summary: FilterSummaryItem[] = [];
+  if (value.period.start && value.period.end)
+    summary.push({
+      label: "접수일",
+      value: `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`,
+    });
+  if (value.test) summary.push({ label: "검사항목", value: value.test });
+  if (value.state !== "all") summary.push({ label: "상태", value: value.state });
+  if (value.owner) summary.push({ label: "담당자", value: value.owner });
+  if (value.keyword) summary.push({ label: "검색어", value: value.keyword });
 
   return (
     <FilterBar
       open={open}
       onOpenChange={onOpenChange}
-      summary={summary}
+      summary={summary.length ? summary : "조건 없음"}
       count={count}
       onReset={onReset}
       onSearch={() => {

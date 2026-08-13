@@ -93,9 +93,31 @@ export function FilterRow({
   );
 }
 
+/**
+ * 접힌 줄에 들어가는 조건 하나.
+ *
+ * **라벨은 값이 무엇인지 말하는 자리**입니다 — 없으면 값만 나옵니다.
+ * `이검사`(담당자)와 `김지훈`(검색어)처럼 **값만으로는 구분되지 않는 것**이
+ * 나란히 서면 접힌 줄이 제 일을 못 합니다.
+ */
+export interface FilterSummaryItem {
+  /** 위 필드의 라벨과 같은 말을 쓰세요 — 펼쳤을 때와 이어져야 찾을 수 있습니다. */
+  label?: string;
+  value: string;
+}
+
 export interface FilterBarProps {
-  /** 접혔을 때 보여줄 한 줄. 조건을 `·` 로 이어 씁니다. */
-  summary: string;
+  /**
+   * 접혔을 때 보여줄 한 줄. 조건을 `·` 로 이어 씁니다.
+   *
+   * **배열로 주면 라벨이 함께 나옵니다** (2026-08-13) — 라벨은 `Text/Subtle`,
+   * 값은 `Text/Basic Medium` 이라 눈은 진한 값만 훑고 라벨은 필요할 때만 읽힙니다.
+   * 문자열도 그대로 받습니다 (라벨이 필요 없는 곳 · 문서용).
+   *
+   * **걸린 조건만 담으세요** — 「전체」는 조건을 건 게 아니라 안 건 것이라,
+   * 넣으면 `전체 · 전체 · …` 가 되어 무엇을 걸었는지가 오히려 안 보입니다.
+   */
+  summary: string | FilterSummaryItem[];
   /** 조회 결과 수. **좁을 때만** 배지로 나옵니다 (넓을 때는 표·목록 헤더가 말합니다). */
   count?: number;
   /** 왼쪽 작은 제목. */
@@ -245,7 +267,18 @@ export function FilterBar({
           </span>
           {/* 접혔을 때만 — 펼치면 아래 필드에 같은 정보가 있습니다 */}
           {!open && (
-            <span className="truncate text-sm font-medium text-text-basic">{summary}</span>
+            <span className="truncate text-sm font-medium text-text-basic">
+              {typeof summary === "string"
+                ? summary
+                : summary.map((it, i) => (
+                    <React.Fragment key={`${it.label ?? ""}${it.value}`}>
+                      {i > 0 && <span className="text-text-subtle"> · </span>}
+                      {/* 라벨은 뒤로 물러납니다 — 훑을 때 눈에 들어와야 하는 것은 값입니다 */}
+                      {it.label && <span className="font-normal text-text-subtle">{it.label} </span>}
+                      {it.value}
+                    </React.Fragment>
+                  ))}
+            </span>
           )}
         </span>
 

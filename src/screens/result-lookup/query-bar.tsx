@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Search } from "lucide-react";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
+import type { FilterSummaryItem } from "@/components/ui/filter-bar";
 import { FormField } from "@/components/ui/form-field";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Select } from "@/components/ui/select";
@@ -75,22 +76,26 @@ export function QueryFilter({
     접혔을 때 보이는 한 줄입니다. 걸린 조건을 · 로 이어 씁니다 — 펼치면 아래 필드에
     같은 정보가 있어 중복이라, 요약과 건수는 접혔을 때만 나옵니다.
   */
-  const summary =
-    [
-      value.period.start && value.period.end
-        ? `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`
-        : null,
-      TEST_OPTIONS.find((o) => o.value === value.test)?.label,
-      value.keyword || null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || "조건 없음";
+  /*
+    **라벨을 함께 넘깁니다** (2026-08-13). 값만 이어 쓰면 사람 이름이나 코드처럼
+    값만으로는 무엇인지 알 수 없는 것들이 나란히 서서, 접힌 줄이 「지금 뭐가
+    걸려 있나」를 알려주는 일을 못 합니다. 라벨은 **위 필드의 것과 같은 말**입니다.
+  */
+  const summary: FilterSummaryItem[] = [];
+  if (value.period.start && value.period.end)
+    summary.push({
+      label: "기간설정",
+      value: `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`,
+    });
+  const test = TEST_OPTIONS.find((o) => o.value === value.test);
+  if (value.test !== "all" && test) summary.push({ label: "검사 항목", value: test.label });
+  if (value.keyword) summary.push({ label: "검색어", value: value.keyword });
 
   return (
     <FilterBar
       open={open}
       onOpenChange={onOpenChange}
-      summary={summary}
+      summary={summary.length ? summary : "조건 없음"}
       count={count}
       onReset={onReset}
       /* 조회하면 접힙니다 — 조건은 한 번 정하고 결과를 계속 봅니다 */
