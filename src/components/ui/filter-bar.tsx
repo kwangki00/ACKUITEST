@@ -176,10 +176,16 @@ export function FilterBar({
         닿지 않고, 「조건 변경」은 누를 수 있다는 것을 눈에 보이게 합니다.
         여기에 여는 것 말고 다른 일을 하는 버튼을 넣지 마세요. 그것도 접힙니다.
       */}
+      {/*
+        **`select-none` 이 필요합니다** — 누르는 줄이라 글자를 잡을 일이 없습니다.
+        없으면 두 번 누르거나 살짝 끌었을 때 브라우저가 글자를 잡는데, 그 사이
+        패널이 펼쳐지면서 **선택이 새로 나타난 필드까지 번집니다**
+        (`TabItem` · `DropdownMenuItem` 과 같은 이유).
+      */}
       <div
         onClick={() => setOpen(!open)}
         className={cn(
-          "relative flex cursor-pointer items-center gap-2 py-3 pr-3 pl-4",
+          "relative flex cursor-pointer items-center gap-2 py-3 pr-3 pl-4 select-none",
           "@pc/filter:h-8 @pc/filter:gap-2.5 @pc/filter:p-0"
         )}
       >
