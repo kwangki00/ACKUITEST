@@ -344,6 +344,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 
 - **화면마다 `useTable` 을 직접 부르지 마세요** — 정렬 화살표를 `TableHead` 에 잇는 방식, 전체 선택의 indeterminate, 빈 결과의 `colSpan` 이 화면마다 조금씩 달라집니다. 「연결을 호출부에 시키면 반드시 빠집니다」와 같은 종류입니다
 - **체크박스 열을 열 정의에 직접 넣지 마세요.** `selectable` 이 전체 선택까지 함께 처리합니다
+  - **중간표시는 `getIsSomeRowsSelected() && !getIsAllRowsSelected()`** 입니다 (2026-08-13). v9 는 전부 선택일 때도 `getIsSomeRowsSelected()` 가 `true` 라, 그대로 넘기면 체크와 중간표시가 **동시에 서고 중간표시가 이깁니다** — 200건을 다 골라도 헤더는 반쪽으로 보였습니다. v8 은 배타적이었으니 **인터넷 예제를 그대로 베끼면 걸립니다**
 - **`getRowId` 를 꼭 넘기세요.** 안 넘기면 배열 index 라 정렬·페이지 이동에서 **선택이 엉뚱한 행으로 옮겨갑니다**
 - **열 폭·정렬은 `meta`** 로 줍니다 (`{ width: "w-20", align: "right" }`). `align` 은 `TableHead`·`TableCell` 이 이미 갖고 있던 축입니다
 - **마지막 한 열은 끌 수 없습니다** — 전부 끄면 열 이름조차 안 남아 무엇을 보던 화면인지 알 수 없습니다
@@ -362,6 +363,7 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 | 행 모델 | `getSortedRowModel()` | **`createSortedRowModel()`** 을 features 에 넘김 |
 | 상태 읽기 | `table.getState()` | **`table.state`** |
 | 열 타입 | `ColumnDef<TData, TValue>` | **`ColumnDef<TFeatures, TData, TValue>`** |
+| 전체 선택 | `getIsSomeRowsSelected()` 는 **「일부만」** | **전부 선택일 때도 `true`** |
 
 `useLegacyTable`(v8 API 흉내)도 있지만 **`@deprecated`** 라 쓰지 않습니다. 메서드 이름(`getIsSorted` · `getToggleAllRowsSelectedHandler` …)은 v8 과 같아서, **설정만 다르고 사용은 같습니다.**
 

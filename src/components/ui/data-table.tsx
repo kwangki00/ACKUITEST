@@ -229,8 +229,17 @@ export function DataTable<TData extends RowData>({
         <Checkbox
           aria-label="전체 선택"
           checked={table.getIsAllRowsSelected()}
-          // 일부만 선택된 상태. 안 세우면 보조기술에는 unchecked 로 읽힙니다
-          indeterminate={table.getIsSomeRowsSelected()}
+          /*
+            **`getIsSomeRowsSelected()` 만으로는 안 됩니다** (2026-08-13).
+
+            v9 는 전부 선택일 때도 `true` 를 돌려줍니다 — v8 은 「일부만」이라
+            배타적이었습니다. 그대로 넘기면 체크와 중간표시가 **동시에 서고**
+            중간표시가 이겨서, **200건을 다 골라도 헤더는 반쪽으로 보입니다.**
+
+            `!getIsAllRowsSelected()` 를 함께 봐야 「일부만」이 됩니다.
+            중간표시를 안 세우면 보조기술에는 unchecked 로 읽힙니다.
+          */
+          indeterminate={table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
           onChange={table.getToggleAllRowsSelectedHandler()}
         />
       ),
