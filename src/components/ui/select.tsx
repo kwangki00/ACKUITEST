@@ -139,6 +139,47 @@ function PopoverSelect({
     setOpen(false);
   };
 
+  /**
+   * **닫혀 있을 때 방향키가 값을 바꿉니다** (2026-08-13) — 네이티브 `<select>` 와
+   * 같습니다. 짝인 `NativeSelect` 가 Windows 에서 그렇게 동작하는데, 같은 껍데기를
+   * 쓰고 바꿔 끼울 수 있는 둘이 키보드에서 갈려 있었습니다.
+   *
+   * **끝에서 돌지 않습니다.** 마지막에서 아래를 눌러 첫 항목으로 튀면 값이 멀리
+   * 옮겨간 것을 못 보고 지나칩니다 — 열린 패널 안의 커서는 도는 것이 맞지만
+   * (짚기만 할 뿐 값이 안 바뀝니다) 여기는 누를 때마다 실제 값이 바뀝니다.
+   *
+   * 비활성 항목은 건너뜁니다. `Alt+아래`는 표준대로 패널을 엽니다.
+   */
+  const usable = options.filter((o) => !o.disabled);
+
+  const stepValue = (d: number) => {
+    if (!usable.length) return;
+    const i = usable.findIndex((o) => o.value === value);
+    // 값이 없으면 아래는 첫 항목 · 위는 마지막 항목부터 시작합니다
+    const next = i < 0 ? (d > 0 ? 0 : usable.length - 1) : i + d;
+    if (next < 0 || next >= usable.length) return;
+    onValueChange(usable[next].value);
+  };
+
+  const onTriggerKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled || open) return;
+    // 안의 Clear 버튼에서 올라온 키는 건드리지 않습니다
+    if (e.target !== e.currentTarget) return;
+
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (e.altKey) {
+        setOpen(true);
+        return;
+      }
+      stepValue(e.key === "ArrowDown" ? 1 : -1);
+    } else if (e.key === "Home" || e.key === "End") {
+      if (!usable.length) return;
+      e.preventDefault();
+      onValueChange(usable[e.key === "Home" ? 0 : usable.length - 1].value);
+    }
+  };
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!options.length) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -161,6 +202,7 @@ function PopoverSelect({
           open={open}
           aria-label={ariaLabel}
           leadingIcon={leadingIcon}
+          onKeyDown={onTriggerKeyDown}
           onClear={clearable && value != null ? () => onValueChange("") : undefined}
           className={cn(value == null && !disabled && "text-text-placeholder", className)}
         >
