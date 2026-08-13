@@ -199,11 +199,35 @@ export function MobileResultLookup({
                       <MobileListCard
                         key={p.chart}
                         title={p.name}
-                        meta={`차트 ${p.chart} · ${p.date}`}
+                        /* 접수일·접수번호는 훑는 값이 아니라 확인하는 값이라 메타 줄로 */
+                        meta={`${p.date} · 접수 ${p.receipt}`}
                         count={`${p.tests}건`}
                         /* 완료여부는 4종이라 점이 아니라 배지입니다 — 카드는 행이 적습니다 */
                         badge={<Badge tone={doneTone(p)}>{DONE[p.done].label}</Badge>}
-                        values={[{ label: "접수번호", value: p.receipt }]}
+                        /*
+                          값 자리는 **찾는 기준과 눈에 걸려야 하는 것** 둘입니다 —
+                          차트번호로 환자를 찾고, 이상결과가 있으면 먼저 열어 봅니다.
+                          `values` 는 타입이 둘까지만 받습니다.
+                        */
+                        values={[
+                          { label: "차트번호", value: p.chart },
+                          {
+                            label: "이상결과",
+                            value: p.flags.length ? (
+                              // L·H 는 낮음·높음입니다. 색만으로 구분하지 않고 글자를 함께 씁니다
+                              <span className="flex items-center gap-1">
+                                {p.flags.map((f) => (
+                                  <Badge key={f} tone={f === "H" ? "danger" : "info"} size="sm">
+                                    {f}
+                                  </Badge>
+                                ))}
+                              </span>
+                            ) : (
+                              // 값이 없으면 하이픈 — 빈칸이면 조회가 덜 된 건지 없는 건지 모릅니다
+                              "-"
+                            ),
+                          },
+                        ]}
                         onClick={() => onSelect(p.chart)}
                       />
                     ))}

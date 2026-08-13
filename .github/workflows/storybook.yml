@@ -1,6 +1,11 @@
-# Storybook 을 GitHub Pages 에 올립니다.
+# Storybook 과 앱을 GitHub Pages 에 함께 올립니다.
 #
-# 주소 — https://kwangki00.github.io/ACKUITEST/
+# 주소 — Storybook  https://kwangki00.github.io/ACKUITEST/
+#        앱         https://kwangki00.github.io/ACKUITEST/app/
+#
+# 앱은 결과조회 화면입니다. 폰에서 직접 열어 보려고 함께 올립니다 —
+# 모바일 구조(탭바 · 카드 목록 · 전체 화면 상세)는 창을 줄여 보는 것과
+# 실제 기기에서 손가락으로 만지는 것이 다릅니다.
 #
 # 처음 한 번은 저장소 설정에서 켜 줘야 합니다:
 #   Settings → Pages → Source 를 "GitHub Actions" 로
@@ -9,7 +14,7 @@
 # Storybook 빌드 결과는 상대 경로라 /ACKUITEST/ 같은 하위 경로에서도 그대로 동작합니다.
 # Overview 페이지의 문서 링크도 하위 경로를 계산해서 만듭니다.
 
-name: Storybook
+name: Pages
 
 on:
   push:
@@ -45,6 +50,14 @@ jobs:
       - run: npx tsc --noEmit
 
       - run: npm run build-storybook
+
+      # 앱은 하위 경로로 올라가므로 base 를 넘겨야 합니다 — 안 넘기면 /assets/… 를
+      # 찾아가서 흰 화면만 나옵니다. 로컬 빌드는 그대로 / 라 이 값을 package.json 에
+      # 박지 않고 여기서만 줍니다.
+      - run: npx vite build --base=/ACKUITEST/app/
+
+      # 한 사이트에 둘을 담습니다 — 루트는 Storybook, /app/ 은 앱
+      - run: cp -r dist storybook-static/app
 
       - uses: actions/configure-pages@v5
 
