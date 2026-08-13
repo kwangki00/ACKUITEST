@@ -282,6 +282,15 @@ export function FilterBar({
         **`inert` 로 닫힌 동안을 꺼둡니다** — DOM 에 남아 있어서, 안 그러면 안 보이는
         입력창에 탭이 들어가고 스크린리더도 읽습니다. `{open && …}` 이 거저 해주던
         일이라 애니메이션을 넣으면서 직접 해야 합니다.
+
+        **넓을 때는 움직이지 않습니다** (2026-08-12). `overflow-hidden` 은 자손의
+        **포커스 링(`ring-[3px]`)까지 자릅니다.** 좁을 때는 필드가 `px-4 pb-4`(16)라
+        링이 들어갈 자리가 있지만, 넓을 때는 `@pc/filter:p-0` 이라 상자에 딱 붙어서
+        왼쪽·아래 링이 잘려 나갑니다.
+
+        넓을 때는 **닫히면 `hidden`, 열리면 자르지 않습니다.** 애니메이션을 잃지만
+        거기는 필드가 한 줄이라 튀는 느낌이 적고, 포커스가 어디 있는지 안 보이는
+        것보다 낫습니다.
       */}
       <div
         id={panelId}
@@ -290,10 +299,12 @@ export function FilterBar({
           "grid transition-[grid-template-rows] duration-200 ease-out",
           // 자리를 밀어내는 움직임이라 어지럼을 만들기 쉽습니다 (Accordion 과 같은 규칙)
           "motion-reduce:transition-none",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+          "@pc/filter:grid-rows-[1fr] @pc/filter:transition-none",
+          !open && "@pc/filter:hidden"
         )}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden @pc/filter:overflow-visible">
         <div
           className={cn(
             "flex flex-col gap-3.5 px-4 pb-4",

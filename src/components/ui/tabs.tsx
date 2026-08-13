@@ -299,9 +299,17 @@ export function TabItem({
         </span>
       )}
 
-      {/* 활성 표시는 목록이 그은 1px 줄 위에 2px 로 얹습니다 */}
+      {/*
+        활성 표시는 목록이 그은 1px 줄 위에 **2px** 로 얹습니다 (Figma `Variant=Line,
+        State=Active` 의 하단 스트로크 2px).
+
+        **`bottom-0` 입니다 — `-bottom-px` 가 아닙니다** (2026-08-12). 1px 내려 두면
+        2px 중 아래 절반이 목록의 패딩 상자 **밖**으로 나가는데, `scrollable` 이
+        `overflow-y-hidden` 이라(세로 스크롤바를 막는 용도) 그 부분이 잘려서
+        **1px 만 보였습니다.** MDI 탭바가 그 조합이라 거기서만 얇아 보였습니다.
+      */}
       {variant === "line" && active && (
-        <span aria-hidden className="absolute inset-x-0 -bottom-px h-0.5 bg-tab-indicator" />
+        <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-tab-indicator" />
       )}
     </div>
   );
