@@ -141,6 +141,8 @@ Primitive 나 Tailwind 색을 컴포넌트에서 직접 쓰면 안 됩니다. �
 
 `slate` · `zinc` · `red` 도 쓸 수 있지만 **중립색은 `gray` 하나로 통일**했습니다. 회색 계열이 섞이면 미세하게 색이 어긋납니다.
 
+**램프 밖의 색이 필요하면 Semantic 에 값을 직접 적습니다** — `Marker/Checkup`(보라 `#ad46ff`)이 그 경우입니다 (2026-08-12). 브랜드 8램프에 보라가 없는데 화면이 Tailwind `purple/500` 을 직접 참조하고 있었습니다. 「컴포넌트는 Semantic 만」 규칙 때문에 토큰으로 올렸고, **램프를 새로 만들지는 않았습니다** — 표식 하나에만 쓰이고 단계가 필요해지면 그때 만듭니다.
+
 ### @theme static — 토큰은 전부 내보냅니다
 
 `src/styles/ack-theme.css` 에 전부 있습니다. Tailwind 4 의 `@theme` 이라 `bg-button-primary-fill` 처럼 유틸리티가 자동 생성됩니다.
@@ -973,7 +975,15 @@ Screen
 ### 누르는 줄에는 `cursor-pointer` 와 `select-none` 이 함께 갑니다
 
 - **`select-none` 이 없으면** 두 번 누르거나 살짝 끌 때 브라우저가 글자를 잡습니다. `FilterBar` 머리줄은 누르는 순간 패널이 펼쳐져서, **선택이 새로 나타난 필드까지 번졌습니다** (2026-08-12)
-- **`cursor-pointer` 도 적어야 합니다** — Tailwind 4 부터 `<button>` 기본 커서가 `default` 입니다. 사이드바가 그래서 화살표로 남아 있었습니다
+- **커서는 `src/index.css` 가 한 번에 세웁니다** — Tailwind 4 부터 `<button>` 기본 커서가 `pointer` 가 아니라 `default` 라, 아무것도 안 적으면 조용히 화살표로 남습니다
+
+  ```css
+  button:not(:disabled), [role="button"], [role="tab"] { cursor: pointer }
+  ```
+
+  - **컴포넌트마다 적게 하면 반드시 빠집니다** — `<button>` 을 그리는 23개 중 **15개**가 빠져 있었고 거기에 **`Button` 자신**이 들어 있었습니다 (2026-08-12). 처음에는 사이드바만 고쳤는데 원인이 같아 전역으로 옮겼습니다
+  - **`:disabled` 는 뺍니다** — 못 누르는 버튼에 손 모양이 뜨면 누를 수 있다고 읽힙니다. 못 누른다는 표시는 각 컴포넌트가 `cursor-not-allowed` 로 답니다 (유틸리티라 기본 규칙을 이깁니다)
+  - `role` 로 만든 것도 함께 잡습니다 — `TabItem` 은 `<div role="tab">` 입니다
 - 줄 안에 버튼이 있으면 **버튼은 자기 `onClick` 을 버리고 줄로 올려보냅니다**(버블링). 각자 갖고 있으면 두 번 토글되어 아무 일도 안 일어난 것처럼 보입니다. 버튼을 지우지 않는 이유는 **키보드와 신호** 때문입니다 — `<div>` 는 탭으로 닿지 않습니다
 - 이미 그렇게 되어 있는 것 — `TabItem` · `DropdownMenuItem` · `ListItem`
 
