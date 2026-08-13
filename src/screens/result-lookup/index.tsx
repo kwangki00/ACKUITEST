@@ -117,8 +117,14 @@ export function ResultLookupScreen() {
   };
 
   const [query, setQuery] = React.useState<Query>(EMPTY_QUERY);
-  /* 접힘 상태도 여기 둡니다 — 껍데기 안에 두면 창 폭이 바뀔 때 도로 펼쳐집니다 */
-  const [filterOpen, setFilterOpen] = React.useState(false);
+  /*
+    접힘 상태도 여기 둡니다 — 껍데기 안에 두면 창 폭이 바뀔 때 도로 펼쳐집니다.
+
+    **처음에는 펼쳐져 있습니다** (2026-08-13). 화면에 들어와서 가장 먼저 하는 일이
+    조건을 거는 것인데, 접혀 있으면 그 전에 「조건 변경」을 한 번 눌러야 합니다.
+    접는 것은 조회한 뒤입니다 — 그때부터는 결과를 계속 봅니다.
+  */
+  const [filterOpen, setFilterOpen] = React.useState(true);
   const [listPage, setListPage] = React.useState(1);
   const [chart, setChart] = React.useState(PATIENTS[5].chart);
 

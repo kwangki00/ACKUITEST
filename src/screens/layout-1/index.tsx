@@ -244,7 +244,15 @@ function OrderFilter({
 
 export function Layout1Screen() {
   const [query, setQuery] = React.useState<Query>(EMPTY_QUERY);
-  const [open, setOpen] = React.useState(false);
+  /*
+    **처음에는 펼쳐 둡니다** (2026-08-13). 조회 화면에 들어와서 가장 먼저 하는 일이
+    조건을 거는 것인데, 접혀 있으면 그 전에 「조건 변경」을 한 번 눌러야 합니다 —
+    아직 아무것도 안 한 사람에게 접힌 요약을 보여줄 이유가 없습니다.
+
+    접는 것은 **조회한 뒤**입니다 (`onSearch` 가 닫습니다). 그때부터는 결과를 계속
+    보므로 접혀 있는 편이 맞습니다.
+  */
+  const [open, setOpen] = React.useState(true);
   const [selected, setSelected] = React.useState<TestOrder[]>([]);
 
   /*
