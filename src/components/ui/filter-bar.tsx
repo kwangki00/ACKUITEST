@@ -312,12 +312,9 @@ export function FilterBar({
                     size="lg"
                     className="shrink-0"
                   >
-                    {/* 크기를 안 정하면 lucide 기본값 24 로 나옵니다 */}
+                    {/* 크기는 `Badge` 가 정합니다 — 여기서 `size-*` 를 주지 않습니다 */}
                     {it.icon && (
-                      <span
-                        aria-hidden
-                        className="shrink-0 text-icon-muted-foreground [&>svg]:size-3.5"
-                      >
+                      <span aria-hidden className="shrink-0 text-icon-muted-foreground">
                         {it.icon}
                       </span>
                     )}

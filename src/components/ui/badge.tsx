@@ -13,10 +13,19 @@ const badgeVariants = cva(
     variants: {
       tone: { neutral: "", primary: "", info: "", success: "", warning: "", danger: "" },
       styleVariant: { soft: "", solid: "", outline: "border" },
+      /*
+        **아이콘 크기를 배지가 정합니다** (2026-08-13) — 안 정하면 lucide 기본값 24 로
+        나와 배지보다 커집니다. 글자 옆 아이콘이라 `Button` 과 같은 비율입니다
+        (10 옆 12 · 12 옆 14 · 14 옆 16).
+
+        호출부에서 `size-*` 를 주지 마세요. 실제로 `FilterBar` 가 조건 칩에
+        `[&>svg]:size-3.5` 를 손으로 붙이고 있었습니다 — 배지를 쓰는 다른 자리에
+        아이콘을 넣으면 거기서 또 빠집니다.
+      */
       size: {
-        sm: "h-5 px-2 text-2xs",
-        default: "h-6 px-2.5 text-xs",
-        lg: "h-7 px-3 text-sm",
+        sm: "h-5 px-2 text-2xs [&_svg]:size-3",
+        default: "h-6 px-2.5 text-xs [&_svg]:size-3.5",
+        lg: "h-7 px-3 text-sm [&_svg]:size-4",
       },
     },
     compoundVariants: [
