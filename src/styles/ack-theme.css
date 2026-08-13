@@ -430,6 +430,21 @@
   --color-badge-danger-solid-text: #f9fafb;
   --color-badge-danger-border: #ff9191;
 
+  /* Marker — 표의 행에 붙는 **결과 유무** 표식 (2026-08-12)
+
+     완료여부(Badge 계열)와 **축이 다릅니다** — 완료여부는 넷 중 하나를 고르는
+     값이고 이것은 있고 없고입니다. 한 목록에 섞으면 점 하나가 두 가지를 뜻하게
+     됩니다 (`data.ts` 의 DONE · MARKS 가 갈라져 있는 이유).
+
+     **Checkup 의 보라는 브랜드 8램프에 없는 색**입니다. 화면 목업이 Tailwind
+     purple/500 을 직접 참조하고 있었는데, Primitive 나 Tailwind 색을 컴포넌트에서
+     바로 쓰지 않는다는 규칙 때문에 Semantic 으로 올렸습니다. 램프를 새로 만들지는
+     않았습니다 — 이 표식 하나에만 쓰이고, 단계가 필요해지면 그때 만듭니다.
+     Special 은 Secondary/500 과 같은 값이지만 **이름을 갈라 둡니다** — 브랜드
+     보조색을 바꿀 때 표식까지 딸려 바뀌면 안 됩니다. */
+  --color-marker-checkup: #ad46ff;
+  --color-marker-special: #9a7f48;
+
   /* Switch */
   --color-switch-track-off: #99a1af;
   --color-switch-track-on: #0070bc;

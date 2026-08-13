@@ -20,13 +20,13 @@ export type DoneKey = keyof typeof DONE;
  * **`DONE` 에 합치지 않습니다.** 완료여부는 넷 중 하나를 고르는 값이고
  * 이것은 있고 없고라, 한 목록에 섞으면 점 하나가 두 가지를 뜻하게 됩니다.
  *
- * `P` 의 보라는 **디자인 시스템에 없는 색**입니다 — 브랜드 8램프에 보라가 없어
- * Figma 화면이 Tailwind 색을 직접 참조하고 있었습니다. Semantic 토큰을 만들지
- * 결정이 필요합니다 (2026-08-12).
+ * 색은 **`Marker/*` Semantic 토큰**입니다 (2026-08-12). 보라는 브랜드 8램프에 없어
+ * 화면 목업이 Tailwind 색을 직접 참조하고 있었는데, 「컴포넌트는 Semantic 만」
+ * 규칙대로 토큰으로 올렸습니다.
  */
 export const MARKS = {
-  p: { label: "P: 검진결과 유무", cls: "bg-purple-500" },
-  s: { label: "S: 스페셜결과 유무", cls: "bg-icon-secondary" },
+  p: { label: "P: 검진결과 유무", cls: "bg-marker-checkup" },
+  s: { label: "S: 스페셜결과 유무", cls: "bg-marker-special" },
 } as const;
 
 export interface Patient {
