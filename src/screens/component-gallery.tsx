@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Calendar, Download, Plus, Printer, RefreshCw, Search, Share2, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Download,
+  Pencil,
+  Plus,
+  Printer,
+  RefreshCw,
+  Search,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -29,7 +39,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableToolbar,
 } from "@/components/ui/table";
 
 /** 섹션 래퍼 — 갤러리 자체는 조용하게, 컴포넌트가 주인공입니다. */
@@ -347,43 +356,57 @@ function Gallery() {
           title="Table"
           note="표현만 하는 부품입니다 — Figma 와 1:1. 정렬·선택·페이지네이션은 쓰는 쪽이 계산합니다."
         >
-          <div className="overflow-hidden rounded-lg border border-table-border">
-            {/* 건수는 칩 하나에 모읍니다 — 선택이 있으면 함께 적습니다 */}
-            <TableToolbar
-              title="검사이력목록"
-              count={
-                selected.length > 0
+          {/*
+            **머리줄은 테두리 밖**입니다 — 아래 `DataTable` 과 같은 구성입니다.
+            판 안에 섹션이 여럿일 때의 모양이고 결과조회 화면이 그렇습니다.
+            갤러리를 보고 따라 만들면 화면과 같아야 합니다.
+          */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-base font-semibold text-table-text">검사이력목록</span>
+              {/* 건수는 칩 하나에 모읍니다 — 선택이 있으면 함께 적습니다 */}
+              <Badge tone="neutral">
+                {selected.length > 0
                   ? `총 ${ROWS.length}건 / ${selected.length}건 선택됨`
-                  : `총 ${ROWS.length}건`
-              }
-            >
-              <Button size="sm" variant="outline">
-                <Plus />
-                추가
-              </Button>
-              {/* 삭제는 행이 선택됐을 때만 — 선택 없이 버튼이 있으면 눌러도 아무 일이 없습니다 */}
-              {selected.length > 0 && (
-                <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)}>
-                  <Trash2 />
-                  삭제
+                  : `총 ${ROWS.length}건`}
+              </Badge>
+              <span className="ml-auto flex items-center gap-2">
+                <Button size="sm" variant="outline">
+                  <Plus />
+                  추가
                 </Button>
-              )}
-              <span className="mx-1 h-4 w-px bg-table-border" aria-hidden />
-              {[
-                { icon: <Download />, label: "엑셀 내려받기" },
-                { icon: <Printer />, label: "인쇄" },
-                { icon: <Share2 />, label: "공유" },
-              ].map(({ icon, label }) => (
-                <Tooltip key={label}>
-                  <TooltipTrigger asChild>
-                    <Button size="icon-sm" variant="ghost" aria-label={label}>
-                      {icon}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{label}</TooltipContent>
-                </Tooltip>
-              ))}
-            </TableToolbar>
+                {/* 편집은 **하나일 때만** — 둘을 한꺼번에 고칠 화면이 없습니다 */}
+                {selected.length === 1 && (
+                  <Button size="sm" variant="outline">
+                    <Pencil />
+                    편집
+                  </Button>
+                )}
+                {/* 삭제는 행이 선택됐을 때만 — 선택 없이 버튼이 있으면 눌러도 아무 일이 없습니다 */}
+                {selected.length > 0 && (
+                  <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)}>
+                    <Trash2 />
+                    삭제
+                  </Button>
+                )}
+                {[
+                  { icon: <Download />, label: "엑셀 내려받기" },
+                  { icon: <Printer />, label: "인쇄" },
+                  { icon: <Share2 />, label: "공유" },
+                ].map(({ icon, label }) => (
+                  <Tooltip key={label}>
+                    <TooltipTrigger asChild>
+                      <Button size="icon-sm" variant="ghost" aria-label={label}>
+                        {icon}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{label}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </span>
+            </div>
+
+            <div className="overflow-hidden rounded-md border border-table-border">
             <Table>
               <TableHeader>
                 <tr>
@@ -423,6 +446,7 @@ function Gallery() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
         </Section>
 
@@ -434,9 +458,11 @@ function Gallery() {
             **샘플페이지와 같은 구성**입니다 — 제목·건수·액션은 테두리 밖, 표만 테두리
             안. 판 안에 섹션이 여럿일 때의 모양이고 결과조회 화면이 그렇습니다.
 
-            위 `Table` 섹션은 `TableToolbar` 로 표에 딱 붙는 **한 겹**입니다. 둘을
-            나란히 두면 두 구성의 차이가 드러납니다 — 판 없이 표만 놓을 때는 툴바,
-            판 안에 넣을 때는 이쪽입니다.
+            위 `Table` 섹션도 같은 모양인데, 거기서는 머리줄·정렬·선택을 **손으로**
+            짭니다. 여기는 `DataTable` 이 다 합니다 — 그게 두 층위의 차이입니다.
+
+            표에 딱 붙는 한 겹이 필요하면 `TableToolbar` 를 쓰세요 (판 없이 표만 놓을 때).
+            갤러리에서는 실제 화면과 같은 구성만 보여 줍니다.
           */}
           <DataTable
             title="검사이력목록"
@@ -451,6 +477,13 @@ function Gallery() {
                   <Plus />
                   추가
                 </Button>
+                {/* 편집은 **하나일 때만** — 둘을 한꺼번에 고칠 화면이 없습니다 */}
+                {dtSelected.length === 1 && (
+                  <Button size="sm" variant="outline">
+                    <Pencil />
+                    편집
+                  </Button>
+                )}
                 {/* 삭제는 행이 선택됐을 때만 — 선택 없이 버튼이 있으면 눌러도 아무 일이 없습니다 */}
                 {dtSelected.length > 0 && (
                   <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)}>
