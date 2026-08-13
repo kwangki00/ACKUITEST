@@ -419,12 +419,17 @@ function ColumnControl<TData extends RowData>({
           const label =
             typeof column.columnDef.header === "string" ? column.columnDef.header : column.id;
           return (
+            /*
+              줄 높이 28 — 체크박스(24/26)와 화살표(icon-xs 24/28)가 딱 들어가는 값입니다.
+              32 로 두면 목록이 헐거워 한눈에 안 들어옵니다. 화살표를 icon-sm(32)으로
+              두면 줄을 넘치므로 둘을 함께 줄여야 합니다.
+            */
             <div
               key={column.id}
-              className="flex h-8 items-center gap-2 rounded-sm px-2 hover:bg-action-accent"
+              className="flex h-7 items-center gap-2 rounded-sm px-2 hover:bg-action-accent"
             >
+              {/* 크기는 기본입니다 — sm(14px 박스 · 12px 글자)은 고르는 목록에서 작습니다 */}
               <Checkbox
-                size="sm"
                 label={label}
                 checked={column.getIsVisible()}
                 /*
@@ -438,7 +443,7 @@ function ColumnControl<TData extends RowData>({
               <span className="flex shrink-0">
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon-xs"
                   aria-label={`${label} 위로`}
                   disabled={i === 0}
                   onClick={() => move(column.id, -1)}
@@ -447,7 +452,7 @@ function ColumnControl<TData extends RowData>({
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon-xs"
                   aria-label={`${label} 아래로`}
                   disabled={i === columns.length - 1}
                   onClick={() => move(column.id, 1)}
