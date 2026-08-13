@@ -361,7 +361,7 @@ function Catalog() {
           <Stat n="1024px" label="PC · 모바일 경계" />
         </div>
 
-        <div className="rounded-lg border border-border-gray-light bg-surface-gray-subtle p-4 text-sm text-text-subtle">
+        <div className="rounded-lg border border-border-gray-light bg-surface-gray-subtler p-4 text-sm text-text-subtle">
           <p className="mb-2 font-medium text-text-basic">읽는 순서</p>
           <p>
             <strong className="text-text-basic">Foundation</strong> 을 먼저 보세요 — 나머지 전부가
@@ -433,7 +433,7 @@ function Catalog() {
         </section>
       ))}
 
-      <footer className="rounded-lg border border-border-gray-light bg-surface-gray-subtle p-4 text-sm text-text-subtle">
+      <footer className="rounded-lg border border-border-gray-light bg-surface-gray-subtler p-4 text-sm text-text-subtle">
         <p className="mb-2 font-medium text-text-basic">“코드 전용” 이란</p>
         <p>
           Figma 에 대응물이 없는 <strong className="text-text-basic">완성형</strong>입니다. Figma 는
@@ -469,7 +469,7 @@ type Story = StoryObj<typeof meta>;
 export const 목록: Story = {
   name: "전체",
   render: () => (
-    <div className="min-h-screen bg-surface-gray-subtle p-6">
+    <div className="min-h-screen bg-surface-gray-subtler p-6">
       <Catalog />
     </div>
   ),

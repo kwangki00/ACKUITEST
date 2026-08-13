@@ -156,7 +156,7 @@ export const 빈결과: Story = {
         </TableHeader>
       </Table>
       <div className="flex flex-col items-center gap-3 py-16">
-        <div className="grid size-14 place-items-center rounded-full bg-surface-gray-subtle">
+        <div className="grid size-14 place-items-center rounded-full bg-surface-gray-subtler">
           <Search className="size-6 text-icon-muted-foreground" />
         </div>
         <div className="text-center">

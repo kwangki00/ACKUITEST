@@ -19,7 +19,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
     <div
       ref={setEl}
       style={{ transform: "translateZ(0)" }}
-      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
+      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler"
     >
       <PointerModeProvider mode="touch">{children(el)}</PointerModeProvider>
     </div>
@@ -168,7 +168,7 @@ export const 전체메뉴: Story = {
                 </div>
                 {MENU.map((g) => (
                   <div key={g.group}>
-                    <p className="bg-surface-gray-subtle px-4 py-2 text-xs text-text-subtle">
+                    <p className="bg-surface-gray-subtler px-4 py-2 text-xs text-text-subtle">
                       {g.group}
                     </p>
                     {g.items.map((it) => (

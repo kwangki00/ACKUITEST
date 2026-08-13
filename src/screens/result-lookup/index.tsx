@@ -173,7 +173,7 @@ export function ResultLookupScreen() {
   }
 
   return (
-    <div className="flex h-screen bg-surface-gray-subtle">
+    <div className="flex h-screen bg-surface-gray-subtler">
       <Sidebar
         collapsed={collapsed}
         onCollapsedChange={setCollapsed}

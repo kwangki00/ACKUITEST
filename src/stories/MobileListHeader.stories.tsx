@@ -25,7 +25,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
     <div
       ref={setEl}
       style={{ transform: "translateZ(0)" }}
-      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
+      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler"
     >
       <PointerModeProvider mode="touch">{children(el)}</PointerModeProvider>
     </div>
@@ -110,7 +110,7 @@ const meta = {
   args: { title: "환자리스트", count: "총 979명" },
   decorators: [
     (Story) => (
-      <div className="ack-mobile w-[358px] bg-surface-gray-subtle p-2">
+      <div className="ack-mobile w-[358px] bg-surface-gray-subtler p-2">
         <Story />
       </div>
     ),

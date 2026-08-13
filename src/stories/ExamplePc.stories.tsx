@@ -584,7 +584,7 @@ export const 조회화면: Story = {
     };
 
     return (
-      <div className="flex h-250 w-480 bg-surface-gray-subtle">
+      <div className="flex h-250 w-480 bg-surface-gray-subtler">
         <Sidebar
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}

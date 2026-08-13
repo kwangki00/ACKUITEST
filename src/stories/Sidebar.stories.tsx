@@ -135,7 +135,7 @@ export const 기본: Story = {
     const [page, setPage] = useState("검사결과");
 
     return (
-      <div className="flex h-[600px] bg-surface-gray-subtle">
+      <div className="flex h-[600px] bg-surface-gray-subtler">
         <Sidebar
           {...args}
           collapsed={collapsed}
@@ -161,7 +161,7 @@ export const 변형: Story = {
   render: function Both(args) {
     const [page, setPage] = useState("검사결과");
     return (
-      <div className="flex h-[600px] items-start gap-8 bg-surface-gray-subtle p-6">
+      <div className="flex h-[600px] items-start gap-8 bg-surface-gray-subtler p-6">
         <div>
           <p className="mb-2 text-xs text-text-subtle">State=Expanded — 256</p>
           <div className="h-[520px] overflow-hidden rounded-lg border border-border-gray-light">
@@ -193,7 +193,7 @@ export const 긴메뉴: Story = {
     const [page, setPage] = useState("검사결과");
     const extra = ["수탁관리", "청구관리", "재고관리", "장비관리", "품질관리", "공지사항"];
     return (
-      <div className="flex h-[600px] bg-surface-gray-subtle">
+      <div className="flex h-[600px] bg-surface-gray-subtler">
         <Sidebar {...args} onSettings={() => {}} onLogout={() => {}}>
           <MenuTree page={page} onPage={setPage} />
           {extra.map((e) => (
@@ -225,7 +225,7 @@ export const 푸터없음: Story = {
   render: function NoFooter(args) {
     const [page, setPage] = useState("검사결과");
     return (
-      <div className="flex h-[600px] bg-surface-gray-subtle">
+      <div className="flex h-[600px] bg-surface-gray-subtler">
         <Sidebar {...args}>
           <MenuTree page={page} onPage={setPage} />
         </Sidebar>
@@ -263,7 +263,7 @@ export const 서브메뉴: Story = {
   render: function Submenu(args) {
     const [page, setPage] = useState("검사결과");
     return (
-      <div className="flex h-[600px] bg-surface-gray-subtle">
+      <div className="flex h-[600px] bg-surface-gray-subtler">
         <Sidebar {...args} collapsed onSettings={() => {}} onLogout={() => {}}>
           <MenuTree page={page} onPage={setPage} />
         </Sidebar>

@@ -233,7 +233,14 @@
   --color-alpha-shadow2: rgb(0 0 0 / 0.08);
   --color-alpha-shadow3: rgb(0 0 0 / 0.13);
 
-  /* Background · Surface */
+  /* Background · Surface
+     **`-subtler` 가 더 옅습니다** — 램프의 50, `-subtle` 이 100 입니다.
+     아래 surface-*-subtler 일곱(primary · danger · success …)이 전부 50 단계라
+     회색도 거기에 맞춥니다.
+
+     2026-08-12 에 `surface-gray-*` 두 개의 이름을 맞바꿨습니다 — 혼자 반대여서
+     (subtler 가 100) 이름만 보고 고르면 반드시 틀렸습니다. 값은 그대로고 이름만
+     서로 옮겼으므로 쓰는 곳 39군데도 함께 뒤집어 화면은 달라지지 않았습니다. */
   --color-background-white: #ffffff;
   --color-background-gray-subtler: #f9fafb;
   --color-background-gray-subtle: #f3f4f6;
@@ -241,8 +248,8 @@
   --color-background-dim: rgb(0 0 0 / 0.5);
   --color-surface-white: #ffffff;
   --color-surface-inverse: #101828;
-  --color-surface-gray-subtle: #f9fafb;
-  --color-surface-gray-subtler: #f3f4f6;
+  --color-surface-gray-subtler: #f9fafb;
+  --color-surface-gray-subtle: #f3f4f6;
   --color-surface-disabled: #e5e7eb;
   --color-surface-primary-subtler: #e5f1f8;
   --color-surface-secondary-subtler: #f7f5f0;

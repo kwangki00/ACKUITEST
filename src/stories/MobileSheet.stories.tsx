@@ -26,7 +26,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
     <div
       ref={setEl}
       style={{ transform: "translateZ(0)" }}
-      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
+      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler"
     >
       <PointerModeProvider mode="touch">
         <div className="flex flex-col items-center gap-3 p-4 pt-10">{children(el)}</div>

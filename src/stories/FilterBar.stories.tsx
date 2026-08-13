@@ -36,7 +36,7 @@ function Phone({ children }: { children: (el: HTMLElement | null) => React.React
     <div
       ref={setEl}
       style={{ transform: "translateZ(0)" }}
-      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
+      className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler"
     >
       <PointerModeProvider mode="touch">{children(el)}</PointerModeProvider>
     </div>
@@ -400,7 +400,7 @@ export const PC화면: Story = {
     } · ${TESTS.find((t) => t.value === test)?.label} · ${SORTS.find((s) => s.value === sort)?.label}`;
 
     return (
-      <div className="flex h-[700px] bg-surface-gray-subtle">
+      <div className="flex h-[700px] bg-surface-gray-subtler">
         <Sidebar
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}

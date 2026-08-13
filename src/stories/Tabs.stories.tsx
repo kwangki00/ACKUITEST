@@ -269,7 +269,7 @@ export const PC화면: Story = {
     };
 
     return (
-      <div className="flex h-[600px] bg-surface-gray-subtle">
+      <div className="flex h-[600px] bg-surface-gray-subtler">
         <Sidebar
           collapsed={collapsed}
           onCollapsedChange={setCollapsed}

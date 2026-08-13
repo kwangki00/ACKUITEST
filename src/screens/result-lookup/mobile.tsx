@@ -149,7 +149,7 @@ export function MobileResultLookup({
       **이름이 헷갈립니다** — `Surface/*` 는 `Subtler` 가 더 진하고
       `Background/*` 는 `Subtler` 가 더 옅습니다. 값을 보고 고르세요.
     */
-    <div className="relative flex h-dvh flex-col overflow-hidden bg-surface-gray-subtler">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-surface-gray-subtle">
       {patient ? (
         <PatientDetailScreen
           patient={patient}
@@ -449,7 +449,7 @@ function PatientDetailScreen({
               onClick={() => setDetailOpen((v) => !v)}
               className={cn(
                 "flex h-[var(--h-input-default)] cursor-pointer items-center justify-center gap-2.5 rounded-full",
-                "bg-surface-gray-subtler text-sm font-medium text-text-basic",
+                "bg-surface-gray-subtle text-sm font-medium text-text-basic",
                 "outline-hidden transition-colors hover:bg-action-accent",
                 "focus-visible:ring-2 focus-visible:ring-action-focus-ring"
               )}
@@ -510,7 +510,7 @@ function PatientDetailScreen({
         「여기서부터는 스크롤되지 않는 자리」라고 알립니다. Figma 는 맨 아래까지
         내려간 그림이라 이 자리가 안 보입니다.
       */}
-      <div className="flex shrink-0 gap-2.5 bg-surface-gray-subtler px-4 pt-3 pb-5">
+      <div className="flex shrink-0 gap-2.5 bg-surface-gray-subtle px-4 pt-3 pb-5">
         {/* 높이는 주지 않습니다 — Button 의 default 가 --h-input-default 라 모바일에서 40 입니다 */}
         <Button variant="outline" className="flex-1" disabled={!onPrev} onClick={onPrev}>
           <ChevronLeft />

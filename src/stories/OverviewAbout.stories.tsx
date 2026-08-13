@@ -98,7 +98,7 @@ function Trap({ title, children }: { title: string; children: React.ReactNode })
 }
 
 const C = ({ children }: { children: React.ReactNode }) => (
-  <code className="rounded-xs bg-surface-gray-subtle px-1 py-0.5 text-2xs">{children}</code>
+  <code className="rounded-xs bg-surface-gray-subtler px-1 py-0.5 text-2xs">{children}</code>
 );
 const B = ({ children }: { children: React.ReactNode }) => (
   <strong className="font-semibold text-text-basic">{children}</strong>
@@ -421,7 +421,7 @@ function About() {
 export const 개요: Story = {
   name: "개요",
   render: () => (
-    <div className="min-h-screen bg-surface-gray-subtle p-6">
+    <div className="min-h-screen bg-surface-gray-subtler p-6">
       <About />
     </div>
   ),

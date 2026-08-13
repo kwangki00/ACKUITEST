@@ -153,7 +153,7 @@ export const 폰트: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-text-subtle">--font-sans</p>
-      <p className="rounded-md border border-border-gray-light bg-surface-gray-subtle p-3 text-xs text-text-basic">
+      <p className="rounded-md border border-border-gray-light bg-surface-gray-subtler p-3 text-xs text-text-basic">
         Noto Sans KR → -apple-system → BlinkMacSystemFont → system-ui → Roboto → Helvetica Neue →
         Segoe UI → Apple SD Gothic Neo → Malgun Gothic
       </p>

@@ -109,7 +109,7 @@ export function EmptyState({
         <span
           aria-hidden
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-full bg-surface-gray-subtle",
+            "flex shrink-0 items-center justify-center rounded-full bg-surface-gray-subtler",
             "text-icon-muted-foreground",
             sm ? "size-11 [&_svg]:size-5" : "size-14 [&_svg]:size-6"
           )}

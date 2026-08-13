@@ -252,7 +252,7 @@ export const 목록에서상세로: Story = {
         <div
           ref={setFrame}
           style={{ transform: "translateZ(0)" }}
-          className="ack-mobile relative flex h-[844px] w-[390px] flex-col overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle"
+          className="ack-mobile relative flex h-[844px] w-[390px] flex-col overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler"
         >
           {chart ? (
             <DetailScreen chart={chart} onBack={() => setChart(null)} />

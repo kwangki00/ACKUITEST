@@ -317,7 +317,7 @@ export const 오버레이: Story = {
             <div
               ref={setFrame}
               style={{ transform: "translateZ(0)" }}
-              className="ack-mobile relative h-[420px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+              className="ack-mobile relative h-[420px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler p-4"
             >
               <Button variant="outline" onClick={() => setB(true)}>
                 삭제

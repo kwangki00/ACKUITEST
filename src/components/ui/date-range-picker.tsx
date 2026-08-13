@@ -189,7 +189,7 @@ export function DateRangePickerPanel({
         </div>
       </div>
 
-      <div className="flex w-30 shrink-0 flex-col gap-2 border-l border-cal-border bg-surface-gray-subtle px-3 py-4">
+      <div className="flex w-30 shrink-0 flex-col gap-2 border-l border-cal-border bg-surface-gray-subtler px-3 py-4">
         <p className="text-xs font-semibold text-text-subtle">빠른 선택</p>
         {quick.map((p) => (
           <Button

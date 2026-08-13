@@ -36,7 +36,7 @@ export const 화면구조: Story = {
             <span className="mt-1 text-2xs text-text-subtle">256 · 접으면 72</span>
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <div className="flex h-9 shrink-0 items-center border-b border-tab-divider bg-surface-gray-subtle px-3 text-xs text-text-subtle">
+            <div className="flex h-9 shrink-0 items-center border-b border-tab-divider bg-surface-gray-subtler px-3 text-xs text-text-subtle">
               MDI TabBar 36
             </div>
             <div className="flex min-h-0 flex-1 flex-col">
@@ -145,7 +145,7 @@ export const 모서리: Story = {
       <div className="flex flex-col">
         {R.map(([n, px, cls, use]) => (
           <Row key={n} label={`Radius/${n}`} note={`${px}px`}>
-            <div className={`size-10 shrink-0 border border-border-gray bg-surface-gray-subtle ${cls}`} />
+            <div className={`size-10 shrink-0 border border-border-gray bg-surface-gray-subtler ${cls}`} />
             <span className="text-2xs text-text-muted-foreground">{use}</span>
           </Row>
         ))}
@@ -187,7 +187,7 @@ export const 그림자: Story = {
           <div className="grid grid-cols-3 gap-6">
             {INSET.map(([n, cls]) => (
               <div key={n} className="flex flex-col gap-2">
-                <div className={`h-16 rounded-lg bg-surface-gray-subtle ${cls}`} />
+                <div className={`h-16 rounded-lg bg-surface-gray-subtler ${cls}`} />
                 <p className="text-xs font-medium text-text-basic">inner-shadow/{n}</p>
               </div>
             ))}

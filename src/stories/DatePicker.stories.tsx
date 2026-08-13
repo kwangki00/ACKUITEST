@@ -493,7 +493,7 @@ export const 오버레이: Story = {
             <div
               ref={setFrame}
               style={{ transform: "translateZ(0)" }}
-              className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtle p-4"
+              className="ack-mobile relative h-[844px] w-[390px] overflow-hidden rounded-2xl border border-border-gray-light bg-surface-gray-subtler p-4"
             >
               {/* 시트 머리글은 이 라벨을 그대로 씁니다 — 같은 글자를 두 번 적지 않습니다 */}
               <FormField label="보고일" className="w-fit">
