@@ -157,6 +157,8 @@ export function FilterBar({
             좁을 때는 머리줄·필드가 각자 여백을 갖습니다.
           */
           "@pc/filter:gap-1.5 @pc/filter:px-6 @pc/filter:pt-3",
+          // 아래 여백도 함께 움직입니다 — 안 그러면 높이는 미끄러지는데 여백만 툭 바뀝니다
+          "transition-[padding-bottom] duration-200 ease-out motion-reduce:transition-none",
           open ? "@pc/filter:pb-4" : "@pc/filter:pb-3"
         )}
       >
@@ -265,9 +267,34 @@ export function FilterBar({
       </div>
 
       {/* ── Fields ───────────────────────────────────────────────── */}
-      {open && (
+      {/*
+        **여닫힘이 움직입니다** (2026-08-12). 전에는 `{open && …}` 라 DOM 에서
+        빠졌다 나타나서, 접는 순간 아래 목록이 툭 올라왔습니다.
+
+        `height: auto` 로는 애니메이션이 안 걸립니다. `Accordion` 은 Radix 가
+        내용 높이를 변수로 넘겨줘서 풀었지만, 여기는 **grid 로 풉니다** —
+        `grid-template-rows` 를 `0fr → 1fr` 로 옮기면 브라우저가 내용 높이를
+        알아서 계산합니다. 새 의존성이 없습니다.
+
+        **`overflow-hidden` 이 한 겹 더 필요합니다** — 0fr 로 줄어든 칸 밖으로
+        내용이 그냥 삐져나옵니다. 그 안쪽이 실제 배치를 맡습니다.
+
+        **`inert` 로 닫힌 동안을 꺼둡니다** — DOM 에 남아 있어서, 안 그러면 안 보이는
+        입력창에 탭이 들어가고 스크린리더도 읽습니다. `{open && …}` 이 거저 해주던
+        일이라 애니메이션을 넣으면서 직접 해야 합니다.
+      */}
+      <div
+        id={panelId}
+        inert={!open}
+        className={cn(
+          "grid transition-[grid-template-rows] duration-200 ease-out",
+          // 자리를 밀어내는 움직임이라 어지럼을 만들기 쉽습니다 (Accordion 과 같은 규칙)
+          "motion-reduce:transition-none",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+        <div className="overflow-hidden">
         <div
-          id={panelId}
           className={cn(
             "flex flex-col gap-3.5 px-4 pb-4",
             // 넓을 때 여백은 바깥이 갖습니다 — 여기서 또 주면 200 을 넘깁니다
@@ -300,7 +327,8 @@ export function FilterBar({
             </Button>
           </div>
         </div>
-      )}
+        </div>
+      </div>
       </div>
     </div>
   );
