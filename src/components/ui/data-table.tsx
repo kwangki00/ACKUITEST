@@ -243,7 +243,11 @@ export function DataTable<TData extends RowData>({
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       {columnControl && (
-        <div className="flex shrink-0 justify-end pb-2">
+        /*
+          좌우 여백은 `TableToolbar` 와 같은 12 입니다 — 툴바 아래에 놓일 때 두 줄의
+          오른쪽 끝이 맞아야 합니다. 감싸는 테두리가 없을 때도 가장자리에 붙지 않습니다.
+        */
+        <div className="flex shrink-0 justify-end px-3 pb-2">
           <ColumnControl table={table} />
         </div>
       )}

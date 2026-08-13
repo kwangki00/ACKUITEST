@@ -114,6 +114,8 @@ const DT_COLUMNS: DataTableColumn<GalleryRow>[] = [
 
 function Gallery() {
   const { toast } = useToast();
+  /* DataTable 은 선택을 스스로 들고 있고, 툴바에 건수를 적으려면 밖으로 받아야 합니다 */
+  const [dtSelected, setDtSelected] = useState<GalleryRow[]>([]);
   const [search, setSearch] = useState("");
   const today = startOfDay(new Date());
   const [reportDate, setReportDate] = useState<Date | null>(today);
@@ -428,16 +430,60 @@ function Gallery() {
           title="DataTable"
           note="같은 부품 위에 상태를 얹은 완성형입니다. 열 이름을 눌러 정렬하고, 체크박스로 고르고, 오른쪽 위 「열」로 보이는 열을 바꿔 보세요 — 위 Table 은 그림만이라 눌러도 아무 일이 없습니다."
         >
-          <DataTable
-            columns={DT_COLUMNS}
-            data={DT_ROWS}
-            /* 차트번호가 행의 정체입니다 — index 로 두면 정렬한 뒤 선택이 엉뚱한 행으로 갑니다 */
-            getRowId={(r) => r.chart}
-            selectable
-            paginated
-            pageSize={3}
-            columnControl
-          />
+          {/*
+            **테두리는 감싸는 쪽이 갖습니다.** `DataTable` 이 스스로 두르면 판 안에
+            넣을 때 `TableFrame` 과 선이 두 겹이 됩니다 (결과조회 화면이 그 구성입니다).
+            여기서는 툴바가 표에 딱 붙는 한 겹이라 위 `Table` 섹션과 같은 모양으로 감쌉니다.
+          */}
+          <div className="overflow-hidden rounded-lg border border-table-border">
+            {/* 건수는 칩 하나에 모읍니다 — 선택이 있으면 함께 적습니다 */}
+            <TableToolbar
+              title="검사이력목록"
+              count={
+                dtSelected.length > 0
+                  ? `총 ${DT_ROWS.length}건 / ${dtSelected.length}건 선택됨`
+                  : `총 ${DT_ROWS.length}건`
+              }
+            >
+              <Button size="sm" variant="outline">
+                <Plus />
+                추가
+              </Button>
+              {/* 삭제는 행이 선택됐을 때만 — 선택 없이 버튼이 있으면 눌러도 아무 일이 없습니다 */}
+              {dtSelected.length > 0 && (
+                <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)}>
+                  <Trash2 />
+                  삭제
+                </Button>
+              )}
+              <span className="mx-1 h-4 w-px bg-table-border" aria-hidden />
+              {[
+                { icon: <Download />, label: "엑셀 내려받기" },
+                { icon: <Printer />, label: "인쇄" },
+              ].map(({ icon, label }) => (
+                <Tooltip key={label}>
+                  <TooltipTrigger asChild>
+                    <Button size="icon-sm" variant="ghost" aria-label={label}>
+                      {icon}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{label}</TooltipContent>
+                </Tooltip>
+              ))}
+            </TableToolbar>
+
+            <DataTable
+              columns={DT_COLUMNS}
+              data={DT_ROWS}
+              /* 차트번호가 행의 정체입니다 — index 로 두면 정렬한 뒤 선택이 엉뚱한 행으로 갑니다 */
+              getRowId={(r) => r.chart}
+              selectable
+              onSelectedChange={setDtSelected}
+              paginated
+              pageSize={3}
+              columnControl
+            />
+          </div>
         </Section>
 
         <Section
