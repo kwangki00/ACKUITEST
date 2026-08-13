@@ -130,7 +130,18 @@ export function TableHead({
       aria-sort={sort === "asc" ? "ascending" : sort === "desc" ? "descending" : undefined}
       className={cn(
         "group/th h-[var(--h-datagrid)] px-3 font-semibold text-table-header-text",
-        "border-b border-table-border-strong whitespace-nowrap",
+        /*
+          **아래 선을 `border-b` 로 긋지 않습니다** (2026-08-13).
+
+          표가 `border-collapse: collapse` 라 테두리가 **칸이 아니라 표의 격자**에
+          그려집니다. 그래서 `stickyHeader` 로 머리줄이 떠도 **선은 따라오지 않고**
+          제자리에 남습니다 — Chrome 에서는 아예 안 그려집니다. 머리줄에 아래 선이
+          없으면 첫 행이 머리줄에 붙어 어디까지가 열 이름인지 흐려집니다.
+
+          `inset` 그림자는 **칸 안쪽**에 그려서 칸을 따라 움직입니다. 굵기·색은
+          같고 `border-box` 라 높이도 그대로입니다.
+        */
+        "shadow-[inset_0_-1px_0_var(--color-table-border-strong)] whitespace-nowrap",
         sortable && "cursor-pointer hover:bg-table-border",
         align === "right" && "text-right",
         align === "center" && "text-center",
