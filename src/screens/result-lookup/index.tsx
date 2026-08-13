@@ -228,7 +228,16 @@ export function ResultLookupScreen() {
           onValueChange={setTab}
           scrollable
           label="열린 화면"
-          className="shrink-0 bg-background-white px-2"
+          /*
+            탭바 바탕은 **회색**입니다 (`Surface/Gray-Subtle` = gray/100).
+            Figma `결과조회-기본` 의 `Frame 2` 도 바탕이 깔려 있습니다 — 흰색이면
+            아래 조회 조건(흰색)과 이어져 한 덩어리로 보이고, 열린 화면 목록이라는
+            성격이 드러나지 않습니다.
+
+            **활성 탭에 채움을 주지 않습니다** — Figma 도 그렇습니다. `line` 변형은
+            글자색과 2px 밑줄로 알립니다. 채움까지 주면 `pill` 이 되어 버립니다.
+          */
+          className="shrink-0 bg-surface-gray-subtle px-2"
         >
           {tabs.map((name) => (
             <TabItem
