@@ -139,7 +139,15 @@ export function PatientList({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <Panel className="w-145 shrink-0">
+    /*
+      **`gap-0` 입니다** (2026-08-12). `Panel` 의 기본 10 을 끕니다 — Figma `PatientList`
+      가 제목줄(40) · 표 · 페이지네이션(48)을 간격 없이 쌓습니다.
+
+      제목·범례는 **자기 표의 머리**이고 페이지네이션은 **자기 표의 발**이라, 간격이
+      끼면 서로 다른 블록처럼 읽힙니다. 사이가 필요한 곳은 각자 여백을 갖습니다 —
+      범례의 `pb-2` 가 표 앞의 숨통입니다.
+    */
+    <Panel className="w-145 shrink-0 gap-0">
       <SectionTitle title="환자리스트" count={`총 ${TOTAL_PATIENTS}명`} />
       {/* 여섯 칸이라 제목 옆에 두면 줄이 넘칩니다 — 머리줄 아래에 자기 줄로 놓습니다 */}
       <Legend />
