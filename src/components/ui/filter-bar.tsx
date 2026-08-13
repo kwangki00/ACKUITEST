@@ -156,7 +156,15 @@ export function FilterBar({
             border-box 라 32 안에 먹혀 줄이 통째로 낮아집니다.
             좁을 때는 머리줄·필드가 각자 여백을 갖습니다.
           */
-          "@pc/filter:gap-1.5 @pc/filter:px-6 @pc/filter:pt-3",
+          /*
+            좌우 **20** 입니다 (2026-08-12. 그전에는 24). 조회 조건이 화면에서
+            홀로 4px 더 안쪽으로 들어가 있었습니다 — 결과조회 화면의 본문 영역과
+            판(`ResultList`)이 둘 다 20 이라, 왼쪽 세로선이 조회 조건에서만 꺾였습니다.
+
+            Figma `PCFilterBar` 의 `L24 R24` 를 20 으로 함께 고쳤습니다. 위아래
+            (12/16)는 그대로입니다 — 접힘 56 · 펼침 200 이 그 값에서 나옵니다.
+          */
+          "@pc/filter:gap-1.5 @pc/filter:px-5 @pc/filter:pt-3",
           // 아래 여백도 함께 움직입니다 — 안 그러면 높이는 미끄러지는데 여백만 툭 바뀝니다
           "transition-[padding-bottom] duration-200 ease-out motion-reduce:transition-none",
           open ? "@pc/filter:pb-4" : "@pc/filter:pb-3"
