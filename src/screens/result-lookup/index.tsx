@@ -253,7 +253,12 @@ export function ResultLookupScreen() {
             count={TOTAL_PATIENTS}
           />
 
-          <div className="flex min-h-0 flex-1 gap-4 p-6">
+          {/*
+            본문 여백 **20** · 판 사이 **16** 입니다 (Figma `결과조회-기본` 의
+            `Frame 7`: pad 20 · gap 16). 24 로 두면 위의 조회 조건(pad 20)과
+            어긋나 본문만 안쪽으로 밀려 보입니다.
+          */}
+          <div className="flex min-h-0 flex-1 gap-4 p-5">
             <PatientList
               chart={chart}
               onSelect={setChart}
