@@ -68,7 +68,7 @@ Radix 를 쓸 때는 `shadcn` CLI 를 쓰지 않습니다 — `components.json` 
 
 ## 글꼴 — Noto Sans KR
 
-**Noto Sans KR** 을 씁니다 (2026-08-12). Google Fonts 에서 **굵기 넷**(400 · 500 · 600 · 700)만 받습니다.
+**Noto Sans KR** 을 씁니다 (2026-08-12). Google Fonts 에서 **굵기 넷**(400 · 500 · 600 · 700)만 받습니다. **Figma 텍스트 스타일도 같은 날 함께 바꿨습니다** — 한쪽만 바꾸면 대조할 기준이 사라집니다.
 
 ### 왜 Pretendard 에서 바꿨나
 
@@ -1049,7 +1049,10 @@ EmptyState · DateRangeTabs · CalendarCell 이 이 제약을 받습니다. 문�
 
 ### Figma
 
-- [ ] **Publish** — 아직 안 했습니다. 이번 세션에서 변수·컴포넌트·문서를 대량으로 고쳤으니 발행 전 확인이 필요합니다
+- [x] ~~**Publish**~~ — 2026-08-12 에 했습니다. 그날 라이브러리를 세 번 고쳤습니다: `Surface/Gray-*` 이름 맞바꿈 · `PCFilterBar` 좌우 여백 24→20 · `Marker/Checkup`·`Marker/Special` 신규
+  - **라이브러리를 고치면 발행 전까지 소비 파일은 옛 값을 씁니다.** 특히 **새 변수는 아예 안 보입니다** — `Marker/*` 가 그 경우였습니다
+  - Plugin API 로는 발행할 수 없습니다. Figma 앱에서 해야 합니다
+- [x] ~~화면의 P·S 범례~~ — 2026-08-12. 코드는 `Marker/*` 토큰을 씁니다 (`data.ts` 의 `MARKS`)
 - [ ] `Menu/Surface` · `Menu/Border` — 값은 있는데 **아무도 안 씁니다.** Popover 가 `Background/White` 를 쓰고 있어 정리 대상
 - [ ] `Color/Alpha/White/0` 직접 참조 약 2,400곳 — 코드로 옮긴 7개 세트만 `Alpha/Base0` 로 정리했습니다
 - [ ] ListItem 에 `Indeterminate` 값 추가 — 전체 선택 줄의 일부 선택 상태를 그릴 수 없습니다
