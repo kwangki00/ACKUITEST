@@ -723,6 +723,7 @@
   --h-calendar-cell: 44px;
   --h-calendar-unit: 48px;
   --h-list-item: 48px;
+  --text-list-item: 16px;
   --h-lookup-row: 52px;
   --h-lookup-header: 44px;
   --h-sheet-min: 240px;
@@ -748,6 +749,7 @@
   --h-calendar-cell: 44px;
   --h-calendar-unit: 48px;
   --h-list-item: 48px;
+  --text-list-item: 16px;
   --h-lookup-row: 52px;
   --h-lookup-header: 44px;
   --h-sheet-min: 240px;
@@ -770,6 +772,7 @@
     --h-calendar-cell: 36px;
     --h-calendar-unit: 40px;
     --h-list-item: 32px;
+    --text-list-item: 14px;
     --h-lookup-row: 40px;
     --h-lookup-header: 36px;
   }

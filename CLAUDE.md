@@ -180,11 +180,16 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 ```css
 --h-input-default   Mobile 40 → PC 36
 --h-list-item       Mobile 48 → PC 32   /* 차이가 가장 큼 */
+--text-list-item    Mobile 16 → PC 14   /* 높이만 키우면 줄이 헐거워 보입니다 */
 --h-calendar-cell   Mobile 44 → PC 36   /* iOS 44pt 기준 */
 --h-datagrid        Mobile 36 → PC 34
 ```
 
 컴포넌트에서 `h-[var(--h-input-default)]` 로 씁니다. 높이를 하드코딩하지 마세요.
+
+**`max-lg:` 같은 미디어쿼리 유틸리티로 대신하지 마세요** — 그건 **브라우저 창**을 재기 때문에, 문서의 390 틀 안에 넣어도 창이 넓으면 PC 값이 나옵니다. `.ack-mobile` 은 CSS **변수**만 덮어쓰지 유틸리티 variant 는 못 막습니다. 그래서 크기도 변수로 둡니다 (`--text-list-item`).
+
+임의 길이(`text-[length:var(…)]`)로 주면 `text-sm` 이 얹어주던 **자간이 0 이 됩니다** — `tracking-[var(--text-sm--letter-spacing)]` 을 함께 주세요. 14·16 이 둘 다 `-0.02em` 이라 한 값으로 됩니다.
 
 ---
 

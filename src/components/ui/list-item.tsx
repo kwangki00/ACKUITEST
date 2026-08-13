@@ -77,7 +77,20 @@ export function ListItem({
         // shrink-0 이 없으면 flex 컨테이너 안에서 높이가 눌립니다.
         // flexbox 는 최대 높이를 넘으면 스크롤보다 먼저 항목을 줄입니다 —
         // 32 로 정해둔 규격이 조용히 28 이 됩니다.
-        "flex h-[var(--h-list-item)] w-full shrink-0 items-center gap-2 rounded-sm px-2 text-left text-sm",
+        /*
+          **글자도 모바일에서 커집니다** — 16, PC 는 14 (2026-08-12).
+          손가락으로 고르는 목록이라 높이(48)만 키우고 글자를 두면 줄이 헐거워 보이고
+          읽기도 작습니다.
+
+          `max-lg:text-base` 로 안 하는 이유는 **미디어쿼리가 창을 재기** 때문입니다 —
+          문서의 390 틀 안에서는 창이 넓어 PC 크기가 나옵니다. 높이를 `--h-list-item`
+          으로 둔 것과 같은 사정이라 변수로 맞춥니다 (`.ack-mobile` 도 따라옵니다).
+
+          자간은 토큰에서 가져옵니다 — 임의 길이로 주면 `text-sm` 이 얹어주던
+          letter-spacing 이 0 이 됩니다. 14·16 이 둘 다 -0.02em 이라 한 값으로 됩니다.
+        */
+        "flex h-[var(--h-list-item)] w-full shrink-0 items-center gap-2 rounded-sm px-2 text-left",
+        "text-[length:var(--text-list-item)] tracking-[var(--text-sm--letter-spacing)]",
         "transition-colors outline-hidden",
         disabled ? "text-text-disabled-on" : "text-text-basic",
         !disabled && "hover:bg-action-accent focus-visible:bg-action-accent",
