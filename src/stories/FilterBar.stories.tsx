@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Bell, ChartColumn, ClipboardList, Mail, Search, Settings } from "lucide-react";
+import { Bell, ChartColumn, ClipboardList, Mail, Search, Settings, User } from "lucide-react";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
+import type { FilterSummaryItem } from "@/components/ui/filter-bar";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Select } from "@/components/ui/select";
 import { FormField } from "@/components/ui/form-field";
@@ -111,10 +112,30 @@ const ROWS = [
  * | | 좁을 때 | 넓을 때 |
  * |---|---|---|
  * | 조건 배치 | 세로로 쌓음 | **가로 한 줄** |
- * | 접힌 줄 | 요약 + **건수 배지** | 요약 + **“조건 변경” 버튼** |
- * | 캡션 | 펼치면 커짐 | 늘 `sm/SemiBold` |
+ * | 접힌 줄 | 조건 칩이 **줄바꿈** | 조건 칩 + **“조건 변경” 버튼** |
+ * | 캡션 | 펼치면 커짐 | 늘 `sm` |
  * | 버튼 | 화면을 반씩 | 우측에 내용 폭만큼 |
  * | 누르는 곳 | **줄 전체** | 버튼만 |
+ *
+ * ### 접힌 줄 — 조건 하나가 칩 하나 (2026-08-13)
+ *
+ * `summary` 에 `{ icon, label, value }[]` 를 넘깁니다. `·` 로 이으면 **어디까지가 한
+ * 조건인지 눈이 매번 재야 합니다.**
+ *
+ * | 값이 | 어떻게 | 예 |
+ * |---|---|---|
+ * | 스스로 말함 | `{ value }` | `2026-07-14 ~ 2026-08-13` · `일반혈액검사` |
+ * | **스스로 못 말함** | `{ icon, label, value }` | 담당자 `이검사` · 검색어 `김지훈` |
+ *
+ * **아이콘을 남발하지 마세요.** 검사항목·상태처럼 쓸 아이콘이 마땅찮은 자리에 억지로
+ * 붙이면 **결국 눌러 봐야 알게 되어** 아무것도 없는 것보다 나쁩니다. `label` 은 아이콘과
+ * **함께** 넘기세요 — 화면에서는 숨고 보조기술이 읽습니다.
+ *
+ * **「전체」는 담지 마세요** — 조건을 건 게 아니라 안 건 것이라, 넣으면
+ * `전체 · 전체 · …` 가 되어 무엇을 걸었는지가 오히려 안 보입니다.
+ *
+ * 건수 배지는 **없앴습니다** (2026-08-13). 좁을 때만 나오던 것인데 바로 아래
+ * `MobileListHeader` 가 같은 값을 이미 말합니다.
  *
  * ### 기간 입력도 한 벌입니다
  *
@@ -194,7 +215,10 @@ export const 두폭: Story = {
     const [b, setB] = useState<DateRange>({ start: addDays(today, -6), end: today });
     const [test, setTest] = useState("all");
 
-    const summary = `${formatDate(addDays(today, -6))} ~ ${formatDate(today)} · 발주일 · 전체`;
+    // 「전체」는 조건을 건 게 아니라 안 건 것이라 담지 않습니다
+    const summary: FilterSummaryItem[] = [
+      { value: `${formatDate(addDays(today, -6))} ~ ${formatDate(today)}` },
+    ];
 
     return (
       <div className="flex flex-col gap-6">
@@ -250,7 +274,7 @@ export const 두폭: Story = {
 </FormField>` · `<Select/>`.
  * 390 틀이 `touch` 로 감싸져 있어 시트로 열릴 뿐입니다.
  *
- * 조회를 누르면 접히고, 접힌 줄에 요약과 건수 배지가 나옵니다.
+ * 조회를 누르면 접히고, 접힌 줄에 걸린 조건이 칩으로 남습니다.
  */
 export const 모바일화면: Story = {
   name: "조회 화면 (Figma 데모)",
@@ -262,10 +286,11 @@ export const 모바일화면: Story = {
 
     const testLabel = TESTS.find((t) => t.value === test)?.label ?? "전체";
     const rows = searched ? ROWS : [];
-    const summary =
-      period.start && period.end
-        ? `${formatDate(period.start)} ~ ${formatDate(period.end)} · 발주일 · ${testLabel}`
-        : testLabel;
+    const summary: FilterSummaryItem[] = [];
+    if (period.start && period.end)
+      summary.push({ value: `${formatDate(period.start)} ~ ${formatDate(period.end)}` });
+    // 검사 항목은 값이 스스로 말하므로 아이콘이 없습니다
+    if (test !== "all") summary.push({ value: testLabel });
 
     return (
       <Phone>
@@ -287,7 +312,7 @@ export const 모바일화면: Story = {
             />
 
             <FilterBar
-              summary={summary}
+              summary={summary.length ? summary : "조건 없음"}
               onSearch={() => setSearched((v) => !v)}
               onReset={() => {
                 setPeriod({ start: null, end: null });
@@ -391,11 +416,11 @@ export const PC화면: Story = {
       if (tab === val && rest.length) setTab(rest[Math.min(i, rest.length - 1)].value);
     };
 
-    const summary = `${
-      period.start && period.end
-        ? `${formatDate(period.start)} ~ ${formatDate(period.end)}`
-        : "전체 기간"
-    } · ${TESTS.find((t) => t.value === test)?.label} · ${SORTS.find((s) => s.value === sort)?.label}`;
+    const summary: FilterSummaryItem[] = [];
+    if (period.start && period.end)
+      summary.push({ value: `${formatDate(period.start)} ~ ${formatDate(period.end)}` });
+    if (test !== "all") summary.push({ value: TESTS.find((t) => t.value === test)!.label });
+    summary.push({ value: SORTS.find((s) => s.value === sort)!.label });
 
     return (
       <div className="flex h-[700px] bg-surface-gray-subtler">
@@ -462,7 +487,7 @@ export const PC화면: Story = {
 
           <FilterBar
             {...args}
-            summary={summary}
+            summary={summary.length ? summary : "조건 없음"}
             onReset={() => {
               setPeriod({ start: null, end: null });
               setTest("all");
@@ -524,15 +549,25 @@ export const PC화면: Story = {
 };
 
 /**
- * 조회를 마친 상태입니다. 좁을 때는 **건수 배지**, 넓을 때는 **“조건 변경” 버튼**이
- * 나옵니다 — 마우스는 정확히 겨냥하므로 누를 곳이 눈에 보여야 합니다.
+ * 조회를 마친 상태입니다. 넓을 때만 **“조건 변경” 버튼**이 나옵니다 — 마우스는 정확히
+ * 겨냥하므로 누를 곳이 눈에 보여야 합니다. 좁을 때는 줄 전체가 누름 대상이라 필요 없습니다.
+ *
+ * **아이콘 규칙이 여기서 보입니다** — `이검사`(담당자)와 `김지훈`(검색어)은 둘 다 사람
+ * 이름이라 값만으로는 구분되지 않습니다. 위 두 칩은 값이 스스로 말하므로 아이콘이 없습니다.
+ *
+ * 좁은 쪽은 칩이 **다음 줄로 내려가고**, 넓은 쪽은 한 줄에 섭니다.
  */
 export const 접힘: Story = {
   parameters: { layout: "padded" },
   render: function Collapsed(args) {
     const [a, setA] = useState<DateRange>({ start: null, end: null });
     const [b, setB] = useState<DateRange>({ start: null, end: null });
-    const summary = `${formatDate(addDays(today, -6))} ~ ${formatDate(today)} · 발주일 · 일반혈액검사`;
+    const summary: FilterSummaryItem[] = [
+      { value: `${formatDate(addDays(today, -6))} ~ ${formatDate(today)}` },
+      { value: "일반혈액검사" },
+      { icon: <User />, label: "담당자", value: "이검사" },
+      { icon: <Search />, label: "검색어", value: "김지훈" },
+    ];
 
     return (
       <div className="flex flex-col gap-6">
@@ -560,11 +595,13 @@ export const 접힘: Story = {
 };
 
 /**
- * 건수를 넘기지 않으면 배지가 없습니다 — 조회 전이라 결과 수를 아직 모르는 화면.
  * 조건이 하나뿐이어도 버튼은 그 줄 바닥에 붙습니다.
+ *
+ * 아직 아무것도 안 건 상태라 요약이 **문자열**입니다 — 칩이 필요 없는 자리와 문서용으로
+ * `summary` 는 문자열도 그대로 받습니다.
  */
-export const 건수없음: Story = {
-  name: "건수 없음 · 조건 하나",
+export const 조건하나: Story = {
+  name: "조건 하나",
   parameters: { layout: "padded" },
   render: function NoCount(args) {
     const [v, setV] = useState<DateRange>({ start: null, end: null });

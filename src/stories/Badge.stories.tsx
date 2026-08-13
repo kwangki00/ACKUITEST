@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { Search, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { design, figma, argsSource } from "./figma";
 
@@ -61,6 +62,40 @@ export const 검사상태: Story = {
       <Badge tone="warning" size="sm">진행중</Badge>
       <Badge tone="danger" size="sm">재검</Badge>
       <Badge tone="neutral" size="sm">미접수</Badge>
+    </div>
+  ),
+};
+
+/**
+ * **아이콘 크기는 배지가 정합니다** — sm 12 · default 14 · lg 16. 안 정하면 lucide
+ * 기본값 24 로 나와 배지보다 커집니다. **호출부에서 `size-*` 를 주지 마세요.**
+ *
+ * 값만으로는 무엇인지 모르는 자리에 씁니다 — 아래 `이검사`(담당자)와 `김지훈`(검색어)은
+ * 둘 다 사람 이름이라, 아이콘이 없으면 어느 쪽이 무엇인지 알 수 없습니다
+ * (`FilterBar` 의 접힌 조건 칩이 그 자리입니다).
+ *
+ * **`dot` 과 함께 켜지 마세요** — 앞에 붙는 표식이 둘이 됩니다.
+ */
+export const 아이콘: Story = {
+  parameters: { layout: "padded", ...design(figma.badge) },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {(["sm", "default", "lg"] as const).map((size) => (
+        <div key={size} className="flex flex-wrap items-center gap-2">
+          <span className="w-16 text-xs text-text-subtle">{size}</span>
+          <Badge tone="neutral" size={size}>
+            <User />
+            이검사
+          </Badge>
+          <Badge tone="neutral" size={size}>
+            <Search />
+            김지훈
+          </Badge>
+          <Badge tone="neutral" size={size}>
+            2026-07-14 ~ 2026-08-13
+          </Badge>
+        </div>
+      ))}
     </div>
   ),
 };

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
+import type { FilterSummaryItem } from "@/components/ui/filter-bar";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { FormField } from "@/components/ui/form-field";
 import { MobileSheet } from "@/components/ui/mobile-sheet";
@@ -245,9 +246,10 @@ export const 조회화면: Story = {
     const [empty, setEmpty] = useState(false);
     const rows = empty ? [] : ROWS;
 
-    const summary =
+    // 「전체」는 조건을 건 게 아니라 안 건 것이라 담지 않습니다
+    const summary: FilterSummaryItem[] | string =
       period.start && period.end
-        ? `${formatDate(period.start)} ~ ${formatDate(period.end)} · 전체`
+        ? [{ value: `${formatDate(period.start)} ~ ${formatDate(period.end)}` }]
         : "기간을 선택해 주세요";
 
     return (

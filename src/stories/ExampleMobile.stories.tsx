@@ -70,7 +70,7 @@ function ListScreen({ onOpen }: { onOpen: (chart: string) => void }) {
       <FilterBar
         open={open}
         onOpenChange={setOpen}
-        summary="2025-06-01 ~ 2025-06-05 · 전체"
+        summary={[{ value: "2025-06-01 ~ 2025-06-05" }]}
         onReset={() => {}}
         onSearch={() => setOpen(false)}
       >
