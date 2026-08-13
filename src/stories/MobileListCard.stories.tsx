@@ -229,7 +229,7 @@ export const 조회화면: Story = {
       <Phone>
         {(el) => (
           <div className="flex h-full flex-col">
-            <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
+            <FilterBar defaultOpen={false} summary={summary}>
               <FilterRow>
                 <FormField label="기간">
                   <DateRangePicker quickSelect container={el} value={period} onValueChange={setPeriod} />

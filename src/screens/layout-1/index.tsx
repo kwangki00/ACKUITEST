@@ -143,7 +143,6 @@ function OrderFilter({
   onReset,
   open,
   onOpenChange,
-  count,
 }: {
   value: Query;
   onChange: (next: Query) => void;
@@ -151,7 +150,6 @@ function OrderFilter({
   onReset: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  count?: number;
 }) {
   const set = <K extends keyof Query>(key: K, v: Query[K]) => onChange({ ...value, [key]: v });
 
@@ -186,7 +184,6 @@ function OrderFilter({
       open={open}
       onOpenChange={onOpenChange}
       summary={summary.length ? summary : "조건 없음"}
-      count={count}
       onReset={onReset}
       onSearch={() => {
         onOpenChange(false);
@@ -297,7 +294,6 @@ export function Layout1Screen() {
         }}
         open={open}
         onOpenChange={setOpen}
-        count={rows.length}
       />
 
       {/* 본문 여백 20 — 위 조회 조건(pad 20)과 같아야 안쪽으로 밀려 보이지 않습니다 */}

@@ -272,7 +272,6 @@ export const 조회화면: Story = {
             <FilterBar
               defaultOpen={false}
               summary={summary}
-              count={rows.length}
               // 조회할 때마다 결과가 있고/없고를 번갈아 보여줍니다
               onSearch={() => setEmpty((v) => !v)}
             >

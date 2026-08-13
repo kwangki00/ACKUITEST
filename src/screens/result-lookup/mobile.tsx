@@ -190,7 +190,6 @@ export function MobileResultLookup({
             onReset={onReset}
             open={filterOpen}
             onOpenChange={onFilterOpenChange}
-            count={TOTAL_PATIENTS}
           />
 
           {/*

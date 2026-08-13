@@ -159,7 +159,6 @@ const meta = {
   component: FilterBar,
   parameters: { layout: "centered", ...design(figma.pcFilterBar) },
   argTypes: {
-    count: { control: "number" },
     caption: { control: "text" },
     defaultOpen: { control: "boolean" },
     changeLabel: { control: "text" },
@@ -204,7 +203,7 @@ export const 두폭: Story = {
             390 — <code>--container-pc</code>(880) 아래라 세로로 쌓입니다
           </p>
           <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
-            <FilterBar {...args} summary={summary} count={ROWS.length}>
+            <FilterBar {...args} summary={summary}>
               <FilterRow>
                 <FormField label="기간 선택">
                   <DateRangePicker quickSelect value={a} onValueChange={setA} presets={DEMO_PRESETS} />
@@ -224,7 +223,7 @@ export const 두폭: Story = {
             문서 폭 그대로 — 880 을 넘으면 가로 한 줄 + 우측 버튼. 창을 좁히면 위와 같아집니다
           </p>
           <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
-            <FilterBar {...args} summary={summary} count={ROWS.length}>
+            <FilterBar {...args} summary={summary}>
               <FilterRow>
                 <FormField label="기간 선택">
                   <DateRangePicker quickSelect value={b} onValueChange={setB} presets={DEMO_PRESETS} />
@@ -289,7 +288,6 @@ export const 모바일화면: Story = {
 
             <FilterBar
               summary={summary}
-              count={rows.length}
               onSearch={() => setSearched((v) => !v)}
               onReset={() => {
                 setPeriod({ start: null, end: null });
@@ -539,7 +537,7 @@ export const 접힘: Story = {
     return (
       <div className="flex flex-col gap-6">
         <div className="ack-mobile w-[390px] overflow-hidden rounded-xl border border-border-gray-light">
-          <FilterBar {...args} defaultOpen={false} summary={summary} count={128}>
+          <FilterBar {...args} defaultOpen={false} summary={summary}>
             <FilterRow>
               <FormField label="기간 선택">
                 <DateRangePicker quickSelect value={a} onValueChange={setA} />
@@ -548,7 +546,7 @@ export const 접힘: Story = {
           </FilterBar>
         </div>
         <div className="w-full min-w-0 overflow-hidden rounded-xl border border-border-gray-light">
-          <FilterBar {...args} defaultOpen={false} summary={summary} count={128}>
+          <FilterBar {...args} defaultOpen={false} summary={summary}>
             <FilterRow>
               <FormField label="기간 선택">
                 <DateRangePicker quickSelect value={b} onValueChange={setB} />

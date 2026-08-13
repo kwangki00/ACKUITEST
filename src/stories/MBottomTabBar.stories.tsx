@@ -270,7 +270,7 @@ export const 조회화면: Story = {
 
             {tab === "results" ? (
               <>
-                <FilterBar defaultOpen={false} summary={summary} count={ROWS.length}>
+                <FilterBar defaultOpen={false} summary={summary}>
                   <FilterRow>
                     <FormField label="기간">
                       <DateRangePicker quickSelect container={el} value={period} onValueChange={setPeriod} />

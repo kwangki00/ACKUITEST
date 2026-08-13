@@ -59,7 +59,6 @@ export function QueryFilter({
   onReset,
   open,
   onOpenChange,
-  count,
 }: {
   value: Query;
   onChange: (next: Query) => void;
@@ -67,8 +66,6 @@ export function QueryFilter({
   onReset: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** 접혔을 때 요약 옆에 붙는 배지. 조회 결과 전체 수입니다. */
-  count?: number;
 }) {
   const set = <K extends keyof Query>(key: K, v: Query[K]) => onChange({ ...value, [key]: v });
 
@@ -96,7 +93,6 @@ export function QueryFilter({
       open={open}
       onOpenChange={onOpenChange}
       summary={summary.length ? summary : "조건 없음"}
-      count={count}
       onReset={onReset}
       /* 조회하면 접힙니다 — 조건은 한 번 정하고 결과를 계속 봅니다 */
       onSearch={() => {

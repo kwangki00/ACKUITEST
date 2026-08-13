@@ -71,7 +71,6 @@ function ListScreen({ onOpen }: { onOpen: (chart: string) => void }) {
         open={open}
         onOpenChange={setOpen}
         summary="2025-06-01 ~ 2025-06-05 · 전체"
-        count={PATIENTS.length}
         onReset={() => {}}
         onSearch={() => setOpen(false)}
       >

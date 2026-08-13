@@ -9,7 +9,7 @@ import { addDays, startOfDay } from "@/lib/date";
 import { QueryFilter, type Query } from "./query-bar";
 import { PatientList } from "./patient-list";
 import { PatientDetail } from "./patient-detail";
-import { PATIENTS, TOTAL_PATIENTS } from "./data";
+import { PATIENTS } from "./data";
 import { ComponentGallery } from "@/screens/component-gallery";
 import { Layout1Screen } from "@/screens/layout-1";
 import { useIsMobileLayout } from "@/lib/use-media-query";
@@ -280,7 +280,6 @@ export function ResultLookupScreen() {
             onReset={() => setQuery(EMPTY_QUERY)}
             open={filterOpen}
             onOpenChange={setFilterOpen}
-            count={TOTAL_PATIENTS}
           />
 
           {/*

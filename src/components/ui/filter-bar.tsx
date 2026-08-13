@@ -138,8 +138,6 @@ export interface FilterBarProps {
    * 넣으면 `전체 · 전체 · …` 가 되어 무엇을 걸었는지가 오히려 안 보입니다.
    */
   summary: string | FilterSummaryItem[];
-  /** 조회 결과 수. **좁을 때만** 배지로 나옵니다 (넓을 때는 표·목록 헤더가 말합니다). */
-  count?: number;
   /** 왼쪽 작은 제목. */
   caption?: string;
   defaultOpen?: boolean;
@@ -159,7 +157,6 @@ export interface FilterBarProps {
 
 export function FilterBar({
   summary,
-  count,
   caption = "조회 조건",
   defaultOpen = true,
   open: openProp,
@@ -297,15 +294,17 @@ export function FilterBar({
             크기는 `lg`(28 · 14px)입니다. `default`(24 · 12px)면 한글이 뭉개집니다 —
             `FormField` 라벨을 12 에서 14 로 올린 것과 같은 이유입니다.
 
-            **넘치면 잘립니다** — 머리줄은 높이 32 라 줄바꿈하면 줄이 통째로 커집니다.
-            칩은 `shrink-0` 이라 반쪽으로 찌그러지지 않고, 자리가 모자라면 뒤부터
-            안 보입니다.
+            **넓을 때는 넘치면 잘리고, 좁을 때는 줄바꿈합니다** (2026-08-13).
+            넓은 머리줄은 높이 32 고정이라 줄바꿈하면 줄이 통째로 커지지만, 좁을
+            때는 높이를 안 잡고 여백으로만 잡아서(`py-3`) 늘어나도 됩니다 —
+            폭이 좁아 칩 서넛이면 이미 넘치는데, 거기서 뒤를 잘라내면 걸린 조건을
+            아예 볼 수 없습니다. 칩은 `shrink-0` 이라 반쪽으로 찌그러지지 않습니다.
           */}
           {!open &&
             (typeof summary === "string" ? (
               <span className="truncate text-sm font-medium text-text-basic">{summary}</span>
             ) : (
-              <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+              <span className="flex min-w-0 flex-wrap items-center gap-1.5 @pc/filter:flex-nowrap @pc/filter:overflow-hidden">
                 {summary.map((it) => (
                   <Badge
                     key={`${it.label ?? ""}${it.value}`}
@@ -336,12 +335,6 @@ export function FilterBar({
             ))}
         </span>
 
-        {/* 조건을 바꾸는 중에 이전 결과 수가 남아 있으면 혼란스럽습니다 */}
-        {!open && count != null && (
-          <Badge tone="neutral" size="sm" className="@pc/filter:hidden">
-            {count}
-          </Badge>
-        )}
 
         {/*
           넓을 때만 — 화살표만으로는 누를 수 있다는 신호가 약합니다.
