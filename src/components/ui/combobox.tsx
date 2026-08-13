@@ -265,6 +265,24 @@ function PopoverCombobox({
       }
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
+        /*
+          **닫혀 있으면 먼저 엽니다** (2026-08-13).
+
+          고르면 패널이 닫히는데 커서는 입력창에 남습니다. 그 상태에서 방향키를
+          누르면 **안 보이는 커서만 움직여** 화면은 아무 반응이 없었습니다 —
+          누른 사람은 고장으로 읽습니다.
+
+          `Select` 처럼 **값을 바로 바꾸지는 않습니다.** 여기 트리거는 입력창이라,
+          방향키가 값을 갈아끼우면 치던 글자를 덮어씁니다. 목록을 열어 짚고
+          Enter 로 고르는 것이 검색이 붙은 컨트롤의 규칙입니다.
+
+          열면 커서는 **고른 값**에 갑니다 — 닫힐 때 입력값이 그 라벨로 돌아가 있어
+          `hits` 가 그 항목 하나이고, 위쪽 effect 가 0번을 짚습니다.
+        */
+        if (!open) {
+          setOpen(true);
+          return;
+        }
         if (!hits.length) return;
         const d = e.key === "ArrowDown" ? 1 : -1;
         setActive((p) => (p + d + hits.length) % hits.length);
