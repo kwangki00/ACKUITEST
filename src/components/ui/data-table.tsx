@@ -15,6 +15,7 @@ import {
 import type { CellData, ColumnDef, RowData, TableFeatures } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
+import { Badge } from "./badge";
 import { Checkbox } from "./checkbox";
 import { Pagination } from "./pagination";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
@@ -162,6 +163,27 @@ export interface DataTableProps<TData extends RowData> {
    * 안 넘기면 칸을 따라갑니다.
    */
   headerAlign?: "left" | "center" | "right";
+  /**
+   * 표 위의 머리줄 — 제목 · 건수 · 액션이 **테두리 밖**에 섭니다.
+   *
+   * `TableToolbar`(표에 딱 붙는 한 겹)와 다른 구성입니다. 판 안에 섹션이 여럿일 때는
+   * 제목이 표 바깥에 있어야 하고, 표는 자기 테두리를 갖습니다 — 결과조회 화면이
+   * 그 모양입니다.
+   *
+   * **열 제어 버튼도 이 줄에 섭니다.** 따로 한 줄을 더 만들면 표 위에 줄이 둘이 됩니다.
+   */
+  title?: string;
+  /** 건수. 칩으로 나옵니다 — 회색 글자로 두면 부제처럼 읽혀 세는 값이라는 게 흐려집니다. */
+  count?: string;
+  /** 머리줄 오른쪽에 붙는 버튼들. 열 제어보다 앞에 놓입니다. */
+  actions?: React.ReactNode;
+  /**
+   * 표에 **자기 테두리**를 두릅니다 (페이지네이션은 밖입니다).
+   *
+   * 기본은 끔입니다 — 감싸는 자리가 이미 테두리를 가진 경우가 있어서(화면의
+   * `TableFrame`), 켜 두면 선이 두 겹이 됩니다.
+   */
+  framed?: boolean;
   /** 결과가 0건일 때. `no-result`(조건을 바꿈) · `no-data`(만듦) · `error`(다시 시도) */
   emptyType?: EmptyStateType;
   onEmptyAction?: () => void;
@@ -182,6 +204,10 @@ export function DataTable<TData extends RowData>({
   stickyHeader,
   dense,
   headerAlign,
+  title,
+  count,
+  actions,
+  framed,
   emptyType = "no-result",
   onEmptyAction,
   className,
@@ -242,17 +268,23 @@ export function DataTable<TData extends RowData>({
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      {columnControl && (
-        /*
-          좌우 여백은 `TableToolbar` 와 같은 12 입니다 — 툴바 아래에 놓일 때 두 줄의
-          오른쪽 끝이 맞아야 합니다. 감싸는 테두리가 없을 때도 가장자리에 붙지 않습니다.
-        */
-        <div className="flex shrink-0 justify-end px-3 pb-2">
-          <ColumnControl table={table} />
+      {/*
+        머리줄 — 제목 · 건수 · 액션 · 열 제어가 **한 줄**에 섭니다. 열 제어만 따로
+        한 줄을 더 만들면 표 위에 줄이 둘이 되어, 어느 것이 표의 머리인지 흐려집니다.
+      */}
+      {(title || count || actions || columnControl) && (
+        <div className="flex min-h-10 shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
+          {title && <span className="text-base font-semibold text-table-text">{title}</span>}
+          {/* 톤은 늘 neutral 입니다 — 건수에 색을 주면 상태처럼 읽힙니다 */}
+          {count && <Badge tone="neutral">{count}</Badge>}
+          <span className="ml-auto flex items-center gap-2">
+            {actions}
+            {columnControl && <ColumnControl table={table} />}
+          </span>
         </div>
       )}
 
-      <div className="min-h-0 flex-1">
+      <div className={cn("min-h-0 flex-1", framed && "overflow-hidden rounded-md border border-table-border")}>
         <Table>
           <TableHeader className={cn(stickyHeader && "sticky top-0 z-10")}>
             {table.getHeaderGroups().map((group) => (
