@@ -189,6 +189,8 @@ export function ResultLookupScreen() {
         menu={MENU}
         page={page}
         onOpenScreen={openScreen}
+        // PC 와 **같은 목록**을 읽습니다 — 여기만 빠져 있어서 무엇을 골랐든 환자 목록이 나왔습니다
+        screen={SCREENS[page]?.render()}
       />
     );
   }

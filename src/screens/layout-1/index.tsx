@@ -12,6 +12,10 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { MobileListCard } from "@/components/ui/mobile-list-card";
+import { MobileListHeader } from "@/components/ui/mobile-list-header";
+import { useIsMobileLayout } from "@/lib/use-media-query";
 import type { DateRange } from "@/components/ui/calendar";
 import { addDays, formatDate, startOfDay } from "@/lib/date";
 import { Panel } from "../panel";
@@ -57,6 +61,16 @@ import {
  * `결과조회` 가 반대인 이유는 **자료가 어디서 잘리느냐**입니다 — 거기는 서버가 한 쪽씩
  * 주므로(전체 979 · 받은 것 14) 받은 배열을 자르면 안 됩니다. 여기는 200건을 통째로
  * 들고 있습니다. **서버 페이지네이션이 붙는 날** 바깥에 `Pagination` 을 두세요.
+ *
+ * ### 좁아지면 표가 카드로 갈립니다 (2026-08-13)
+ *
+ * **조회 조건은 그대로입니다** — `FilterBar` 가 자기 폭을 재서 세로로 쌓습니다.
+ * 갈리는 것은 **목록뿐**입니다: 9열 200행을 390 폭에 넣으면 가로로 밀려서 무엇을 보고
+ * 있는지 알 수 없습니다. 「아직 갈리는 것」의 `Table` ↔ `MobileListCard` 그대로입니다.
+ *
+ * 기준은 **창 폭 1024** 입니다 (`useIsMobileLayout`) — `--h-input-default` 같은 반응형
+ * 변수가 쓰는 것과 같은 지점이라 높이와 구조가 한 번에 바뀝니다. 시트냐 팝오버냐를
+ * 정하는 `PointerModeProvider`(포인터)와는 **다른 축**이니 섞지 마세요.
  *
  * ### 목록이 긴 조건은 `editable` 입니다
  *
@@ -282,6 +296,8 @@ export function Layout1Screen() {
     );
   }, [applied]);
 
+  const isMobile = useIsMobileLayout();
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <OrderFilter
@@ -296,75 +312,128 @@ export function Layout1Screen() {
         onOpenChange={setOpen}
       />
 
-      {/* 본문 여백 20 — 위 조회 조건(pad 20)과 같아야 안쪽으로 밀려 보이지 않습니다 */}
-      <div className="flex min-h-0 flex-1 p-5">
-        {/*
-          `gap-0` 입니다. 제목줄과 표가 **한 덩어리이므로** 사이가 벌어지면 서로 다른
-          블록으로 읽힙니다 — `PatientList` 와 같은 판단입니다. 숨통이 필요한 자리는
-          `DataTable` 이 자기 여백으로 냅니다.
-        */}
-        <Panel className="min-w-0 flex-1 gap-0">
-          <DataTable
-            columns={COLUMNS}
-            data={rows}
-            // 접수번호가 행의 정체입니다 — index 로 두면 정렬한 뒤 선택이 엉뚱한 행으로 갑니다
-            getRowId={(o) => o.id}
-            selectable
-            onSelectedChange={setSelected}
-            columnControl
-            /*
-              200행이 아래로 이어지므로 **열 이름이 남아야** 합니다.
-              스크롤은 `framed` 상자가 갖습니다 — 테두리를 만드는 쪽이 스크롤을
-              가져야 표가 길어져도 테두리·모서리가 제자리에 남습니다.
-            */
-            stickyHeader
-            framed
-            headerAlign="center"
-            title="검사 접수 목록"
-            count={
-              selected.length ? `총 ${rows.length}건 / ${selected.length}건 선택됨` : `총 ${rows.length}건`
-            }
-            actions={
-              <>
-                {/*
-                  편집은 **한 줄만 골랐을 때**입니다 — 여럿을 한 번에 고치는 화면이
-                  따로 있어야 하는 동작이라, 여기서 열어 주면 무엇이 바뀌는지 알 수 없습니다.
-                */}
-                {selected.length === 1 && (
-                  <Button variant="outline" size="sm">
-                    <Pencil />
-                    편집
-                  </Button>
-                )}
-                {/* 아이콘만 있는 버튼이라 aria-label 이 필수입니다. 툴팁은 눈으로 보는 사람 몫 */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" aria-label="내려받기">
-                      <Download />
+      {isMobile ? (
+        /*
+          **라인형** 입니다 — 회색 바탕 위에 흰 판을 한 겹 두고 그 안에서 카드를 간격 0
+          으로 쌓습니다. 사이를 띄우면 낱개로 흩어져 보이고 표를 옮긴 것이라는 감각이
+          사라집니다 (`결과조회` 의 모바일 목록과 같은 모양입니다).
+        */
+        <div className="min-h-0 flex-1 overflow-y-auto bg-surface-gray-subtle p-4">
+          <div className="flex flex-col gap-2.5 rounded-lg bg-background-white p-4">
+            {/* 표 헤더가 없어서 이 줄이 무엇의 목록인지·몇 건인지를 대신합니다 */}
+            <MobileListHeader
+              title="검사 접수 목록"
+              count={rows.length}
+              onFilter={() => setOpen(!open)}
+            />
+            {rows.length === 0 ? (
+              <EmptyState
+                type="no-result"
+                size="sm"
+                onAction={() => {
+                  setQuery(EMPTY_QUERY);
+                  setApplied(EMPTY_QUERY);
+                  setOpen(true);
+                }}
+              />
+            ) : (
+              /* 반경 안쪽으로 잘라내야 첫·마지막 카드의 모서리가 판을 넘지 않습니다 */
+              <div className="overflow-hidden rounded-lg">
+                {rows.map((o) => (
+                  <MobileListCard
+                    key={o.id}
+                    // 목록에서 찾는 기준은 이름입니다
+                    title={o.name}
+                    // 접수일·접수번호는 훑는 값이 아니라 확인하는 값이라 메타 줄로
+                    meta={`${o.date} · 접수 ${o.receipt}`}
+                    count={`${o.count}건`}
+                    // 3종이라 점이 아니라 배지입니다 — 카드는 행이 적습니다
+                    badge={<Badge tone={STATE_TONE[o.state]}>{o.state}</Badge>}
+                    /*
+                      값 자리는 **둘까지**입니다 (타입이 막습니다). 무엇을 한 검사인지와
+                      누가 맡았는지 — 나머지는 상세 화면으로 미룹니다.
+                    */
+                    values={[
+                      { label: "검사항목", value: o.test },
+                      { label: "담당자", value: o.owner },
+                    ]}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* 본문 여백 20 — 위 조회 조건(pad 20)과 같아야 안쪽으로 밀려 보이지 않습니다 */
+        <div className="flex min-h-0 flex-1 p-5">
+          {/*
+            `gap-0` 입니다. 제목줄과 표가 **한 덩어리이므로** 사이가 벌어지면 서로 다른
+            블록으로 읽힙니다 — `PatientList` 와 같은 판단입니다. 숨통이 필요한 자리는
+            `DataTable` 이 자기 여백으로 냅니다.
+          */}
+          <Panel className="min-w-0 flex-1 gap-0">
+            <DataTable
+              columns={COLUMNS}
+              data={rows}
+              // 접수번호가 행의 정체입니다 — index 로 두면 정렬한 뒤 선택이 엉뚱한 행으로 갑니다
+              getRowId={(o) => o.id}
+              selectable
+              onSelectedChange={setSelected}
+              columnControl
+              /*
+                200행이 아래로 이어지므로 **열 이름이 남아야** 합니다.
+                스크롤은 `framed` 상자가 갖습니다 — 테두리를 만드는 쪽이 스크롤을
+                가져야 표가 길어져도 테두리·모서리가 제자리에 남습니다.
+              */
+              stickyHeader
+              framed
+              headerAlign="center"
+              title="검사 접수 목록"
+              count={
+                selected.length ? `총 ${rows.length}건 / ${selected.length}건 선택됨` : `총 ${rows.length}건`
+              }
+              actions={
+                <>
+                  {/*
+                    편집은 **한 줄만 골랐을 때**입니다 — 여럿을 한 번에 고치는 화면이
+                    따로 있어야 하는 동작이라, 여기서 열어 주면 무엇이 바뀌는지 알 수 없습니다.
+                  */}
+                  {selected.length === 1 && (
+                    <Button variant="outline" size="sm">
+                      <Pencil />
+                      편집
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>내려받기</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" aria-label="인쇄">
-                      <Printer />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>인쇄</TooltipContent>
-                </Tooltip>
-              </>
-            }
-            // 조회했는데 0건이면 조건을 바꾸라고 알립니다
-            emptyType="no-result"
-            onEmptyAction={() => {
-              setQuery(EMPTY_QUERY);
-              setApplied(EMPTY_QUERY);
-              setOpen(true);
-            }}
-          />
-        </Panel>
-      </div>
+                  )}
+                  {/* 아이콘만 있는 버튼이라 aria-label 이 필수입니다. 툴팁은 눈으로 보는 사람 몫 */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" aria-label="내려받기">
+                        <Download />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>내려받기</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" aria-label="인쇄">
+                        <Printer />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>인쇄</TooltipContent>
+                  </Tooltip>
+                </>
+              }
+              // 조회했는데 0건이면 조건을 바꾸라고 알립니다
+              emptyType="no-result"
+              onEmptyAction={() => {
+                setQuery(EMPTY_QUERY);
+                setApplied(EMPTY_QUERY);
+                setOpen(true);
+              }}
+            />
+          </Panel>
+        </div>
+      )}
     </div>
   );
 }

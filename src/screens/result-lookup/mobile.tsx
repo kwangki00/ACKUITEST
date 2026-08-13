@@ -103,6 +103,17 @@ export interface MobileResultLookupProps {
   menu: { name: string; icon: React.ReactNode; items: string[] }[];
   page: string;
   onOpenScreen: (name: string) => void;
+  /**
+   * 결과조회가 **아닌** 화면을 골랐을 때 그릴 것.
+   *
+   * 안 넘기면 무엇을 골랐든 환자 목록이 나옵니다 — 실제로 그랬습니다 (2026-08-13).
+   * `레이아웃1` 을 골라도 **제목만 바뀐 환자 목록**이 나와서, 화면은 멀쩡해 보이는데
+   * 다른 것을 보고 있었습니다. PC 는 `SCREENS` 를 읽어 그리는데 여기만 빠져 있었습니다.
+   *
+   * 껍데기는 상단 바와 탭바만 대고 **안은 화면이 알아서** 그립니다 — 화면마다 조회
+   * 조건이 있을 수도, 없을 수도 있어서 여기서 정할 수 없습니다.
+   */
+  screen?: React.ReactNode;
 }
 
 export function MobileResultLookup({
@@ -119,6 +130,7 @@ export function MobileResultLookup({
   menu,
   page,
   onOpenScreen,
+  screen,
 }: MobileResultLookupProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const patient = PATIENTS.find((p) => p.chart === chart);
@@ -150,7 +162,13 @@ export function MobileResultLookup({
       `Background/*` 는 `Subtler` 가 더 옅습니다. 값을 보고 고르세요.
     */
     <div className="relative flex h-dvh flex-col overflow-hidden bg-surface-gray-subtle">
-      {patient ? (
+      {screen ? (
+        // 고른 화면이 따로 있으면 그것만 그립니다 — 조회 조건도 그 화면 몫입니다
+        <>
+          <MobileTop variant="title" title={page} />
+          <div className="flex min-h-0 flex-1 flex-col">{screen}</div>
+        </>
+      ) : patient ? (
         <PatientDetailScreen
           patient={patient}
           onBack={() => onSelect(null)}
