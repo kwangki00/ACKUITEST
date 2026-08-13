@@ -35,6 +35,53 @@ function Swatch({ name }: { name: string }) {
   );
 }
 
+/**
+ * 가로지르는 일곱 그룹의 **축**입니다 — 값이 같아도 축이 다르면 다른 토큰입니다.
+ * Figma `Color` 페이지의 About 과 같은 표입니다.
+ */
+const AXES: [string, string][] = [
+  ["Background/*", "영역이 깔고 앉는 바탕 — 화면 · 판 · 떠 있는 패널"],
+  ["Surface/*", "요소가 스스로 갖는 면. 톤이 있는 표면(*-Subtler 일곱)은 전부 여기입니다"],
+  ["Border/*", "요소를 두르는 선"],
+  ["Divider/*", "요소 사이를 긋는 선 — 값이 같아도 축이 다릅니다"],
+  ["Text/* · Icon/*", "글자 · 아이콘"],
+  ["Action/*", "상호작용 상태 — hover · selected · pressed · focus ring"],
+  ["Button/* · Badge/* …", "컴포넌트 이름이 붙은 그룹은 이름이 곧 용도라 따로 정의하지 않습니다"],
+];
+
+function Axes() {
+  return (
+    <section className="mb-8">
+      <h3 className="text-sm font-semibold text-text-basic">그룹이 곧 축입니다</h3>
+      <p className="mt-0.5 mb-3 text-xs text-text-subtle">
+        값이 겹치는 묶음이 27개인데 대부분은 정상입니다 — <code>Border/Primary</code> ·{" "}
+        <code>Text/Primary</code> · <code>Icon/Primary</code> 는 같은 파랑이지만 축이 다르고, 그
+        축이 이름에 있습니다.
+      </p>
+      <div className="overflow-hidden rounded-lg border border-table-border">
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="bg-table-header-surface">
+              <th className="w-52 px-4 py-2 text-xs font-semibold text-table-header-text">그룹</th>
+              <th className="px-4 py-2 text-xs font-semibold text-table-header-text">무엇에 쓰나</th>
+            </tr>
+          </thead>
+          <tbody className="bg-table-row-surface">
+            {AXES.map(([g, use]) => (
+              <tr key={g} className="border-t border-table-border">
+                <td className="px-4 py-2 text-xs font-medium whitespace-nowrap text-text-basic">
+                  {g}
+                </td>
+                <td className="px-4 py-2 text-xs text-text-subtle">{use}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function Group({ title, note, names }: { title: string; note?: string; names: string[] }) {
   return (
     <section className="mb-8">
@@ -123,10 +170,15 @@ export const Tailwind: Story = {
   },
 };
 
-/** 컴포넌트가 실제로 참조하는 값입니다. */
+/**
+ * 컴포넌트가 실제로 참조하는 값입니다.
+ *
+ * **고르기 전에 축부터 보세요** — 그룹 이름이 곧 용도입니다.
+ */
 export const Semantic: Story = {
   render: () => (
     <div>
+      <Axes />
       <Group
         title="Text"
         note="본문 4.5:1 · 큰 글자 3:1 을 지킵니다."
