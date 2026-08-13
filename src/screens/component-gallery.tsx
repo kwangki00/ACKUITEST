@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/tooltip";
 import { DatePicker } from "@/components/ui/date-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DataTable } from "@/components/ui/data-table";
+import type { DataTableColumn } from "@/components/ui/data-table";
 import type { DateRange } from "@/components/ui/calendar";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { ToastProvider, useToast } from "@/components/ui/toast";
@@ -69,6 +71,46 @@ const ROWS = [
   { name: "최민영", chart: "2312348", test: "Total Cholesterol", value: "188", unit: "mg/dL", status: "완료", tone: "success", date: "2025-06-04" },
   { name: "정혜진", chart: "2312349", test: "C-Reactive Protein", value: "0.8", unit: "mg/L", status: "진행중", tone: "warning", date: "—" },
 ] as const;
+
+/**
+ * `DataTable` 에 넘길 자료. `ROWS` 는 `as const` 라 읽기 전용이고 리터럴 타입이라
+ * 그대로는 못 넘깁니다 — 한 겹 펴서 넘깁니다.
+ */
+type GalleryRow = {
+  name: string;
+  chart: string;
+  test: string;
+  value: string;
+  unit: string;
+  status: string;
+  tone: "success" | "danger" | "warning";
+  date: string;
+};
+const DT_ROWS: GalleryRow[] = ROWS.map((r) => ({ ...r }));
+
+/**
+ * 열 정의는 **모듈 최상단**입니다 — 컴포넌트 안에서 만들면 렌더마다 새 배열이 되어
+ * 표가 통째로 다시 만들어지고 정렬 상태가 풀립니다.
+ */
+const DT_COLUMNS: DataTableColumn<GalleryRow>[] = [
+  { accessorKey: "name", header: "환자명", meta: { width: "w-20" } },
+  { accessorKey: "chart", header: "차트번호", meta: { width: "w-24" } },
+  { accessorKey: "test", header: "검사명" },
+  { accessorKey: "value", header: "결과", meta: { width: "w-20", align: "right" } },
+  { accessorKey: "unit", header: "단위", meta: { width: "w-20" } },
+  {
+    accessorKey: "status",
+    header: "상태",
+    meta: { width: "w-24", align: "center" },
+    // 그림만 배지이고 **정렬은 원본 값**으로 됩니다
+    cell: ({ row }) => (
+      <Badge tone={row.original.tone} size="sm">
+        {row.original.status}
+      </Badge>
+    ),
+  },
+  { accessorKey: "date", header: "보고일", meta: { width: "w-24" } },
+];
 
 function Gallery() {
   const { toast } = useToast();
@@ -299,7 +341,10 @@ function Gallery() {
           </div>
         </Section>
 
-        <Section title="Table" note="헤더·본문 모두 14. 페이지네이션 대신 스크롤을 씁니다.">
+        <Section
+          title="Table"
+          note="표현만 하는 부품입니다 — Figma 와 1:1. 정렬·선택·페이지네이션은 쓰는 쪽이 계산합니다."
+        >
           <div className="overflow-hidden rounded-lg border border-table-border">
             {/* 건수는 칩 하나에 모읍니다 — 선택이 있으면 함께 적습니다 */}
             <TableToolbar
@@ -379,11 +424,35 @@ function Gallery() {
           </div>
         </Section>
 
-        <Section title="조회 조건 바" note="위 컴포넌트만으로 실제 화면 조각을 조립해 봅니다.">
+        <Section
+          title="DataTable"
+          note="같은 부품 위에 상태를 얹은 완성형입니다. 열 이름을 눌러 정렬하고, 체크박스로 고르고, 오른쪽 위 「열」로 보이는 열을 바꿔 보세요 — 위 Table 은 그림만이라 눌러도 아무 일이 없습니다."
+        >
+          <DataTable
+            columns={DT_COLUMNS}
+            data={DT_ROWS}
+            /* 차트번호가 행의 정체입니다 — index 로 두면 정렬한 뒤 선택이 엉뚱한 행으로 갑니다 */
+            getRowId={(r) => r.chart}
+            selectable
+            paginated
+            pageSize={3}
+            columnControl
+          />
+        </Section>
+
+        <Section
+          title="FilterBar"
+          note="조회 조건 줄입니다. 여기서는 부품으로 조립했고, 실제 화면은 접힘·요약까지 갖춘 FilterBar 컴포넌트를 씁니다."
+        >
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-end gap-4">
               {/* Figma 의 PCDateRangeField — 코드에서는 FormField + DateRangePicker 조립입니다 */}
-              <FormField label="기간설정">
+              {/*
+                w-fit 이 없으면 이 필드가 줄을 통째로 먹습니다 — FormField 기본이
+                w-full 이라 flex-wrap 줄에서 100% 를 요구하고, 남는 자리를 칩이
+                다 먹어 빠른선택만 화면 끝까지 늘어납니다
+              */}
+              <FormField label="기간설정" className="w-fit">
                 <DateRangePicker quickSelect value={period} onValueChange={setPeriod} />
               </FormField>
               <div className="w-56">
