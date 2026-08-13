@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/ui/data-table";
 import type { DataTableColumn } from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
-import { Panel, SectionTitle, TableFrame } from "./panel";
+import { Panel, SectionTitle, TableFrame } from "../panel";
 import { DONE, MARKS, PATIENTS, TOTAL_PAGES, TOTAL_PATIENTS } from "./data";
 import type { Patient } from "./data";
 

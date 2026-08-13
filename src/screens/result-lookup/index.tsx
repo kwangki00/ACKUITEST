@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChartColumn, ClipboardList, Component, Mail, Settings } from "lucide-react";
+import { ChartColumn, ClipboardList, Component, LayoutTemplate, Mail, Settings } from "lucide-react";
 import { Sidebar } from "@/components/ui/sidebar";
 import { SidebarGroup } from "@/components/ui/sidebar-group";
 import { SidebarItem } from "@/components/ui/sidebar-item";
@@ -11,6 +11,7 @@ import { PatientList } from "./patient-list";
 import { PatientDetail } from "./patient-detail";
 import { PATIENTS, TOTAL_PATIENTS } from "./data";
 import { ComponentGallery } from "@/screens/component-gallery";
+import { Layout1Screen } from "@/screens/layout-1";
 import { useIsMobileLayout } from "@/lib/use-media-query";
 import { MobileResultLookup } from "./mobile";
 
@@ -60,6 +61,12 @@ const MENU = [
   { name: "고객SMS관리", icon: <Mail />, items: ["SMS 발송", "발송 이력"] },
   { name: "환경설정", icon: <Settings />, items: [] },
   /*
+    화면 조립 예제입니다 — 「위 조회 조건 · 아래 목록 표」는 이 제품에서 가장 흔한
+    모양이라, 새 화면을 만들 때 보고 베낄 자리를 하나 둡니다.
+    `컴포넌트` 와 같은 테스트 빌드 전용입니다.
+  */
+  { name: "레이아웃", icon: <LayoutTemplate />, items: ["레이아웃1"] },
+  /*
     테스트 빌드 전용입니다. 빌드된 앱에서 토큰과 컴포넌트가 실제로 나오는지 눈으로
     보는 자리라 메뉴에 넣어 두었습니다 — Storybook 은 별도 빌드라 배포본에 없습니다.
     실제 제품에서는 이 줄을 지우세요.
@@ -67,9 +74,17 @@ const MENU = [
   { name: "컴포넌트", icon: <Component />, items: [] },
 ];
 
-/** 사이드바에서 고른 화면이 무엇을 그리는지. 없으면 자리표시만 나옵니다. */
-const SCREENS: Record<string, () => React.ReactNode> = {
-  컴포넌트: () => <ComponentGallery />,
+/**
+ * 사이드바에서 고른 화면이 무엇을 그리는지. 없으면 자리표시만 나옵니다.
+ *
+ * **틀(`className`)을 화면이 함께 갖습니다** — 스크롤을 누가 갖느냐가 화면마다
+ * 다르기 때문입니다. 갤러리는 긴 문서라 탭 패널이 통째로 스크롤되고, 레이아웃1 은
+ * 안의 표가 스스로 스크롤하므로 패널은 높이를 나눠 주기만 하면 됩니다.
+ * 여기서 함께 적지 않으면 화면을 더할 때마다 아래 `TabPanel` 을 고쳐야 합니다.
+ */
+const SCREENS: Record<string, { render: () => React.ReactNode; className: string }> = {
+  컴포넌트: { render: () => <ComponentGallery />, className: "min-h-0 flex-1 overflow-y-auto" },
+  레이아웃1: { render: () => <Layout1Screen />, className: "flex min-h-0 flex-1 flex-col" },
 };
 
 const today = startOfDay(new Date());
@@ -301,13 +316,12 @@ export function ResultLookupScreen() {
               value={name}
               current={tab}
               className={
-                SCREENS[name]
-                  ? "min-h-0 flex-1 overflow-y-auto"
-                  : "flex flex-1 items-center justify-center text-sm text-text-subtle"
+                SCREENS[name]?.className ??
+                "flex flex-1 items-center justify-center text-sm text-text-subtle"
               }
             >
               {/* 아직 안 만든 화면은 자리만 잡아 둡니다 */}
-              {SCREENS[name] ? SCREENS[name]() : `${name} 화면은 아직 없습니다`}
+              {SCREENS[name] ? SCREENS[name].render() : `${name} 화면은 아직 없습니다`}
             </TabPanel>
           ))}
       </div>

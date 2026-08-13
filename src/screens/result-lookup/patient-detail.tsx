@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Panel, SectionTitle, TableFrame } from "./panel";
+import { Panel, SectionTitle, TableFrame } from "../panel";
 import { DONE, RESULTS, STATE_TONE, type Patient } from "./data";
 
 /**
