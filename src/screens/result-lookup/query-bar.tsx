@@ -77,19 +77,19 @@ export function QueryFilter({
     같은 정보가 있어 중복이라, 요약과 건수는 접혔을 때만 나옵니다.
   */
   /*
-    **라벨을 함께 넘깁니다** (2026-08-13). 값만 이어 쓰면 사람 이름이나 코드처럼
-    값만으로는 무엇인지 알 수 없는 것들이 나란히 서서, 접힌 줄이 「지금 뭐가
-    걸려 있나」를 알려주는 일을 못 합니다. 라벨은 **위 필드의 것과 같은 말**입니다.
+    **조건 하나가 칩 하나입니다** (2026-08-13). 표식은 **값만으로 모를 때만** 붙입니다 —
+    기간과 검사 항목은 값이 스스로 말하지만, 검색어는 무엇을 친 것인지 알 수 없어
+    돋보기를 답니다. `label` 은 화면에서 숨고 보조기술이 읽습니다.
   */
   const summary: FilterSummaryItem[] = [];
   if (value.period.start && value.period.end)
     summary.push({
-      label: "기간설정",
       value: `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`,
     });
   const test = TEST_OPTIONS.find((o) => o.value === value.test);
-  if (value.test !== "all" && test) summary.push({ label: "검사 항목", value: test.label });
-  if (value.keyword) summary.push({ label: "검색어", value: value.keyword });
+  if (value.test !== "all" && test) summary.push({ value: test.label });
+  if (value.keyword)
+    summary.push({ icon: <Search />, label: "검색어", value: value.keyword });
 
   return (
     <FilterBar

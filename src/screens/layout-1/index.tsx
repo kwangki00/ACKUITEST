@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Download, Pencil, Printer, Search } from "lucide-react";
+import { Download, Pencil, Printer, Search, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -159,23 +159,27 @@ function OrderFilter({
     걸린 조건만 이어 씁니다 — 「전체」는 조건이 아니라 **안 건 것**이라 뺍니다.
     넣으면 `전체 · 전체 · …` 가 되어 무엇을 걸었는지가 오히려 안 보입니다.
 
-    **라벨을 함께 넘깁니다** (2026-08-13). 값만 나열하면 `이검사`(담당자)와
-    `김지훈`(검색어)이 나란히 서서 어느 쪽이 무엇인지 알 수 없습니다 — 접힌 줄의
-    일이 「지금 뭐가 걸려 있나」를 한눈에 보여주는 것인데 그걸 못 하게 됩니다.
+    **표식은 값만으로 모를 때만** 붙입니다 (2026-08-13). 접수일·검사항목·상태는
+    값만 봐도 무엇인지 압니다 — 날짜 모양이고, 「일반혈액검사」와 「완료」는 서로
+    섞일 일이 없습니다.
 
-    **라벨은 위 필드의 것과 같은 말**입니다. 펼쳤을 때와 이어져야 어디를 고쳐야
-    하는지 바로 찾습니다.
+    **담당자와 검색어가 문제**입니다. `이검사`·`김지훈` 이 나란히 서면 어느 쪽이
+    무엇인지 알 수 없어, 접힌 줄이 「지금 뭐가 걸려 있나」를 알려주는 일을 못 합니다.
+    그 둘에만 아이콘을 줍니다 — 검사항목·상태는 쓸 아이콘이 마땅찮은데 억지로
+    붙이면 결국 눌러 봐야 알게 됩니다.
+
+    **`label` 은 아이콘과 함께 넘겨야 합니다** — 화면에서는 숨지만 보조기술이
+    읽습니다. 안 넘기면 스크린리더로는 이름 두 개가 그대로 나열됩니다.
   */
   const summary: FilterSummaryItem[] = [];
   if (value.period.start && value.period.end)
     summary.push({
-      label: "접수일",
       value: `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`,
     });
-  if (value.test) summary.push({ label: "검사항목", value: value.test });
-  if (value.state !== "all") summary.push({ label: "상태", value: value.state });
-  if (value.owner) summary.push({ label: "담당자", value: value.owner });
-  if (value.keyword) summary.push({ label: "검색어", value: value.keyword });
+  if (value.test) summary.push({ value: value.test });
+  if (value.state !== "all") summary.push({ value: value.state });
+  if (value.owner) summary.push({ icon: <User />, label: "담당자", value: value.owner });
+  if (value.keyword) summary.push({ icon: <Search />, label: "검색어", value: value.keyword });
 
   return (
     <FilterBar

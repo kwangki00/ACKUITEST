@@ -94,15 +94,35 @@ export function FilterRow({
 }
 
 /**
- * 접힌 줄에 들어가는 조건 하나.
+ * 접힌 줄에 들어가는 조건 하나 — **칩 하나로 나옵니다.**
  *
- * **라벨은 값이 무엇인지 말하는 자리**입니다 — 없으면 값만 나옵니다.
- * `이검사`(담당자)와 `김지훈`(검색어)처럼 **값만으로는 구분되지 않는 것**이
- * 나란히 서면 접힌 줄이 제 일을 못 합니다.
+ * ### 라벨은 값이 스스로 말하지 못할 때만
+ *
+ * `2026-07-14 ~ 2026-08-13` · `일반혈액검사` · `완료` 는 값만 봐도 무엇인지 압니다.
+ * **`이검사`(담당자)와 `김지훈`(검색어)이 문제**입니다 — 사람 이름 둘이 나란히 서면
+ * 어느 쪽이 무엇인지 알 수 없어 접힌 줄이 제 일을 못 합니다.
+ *
+ * 그런 자리에 `icon` 을 줍니다. **화면에는 아이콘, 보조기술에는 `label`** 이 갑니다 —
+ * 아이콘만 두면 스크린리더로는 이름 두 개가 그대로 나열됩니다.
+ *
+ * | | 어떻게 |
+ * |---|---|
+ * | 값만으로 아는 것 | `{ value }` — 칩 하나에 값만 |
+ * | 값만으로는 모르는 것 | `{ icon, label, value }` — 아이콘 + 값, 라벨은 `sr-only` |
+ * | 아이콘이 마땅찮은 것 | `{ label, value }` — 라벨 글자가 앞에 붙습니다 |
+ *
+ * **아이콘을 남발하지 마세요** — 검사항목·상태처럼 쓸 아이콘이 마땅찮은 자리에
+ * 억지로 붙이면 결국 눌러 봐야 알게 되어, 아무것도 없는 것보다 나쁩니다
+ * (`MBottomTabBar` 의 「라벨을 빼지 마세요」와 같은 이유입니다).
  */
 export interface FilterSummaryItem {
-  /** 위 필드의 라벨과 같은 말을 쓰세요 — 펼쳤을 때와 이어져야 찾을 수 있습니다. */
+  /**
+   * 위 필드의 라벨과 같은 말을 쓰세요 — 펼쳤을 때와 이어져야 찾을 수 있습니다.
+   * `icon` 이 함께 있으면 **화면에서는 숨고 보조기술만 읽습니다.**
+   */
   label?: string;
+  /** 값 앞에 붙는 표식. 크기는 칩이 정합니다 — `size-*` 를 직접 주지 마세요. */
+  icon?: React.ReactNode;
   value: string;
 }
 
@@ -266,20 +286,54 @@ export function FilterBar({
             {caption}
           </span>
           {/* 접혔을 때만 — 펼치면 아래 필드에 같은 정보가 있습니다 */}
-          {!open && (
-            <span className="truncate text-sm font-medium text-text-basic">
-              {typeof summary === "string"
-                ? summary
-                : summary.map((it, i) => (
-                    <React.Fragment key={`${it.label ?? ""}${it.value}`}>
-                      {i > 0 && <span className="text-text-subtle"> · </span>}
-                      {/* 라벨은 뒤로 물러납니다 — 훑을 때 눈에 들어와야 하는 것은 값입니다 */}
-                      {it.label && <span className="font-normal text-text-subtle">{it.label} </span>}
-                      {it.value}
-                    </React.Fragment>
-                  ))}
-            </span>
-          )}
+          {/*
+            **조건 하나가 칩 하나입니다** (2026-08-13). `·` 로 이으면 어디까지가 한
+            조건인지 눈이 매번 재야 합니다 — 특히 값이 둘 이상의 낱말일 때 그렇습니다.
+
+            `Chip` 이 아니라 `Badge` 인 이유 — 이 시스템에서 **`Chip` 은 지울 수 있는
+            태그**입니다. 여기 칩은 지우는 것이 아니라 지금 걸린 조건을 알리는 표시라,
+            `Chip` 을 쓰면 없는 X 를 찾게 됩니다.
+
+            크기는 `lg`(28 · 14px)입니다. `default`(24 · 12px)면 한글이 뭉개집니다 —
+            `FormField` 라벨을 12 에서 14 로 올린 것과 같은 이유입니다.
+
+            **넘치면 잘립니다** — 머리줄은 높이 32 라 줄바꿈하면 줄이 통째로 커집니다.
+            칩은 `shrink-0` 이라 반쪽으로 찌그러지지 않고, 자리가 모자라면 뒤부터
+            안 보입니다.
+          */}
+          {!open &&
+            (typeof summary === "string" ? (
+              <span className="truncate text-sm font-medium text-text-basic">{summary}</span>
+            ) : (
+              <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                {summary.map((it) => (
+                  <Badge
+                    key={`${it.label ?? ""}${it.value}`}
+                    tone="neutral"
+                    size="lg"
+                    className="shrink-0"
+                  >
+                    {/* 크기를 안 정하면 lucide 기본값 24 로 나옵니다 */}
+                    {it.icon && (
+                      <span
+                        aria-hidden
+                        className="shrink-0 text-icon-muted-foreground [&>svg]:size-3.5"
+                      >
+                        {it.icon}
+                      </span>
+                    )}
+                    {/* 아이콘이 있으면 라벨은 보조기술 몫입니다 — 화면에는 아이콘이 말합니다 */}
+                    {it.label &&
+                      (it.icon ? (
+                        <span className="sr-only">{it.label}</span>
+                      ) : (
+                        <span className="font-normal text-text-subtle">{it.label}</span>
+                      ))}
+                    {it.value}
+                  </Badge>
+                ))}
+              </span>
+            ))}
         </span>
 
         {/* 조건을 바꾸는 중에 이전 결과 수가 남아 있으면 혼란스럽습니다 */}
