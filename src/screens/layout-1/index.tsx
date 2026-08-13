@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import type { DataTableColumn } from "@/components/ui/data-table";
+import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { FilterBar, FilterRow } from "@/components/ui/filter-bar";
 import { FormField } from "@/components/ui/form-field";
@@ -33,7 +34,7 @@ import {
  * Content
  * ├ FilterBar        조회하면 접힙니다 (200 → 56)
  * └ 본문 p-5
- *    └ Panel         제목줄 · 표 · 페이지네이션 한 덩어리
+ *    └ Panel         제목줄 · 표 (한 덩어리 · 표가 스스로 스크롤)
  * ```
  *
  * ### `결과조회` 와 갈리는 것 둘
@@ -41,12 +42,27 @@ import {
  * | | `결과조회` | **여기** |
  * |---|---|---|
  * | 판 | 좌우 둘 (540 + 나머지) | **하나** — 폭을 다 씁니다 |
- * | 페이지네이션 | `Pagination` 을 밖에 둠 | **`DataTable paginated`** |
+ * | 쪽 나눔 | `Pagination` 을 밖에 | **없음** — 200건이 아래로 이어집니다 |
  *
- * 페이지네이션이 갈리는 이유는 **자료가 어디서 잘리느냐**입니다. `결과조회` 는 서버가
- * 한 쪽씩 주므로(전체 979 · 받은 것 14) 받은 배열을 자르면 안 되지만, 여기는 24건을
- * 통째로 들고 있어 `DataTable` 이 잘라 쓰는 것이 맞습니다. **서버 페이지네이션이 붙는
- * 날 `paginated` 를 끄고 바깥에 `Pagination` 을 두세요.**
+ * ### 페이지네이션을 쓰지 않습니다
+ *
+ * 「한 화면에서 훑는 목록은 스크롤, 몇 번째 쪽을 보고 있었는지를 기억해야 하면
+ * 페이지네이션」 규칙에서 **앞쪽**입니다. 조건을 좁혀 가며 훑는 화면이라 쪽을 오가는
+ * 일이 없고, 쪽이 있으면 「조건을 더 걸까 다음 쪽으로 갈까」가 매번 판단거리가 됩니다.
+ *
+ * 대신 **`stickyHeader` 가 필수**입니다 — 200행을 내리는 동안 열 이름이 사라지면
+ * 무엇을 보고 있는지 알 수 없습니다. 스크롤은 `framed` 상자가 갖습니다.
+ *
+ * `결과조회` 가 반대인 이유는 **자료가 어디서 잘리느냐**입니다 — 거기는 서버가 한 쪽씩
+ * 주므로(전체 979 · 받은 것 14) 받은 배열을 자르면 안 됩니다. 여기는 200건을 통째로
+ * 들고 있습니다. **서버 페이지네이션이 붙는 날** 바깥에 `Pagination` 을 두세요.
+ *
+ * ### 목록이 긴 조건은 `editable` 입니다
+ *
+ * 검사항목 25종 · 담당자 12명은 `Select` 로 못 고릅니다 — 목록을 끝까지 내려야 하고,
+ * 이름을 알고 있어도 눈으로 찾아야 합니다. **`Combobox render="editable"`** 은 아는
+ * 이름을 쳐서 거르고 모르면 열어서 훑습니다. 상태(3종)는 그대로 `Select` 입니다 —
+ * 항목보다 검색창이 더 큽니다.
  *
  * ### 조회 조건은 `결과조회` 와 같은 부품입니다
  *
@@ -68,9 +84,10 @@ const today = startOfDay(new Date());
 const EMPTY_QUERY: Query = {
   period: { start: addDays(today, -29), end: today },
   keyword: "",
-  test: "all",
+  // **빈 문자열이 「전체」입니다** — editable 은 비어 있는 것이 곧 조건을 안 건 상태입니다
+  test: "",
   state: "all",
-  owner: "all",
+  owner: "",
 };
 
 /**
@@ -143,9 +160,9 @@ function OrderFilter({
       value.period.start && value.period.end
         ? `${formatDate(value.period.start)} ~ ${formatDate(value.period.end)}`
         : null,
-      value.test !== "all" ? value.test : null,
+      value.test || null,
       value.state !== "all" ? value.state : null,
-      value.owner !== "all" ? value.owner : null,
+      value.owner || null,
       value.keyword || null,
     ]
       .filter(Boolean)
@@ -181,13 +198,27 @@ function OrderFilter({
             onClear={value.keyword ? () => set("keyword", "") : undefined}
           />
         </FormField>
-        <FormField label="검사항목" className="@pc/filter:w-44">
-          <Select
+        {/*
+          **`editable` 입니다** — 검사항목이 25종이라 `Select` 로는 목록을 끝까지
+          내려야 하고, 이름을 알고 있어도 눈으로 찾아야 합니다. 트리거에 바로 쳐서
+          거르고, 모르면 열어서 훑습니다.
+
+          `Combobox` 는 값이 배열이라 단일도 `[값]` 으로 넘깁니다 (`type="single"`).
+          **빈 배열이 「전체」** 라 목록에 그 항목을 두지 않습니다 — 두면 쳐서 거를 때
+          검사항목처럼 걸려 나옵니다.
+        */}
+        <FormField label="검사항목" className="@pc/filter:w-48">
+          <Combobox
+            type="single"
+            render="editable"
             options={TEST_OPTIONS}
-            value={value.test}
-            onValueChange={(test) => set("test", test)}
+            value={value.test ? [value.test] : []}
+            onValueChange={(v) => set("test", v[0] ?? "")}
+            placeholder="전체"
+            clearable
           />
         </FormField>
+        {/* 상태는 3종뿐이라 그대로 `Select` 입니다 — 항목보다 검색창이 더 큽니다 */}
         <FormField label="상태" className="@pc/filter:w-32">
           <Select
             options={STATE_OPTIONS}
@@ -195,11 +226,15 @@ function OrderFilter({
             onValueChange={(state) => set("state", state)}
           />
         </FormField>
-        <FormField label="담당자" className="@pc/filter:w-32">
-          <Select
+        <FormField label="담당자" className="@pc/filter:w-36">
+          <Combobox
+            type="single"
+            render="editable"
             options={OWNER_OPTIONS}
-            value={value.owner}
-            onValueChange={(owner) => set("owner", owner)}
+            value={value.owner ? [value.owner] : []}
+            onValueChange={(v) => set("owner", v[0] ?? "")}
+            placeholder="전체"
+            clearable
           />
         </FormField>
       </FilterRow>
@@ -222,9 +257,9 @@ export function Layout1Screen() {
     const kw = applied.keyword.trim();
     return ORDERS.filter(
       (o) =>
-        (applied.test === "all" || o.test === applied.test) &&
+        (!applied.test || o.test === applied.test) &&
         (applied.state === "all" || o.state === applied.state) &&
-        (applied.owner === "all" || o.owner === applied.owner) &&
+        (!applied.owner || o.owner === applied.owner) &&
         (!kw || o.name.includes(kw) || o.chart.includes(kw))
     );
   }, [applied]);
@@ -247,9 +282,9 @@ export function Layout1Screen() {
       {/* 본문 여백 20 — 위 조회 조건(pad 20)과 같아야 안쪽으로 밀려 보이지 않습니다 */}
       <div className="flex min-h-0 flex-1 p-5">
         {/*
-          `gap-0` 입니다. 제목줄 · 표 · 페이지네이션이 **한 표에 속하므로** 사이가
-          벌어지면 서로 다른 블록으로 읽힙니다 — `PatientList` 와 같은 판단입니다.
-          숨통이 필요한 자리는 `DataTable` 이 자기 여백으로 냅니다.
+          `gap-0` 입니다. 제목줄과 표가 **한 덩어리이므로** 사이가 벌어지면 서로 다른
+          블록으로 읽힙니다 — `PatientList` 와 같은 판단입니다. 숨통이 필요한 자리는
+          `DataTable` 이 자기 여백으로 냅니다.
         */}
         <Panel className="min-w-0 flex-1 gap-0">
           <DataTable
@@ -259,9 +294,12 @@ export function Layout1Screen() {
             getRowId={(o) => o.id}
             selectable
             onSelectedChange={setSelected}
-            paginated
-            pageSize={10}
             columnControl
+            /*
+              200행이 아래로 이어지므로 **열 이름이 남아야** 합니다.
+              스크롤은 `framed` 상자가 갖습니다 — 테두리를 만드는 쪽이 스크롤을
+              가져야 표가 길어져도 테두리·모서리가 제자리에 남습니다.
+            */
             stickyHeader
             framed
             headerAlign="center"

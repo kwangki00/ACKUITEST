@@ -255,7 +255,18 @@ export function DataTable<TData extends RowData>({
     initialState: paginated ? { pagination: { pageIndex: 0, pageSize } } : undefined,
   });
 
-  const rows = table.getRowModel().rows;
+  /*
+    **`paginated` 를 꺼도 `getRowModel()` 은 페이지네이션을 거칩니다** (2026-08-13 수정).
+
+    `rowPaginationFeature` 가 features 에 늘 들어 있어서, 마지막 행 모델이 항상
+    잘린 것입니다 — TanStack 기본 `pageSize` 가 10 이라 **200건을 넘겨도 10행만
+    나오고 아래는 조용히 사라집니다.** 쪽 버튼은 `paginated` 일 때만 그리므로
+    화면에는 「10행짜리 표」로 보일 뿐 잘렸다는 신호가 없습니다.
+
+    기능을 빼서 고칠 수는 없습니다 — `paginated` 를 켜는 곳이 같은 features 를
+    씁니다. 그래서 **자를지 말지를 여기서 고릅니다.** 정렬까지는 항상 거칩니다.
+  */
+  const rows = (paginated ? table.getRowModel() : table.getSortedRowModel()).rows;
   const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   /* 선택이 바뀌면 알립니다 — 호출부는 TanStack 의 row 객체가 아니라 원본을 받습니다 */
@@ -285,7 +296,21 @@ export function DataTable<TData extends RowData>({
         </div>
       )}
 
-      <div className={cn("min-h-0 flex-1", framed && "overflow-hidden rounded-md border border-table-border")}>
+      {/*
+        `framed` 는 **스크롤도 함께 갖습니다** (2026-08-13). 테두리 상자를 만드는
+        쪽이 스크롤을 가져야 표가 길어져도 테두리·모서리가 제자리에 남습니다 —
+        `overflow-hidden` 이면 200행이 통째로 잘리고, 바깥에 스크롤을 두면 테두리가
+        내용을 따라 흘러갑니다. `stickyHeader` 가 붙는 것도 이 상자입니다.
+
+        `framed` 를 끄면 스크롤은 감싸는 쪽 몫입니다 (화면의 `TableFrame`).
+        여기서 또 만들면 두 겹이 되어 헤더가 안 붙습니다.
+      */}
+      <div
+        className={cn(
+          "min-h-0 flex-1",
+          framed && "overflow-y-auto rounded-md border border-table-border"
+        )}
+      >
         <Table>
           <TableHeader className={cn(stickyHeader && "sticky top-0 z-10")}>
             {table.getHeaderGroups().map((group) => (
