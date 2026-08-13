@@ -127,7 +127,29 @@ export function MobileResultLookup({
   const tabValue = TABS.some((t) => t.value === page) ? page : "";
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-surface-gray-subtle">
+    /*
+      **`h-dvh` 입니다 — `h-screen`(100vh)이 아닙니다** (2026-08-12).
+
+      모바일 브라우저의 `100vh` 는 **주소줄이 숨은 상태의 높이**입니다. 주소줄이
+      보이는 동안에는 화면보다 그만큼 길어져서, 아래 탭바가 접힌 자리로 밀려납니다 —
+      한참 스크롤해야 나타납니다.
+
+      `dvh` 는 지금 실제로 보이는 높이라 그 일이 없습니다. 이 껍데기는
+      `overflow-hidden` 이고 안쪽만 스크롤하므로, 문서가 스크롤되지 않아 주소줄이
+      접혔다 펴지며 높이가 출렁이는 일도 없습니다.
+
+      PC(`index.tsx`)는 `h-screen` 그대로입니다 — 데스크톱 브라우저에는 이 문제가
+      없고, 바꾸면 근거 없는 차이만 생깁니다.
+
+      바탕은 **`Surface/Gray-Subtler`(gray/100 `#f3f4f6`)** 입니다. `Gray-Subtle`
+      (gray/50 `#f9fafb`)은 흰색과 차이가 거의 없어서, 목록을 감싼 흰 판이 바탕에
+      묻혔습니다 — PC 의 판은 테두리가 있어 버텼지만 모바일 판은 색만으로 서 있습니다.
+      Figma 「List Style 비교」의 라인형도 이 회색입니다.
+
+      **이름이 헷갈립니다** — `Surface/*` 는 `Subtler` 가 더 진하고
+      `Background/*` 는 `Subtler` 가 더 옅습니다. 값을 보고 고르세요.
+    */
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-surface-gray-subtler">
       {patient ? (
         <PatientDetailScreen
           patient={patient}
@@ -488,7 +510,7 @@ function PatientDetailScreen({
         「여기서부터는 스크롤되지 않는 자리」라고 알립니다. Figma 는 맨 아래까지
         내려간 그림이라 이 자리가 안 보입니다.
       */}
-      <div className="flex shrink-0 gap-2.5 bg-surface-gray-subtle px-4 pt-3 pb-5">
+      <div className="flex shrink-0 gap-2.5 bg-surface-gray-subtler px-4 pt-3 pb-5">
         {/* 높이는 주지 않습니다 — Button 의 default 가 --h-input-default 라 모바일에서 40 입니다 */}
         <Button variant="outline" className="flex-1" disabled={!onPrev} onClick={onPrev}>
           <ChevronLeft />
