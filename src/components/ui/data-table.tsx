@@ -19,6 +19,7 @@ import { Badge } from "./badge";
 import { Checkbox } from "./checkbox";
 import { Pagination } from "./pagination";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { TableEmptyRow } from "./empty-state";
 import type { EmptyStateType } from "./empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
@@ -396,12 +397,23 @@ function ColumnControl<TData extends RowData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        {/* 아이콘은 prop 이 아니라 children 순서입니다 — Figma 의 icon 축과 같습니다 */}
-        <Button variant="outline" size="sm">
-          <Columns3 />열
-        </Button>
-      </PopoverTrigger>
+      {/*
+        **아이콘만 · ghost** 입니다. 머리줄 오른쪽 끝에서 내려받기·인쇄 같은 아이콘
+        버튼들과 나란히 서는 자리라, 혼자 테두리를 두르면 그것만 눌러야 할 것처럼 보입니다.
+
+        글자가 없으므로 `aria-label` 은 필수이고, 눈으로 보는 사람에게는 툴팁이
+        말해 줍니다 — 둘은 읽는 사람이 겹치지 않습니다.
+      */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="열 표시 · 순서">
+              <Columns3 />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>열 표시 · 순서</TooltipContent>
+      </Tooltip>
       <PopoverContent align="end" className="w-56 p-1">
         {columns.map((column, i) => {
           const label =
