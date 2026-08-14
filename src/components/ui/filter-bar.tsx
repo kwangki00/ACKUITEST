@@ -155,6 +155,38 @@ export interface FilterBarProps {
   className?: string;
 }
 
+/**
+ * 이 줄이 **넓은 배치인지** 알려줍니다 (2026-08-13).
+ *
+ * 배치는 컨테이너 쿼리(CSS)가 정하지만, **조회하면 접을지 말지는 동작**이라 JS 가
+ * 알아야 합니다. 넓을 때는 접지 않습니다 — 조회를 자주 누르는 화면에서 누를 때마다
+ * 접히면 다음 조건을 걸려고 매번 다시 펴야 합니다. 좁을 때는 접는 값이 큽니다:
+ * 펼친 조건이 390×844 중 260 을 먹어서, 조회하고도 결과가 화면에 안 들어옵니다.
+ *
+ * **경계는 배치와 같은 `--container-pc`(880)** 입니다. 값을 여기 적지 않고 토큰에서
+ * 읽습니다 — 두 벌이 되면 한쪽만 바뀝니다. 창이 아니라 **자기 폭**을 재는 것도
+ * 배치와 같습니다: 사이드바가 열려 작업 영역이 좁아졌으면 창이 넓어도 좁은 쪽입니다.
+ */
+function useIsWide(ref: React.RefObject<HTMLDivElement | null>) {
+  const [wide, setWide] = React.useState(true);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const raw = getComputedStyle(document.documentElement).getPropertyValue("--container-pc");
+    const boundary = parseFloat(raw) || 880;
+
+    const ro = new ResizeObserver(([entry]) => {
+      setWide(entry.contentRect.width >= boundary);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+
+  return wide;
+}
+
 export function FilterBar({
   summary,
   caption = "조회 조건",
@@ -171,6 +203,8 @@ export function FilterBar({
 }: FilterBarProps) {
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
   const open = openProp ?? uncontrolled;
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const isWide = useIsWide(rootRef);
   const setOpen = (v: boolean) => {
     setUncontrolled(v);
     onOpenChange?.(v);
@@ -185,7 +219,7 @@ export function FilterBar({
       @pc/filter:px-6 을 함께 주면 그 여백은 조용히 죽습니다.
       배치를 바꾸는 클래스는 전부 한 겹 안쪽에 둡니다 (DateRangePicker 와 같은 구조).
     */
-    <div className={cn("@container/filter", className)}>
+    <div ref={rootRef} className={cn("@container/filter", className)}>
       <div
         className={cn(
           "flex flex-col border-b border-border-gray-light bg-background-white",
@@ -432,8 +466,17 @@ export function FilterBar({
               className="flex-1 @pc/filter:flex-none"
               onClick={() => {
                 onSearch?.();
-                // 조회하면 접습니다 — 조건은 한 번 정하고 결과를 계속 봅니다
-                setOpen(false);
+                /*
+                  **좁을 때만 접습니다** (2026-08-13). 그전에는 폭과 무관하게 접었습니다.
+
+                  넓은 화면은 세로가 넉넉해서, 조회를 누를 때마다 접히면 다음 조건을
+                  걸려고 매번 다시 펴야 합니다 — 조회를 자주 누르는 화면에서 그 왕복이
+                  제일 거슬립니다.
+
+                  좁을 때는 반대입니다. 펼친 조건이 390×844 중 260 을 먹어서, 접지
+                  않으면 조회하고도 결과가 화면에 안 들어옵니다.
+                */
+                if (!isWide) setOpen(false);
               }}
             >
               <Search className="hidden @pc/filter:block" />

@@ -199,10 +199,8 @@ function OrderFilter({
       onOpenChange={onOpenChange}
       summary={summary.length ? summary : "조건 없음"}
       onReset={onReset}
-      onSearch={() => {
-        onOpenChange(false);
-        onSearch();
-      }}
+      // 접는 것은 `FilterBar` 몫입니다 — 넓으면 안 접습니다. 여기서 또 접으면 그 판단을 덮습니다
+      onSearch={onSearch}
     >
       <FilterRow className="@pc/filter:flex-wrap @pc/filter:gap-x-6">
         {/* `w-fit` 이 없으면 이 필드가 100% 를 요구해 나머지가 다음 줄로 밀립니다 */}

@@ -95,10 +95,8 @@ export function QueryFilter({
       summary={summary.length ? summary : "조건 없음"}
       onReset={onReset}
       /* 조회하면 접힙니다 — 조건은 한 번 정하고 결과를 계속 봅니다 */
-      onSearch={() => {
-        onOpenChange(false);
-        onSearch();
-      }}
+      // 접는 것은 `FilterBar` 몫입니다 — 넓으면 안 접습니다. 여기서 또 접으면 그 판단을 덮습니다
+      onSearch={onSearch}
     >
       {/*
         **넓으면 한 줄**입니다 (Figma `결과조회-기본` 과 같은 모양). 기간이 칩까지
