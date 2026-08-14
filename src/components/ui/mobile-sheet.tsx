@@ -67,6 +67,50 @@ export interface MobileSheetProps {
   container?: HTMLElement | null;
 }
 
+/**
+ * 키보드가 가린 높이를 잽니다.
+ *
+ * 시트는 `fixed ... bottom-0` 이라 **레이아웃 뷰포트**의 바닥에 붙습니다. 키보드가
+ * 올라와도 그 뷰포트는 그대로인 브라우저(iOS Safari · 기본 설정의 Chromium)에서는
+ * 시트가 제자리에 남아 **목록과 확인 버튼이 키보드 밑에 깔립니다** — 시트 안에
+ * 검색창이 있는 `MobileSelect` 에서 바로 드러납니다.
+ *
+ * `visualViewport` 는 **실제로 보이는** 영역이라, 레이아웃 뷰포트와의 차이가 곧
+ * 키보드 높이입니다. 그만큼 시트를 띄우고 최대 높이도 같이 줄입니다.
+ *
+ * `index.html` 의 `interactive-widget=resizes-content` 와 **겹치지 않습니다** —
+ * 그쪽이 듣는 브라우저에서는 `innerHeight` 도 함께 줄어 차이가 0 이 됩니다.
+ *
+ * 80px 아래는 무시합니다. 주소줄이 접혔다 펴지는 것까지 키보드로 읽으면 시트가
+ * 스크롤할 때마다 들썩입니다.
+ */
+function useKeyboardInset(open: boolean) {
+  const [inset, setInset] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!open) {
+      setInset(0);
+      return;
+    }
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!vv) return;
+
+    const read = () => {
+      const hidden = window.innerHeight - vv.height - vv.offsetTop;
+      setInset(hidden > 80 ? Math.round(hidden) : 0);
+    };
+    read();
+    vv.addEventListener("resize", read);
+    vv.addEventListener("scroll", read);
+    return () => {
+      vv.removeEventListener("resize", read);
+      vv.removeEventListener("scroll", read);
+    };
+  }, [open]);
+
+  return inset;
+}
+
 export function MobileSheet({
   open,
   onOpenChange,
@@ -88,6 +132,7 @@ export function MobileSheet({
   const sheetRef = React.useRef<HTMLDivElement>(null);
   const drag = React.useRef<{ startY: number; moved: number } | null>(null);
   const [offset, setOffset] = React.useState(0);
+  const keyboard = useKeyboardInset(open);
 
   /*
     끌어내려 닫기.
@@ -150,7 +195,17 @@ export function MobileSheet({
             */
             sheetRef.current?.focus({ preventScroll: true });
           }}
-          style={offset ? { transform: `translateY(${offset}px)`, transition: "none" } : undefined}
+          style={{
+            ...(offset ? { transform: `translateY(${offset}px)`, transition: "none" } : null),
+            /*
+              키보드가 올라온 만큼 띄우고 최대 높이도 줄입니다. `min-h-60`(240)은
+              함께 풀어야 합니다 — 남은 자리보다 크면 최소 높이가 이겨서 아래가
+              도로 잘립니다.
+            */
+            ...(keyboard
+              ? { bottom: keyboard, maxHeight: `calc(85dvh - ${keyboard}px)`, minHeight: 0 }
+              : null),
+          }}
           className={cn(
             "fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-background-white outline-hidden",
             // 최소 240 · 최대 85% — 그 사이에서 내용이 높이를 정합니다

@@ -2,7 +2,13 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      interactive-widget=resizes-content — 키보드가 올라오면 **레이아웃 뷰포트가 줄어듭니다.**
+      기본값(resizes-visual)은 안 줄어서, 화면 아래에 붙은 `fixed` 시트가 키보드에
+      가려집니다. Chromium(안드로이드)은 이 한 줄로 해결되고, iOS Safari 는
+      지원하지 않아 MobileSheet 가 VisualViewport 로 따로 피합니다.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <title>ACK UI — 컴포넌트 테스트</title>
   </head>
   <body>
