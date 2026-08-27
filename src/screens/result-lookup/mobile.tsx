@@ -34,12 +34,14 @@ import { MBottomTabBar } from "@/components/ui/m-bottom-tab-bar";
 import type { MBottomTabItem } from "@/components/ui/m-bottom-tab-bar";
 import { MobileListCard } from "@/components/ui/mobile-list-card";
 import { MobileListHeader } from "@/components/ui/mobile-list-header";
+import { MobileSheet } from "@/components/ui/mobile-sheet";
+import { ListItem } from "@/components/ui/list-item";
 import { MobileMenuScreen } from "@/components/ui/mobile-menu";
 import { MobileTop, MobileTopAction } from "@/components/ui/mobile-top";
 import { SidebarItem } from "@/components/ui/sidebar-item";
 import { Button } from "@/components/ui/button";
 import { QueryFilter, type Query } from "./query-bar";
-import { DONE, PATIENTS, RESULTS, STATE_TONE, TOTAL_PATIENTS } from "./data";
+import { DONE, PATIENTS, RESULTS, SORT_OPTIONS, STATE_TONE, TOTAL_PATIENTS } from "./data";
 import type { Patient } from "./data";
 
 /**
@@ -133,6 +135,21 @@ export function MobileResultLookup({
   screen,
 }: MobileResultLookupProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  /*
+    **정렬 시트** — 목록 머리줄의 버튼이 엽니다 (2026-08-27).
+
+    전에는 그 버튼이 바로 위 `FilterBar` 를 여닫았습니다. 그런데 좁을 때는
+    **그 줄 전체가 이미 누름 대상**이라 같은 일을 하는 장치가 둘이었고,
+    아이콘(`SlidersHorizontal`)도 다른 것을 기대하게 만들었습니다.
+
+    `MobileListHeader` 는 **표 헤더가 없어져서 생긴 줄**입니다. PC 표는 헤더에서
+    정렬하는데 카드 목록에는 그 자리가 없습니다 — 이 버튼이 그 자리를 대신합니다.
+
+    정렬은 `FilterBar` 에도 있습니다(조건 다섯 중 하나). 값은 `query.sort` 하나라
+    어긋나지 않고, 여기서는 **고르는 즉시 반영**합니다 — 접힌 조건을 펴서 고르고
+    조회를 누르는 왕복을 줄이는 것이 이 버튼의 존재 이유입니다.
+  */
+  const [sortOpen, setSortOpen] = React.useState(false);
   const patient = PATIENTS.find((p) => p.chart === chart);
 
   /* 탭바 값은 지금 화면입니다. 메뉴에 있는 화면이 아니면 아무 탭도 켜지 않습니다 */
@@ -225,7 +242,7 @@ export function MobileResultLookup({
               <MobileListHeader
                 title="환자 목록"
                 count={TOTAL_PATIENTS}
-                onFilter={() => onFilterOpenChange(!filterOpen)}
+                onFilter={() => setSortOpen(true)}
               />
 
               {PATIENTS.length === 0 ? (
@@ -294,6 +311,34 @@ export function MobileResultLookup({
         onMenuOpen={() => setMenuOpen(true)}
         homeIndicator
       />
+
+      {/*
+        **푸터가 없습니다** — 단일 선택이라 고르면 바로 닫힙니다.
+        한 번 누르면 끝나는데 확인을 또 누르게 하면 번거롭습니다.
+
+        선택은 배경이 아니라 **글자와 표식**으로 알립니다 (`type="check"`) —
+        배경 하나가 hover · 커서 · 선택 셋을 다 뜻해서, 값이 골라진 목록을 열면
+        어느 줄이 선택인지 구분되지 않습니다.
+      */}
+      <MobileSheet open={sortOpen} onOpenChange={setSortOpen} title="정렬" footer={false}>
+        <div className="flex flex-col">
+          {SORT_OPTIONS.map((o) => (
+            <ListItem
+              key={o.value}
+              type="check"
+              selected={query.sort === o.value}
+              onClick={() => {
+                onQueryChange({ ...query, sort: o.value });
+                // 고르는 즉시 반영합니다 — 조건을 펴서 고르고 조회를 누르는 왕복을 줄이는 자리입니다
+                onSearch();
+                setSortOpen(false);
+              }}
+            >
+              {o.label}
+            </ListItem>
+          ))}
+        </div>
+      </MobileSheet>
 
       {/*
         전체메뉴는 **시트가 아니라 전체 화면**입니다 — 메뉴는 다른 화면으로 떠나는
