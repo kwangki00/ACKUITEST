@@ -739,6 +739,12 @@
   --h-calendar-unit: 48px;
   --h-list-item: 48px;
   --text-list-item: 16px;
+  /* 입력 계열 글자 — 모바일 16 · PC 14.
+     16 이상이어야 iOS 가 탭할 때 화면을 확대하지 않습니다.
+     `text-base lg:text-sm` 으로 두면 **미디어쿼리가 창을 재서**, 문서의 390 틀 안에서도
+     창이 넓으면 PC 값(14)이 나옵니다 — `--text-list-item` 을 만든 것과 같은 사정입니다. */
+  --text-input: 16px;
+  --leading-input: 24px;
   --h-lookup-row: 52px;
   --h-lookup-header: 44px;
   --h-sheet-min: 240px;
@@ -765,6 +771,8 @@
   --h-calendar-unit: 48px;
   --h-list-item: 48px;
   --text-list-item: 16px;
+  --text-input: 16px;
+  --leading-input: 24px;
   --h-lookup-row: 52px;
   --h-lookup-header: 44px;
   --h-sheet-min: 240px;
@@ -788,6 +796,8 @@
     --h-calendar-unit: 40px;
     --h-list-item: 32px;
     --text-list-item: 14px;
+    --text-input: 14px;
+    --leading-input: 20px;
     --h-lookup-row: 40px;
     --h-lookup-header: 36px;
   }

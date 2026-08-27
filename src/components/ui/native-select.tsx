@@ -25,10 +25,10 @@ import {
 // Input 과 완전히 같은 규칙입니다 — 모바일 16px 이상, lg(1024)에서 축소.
 // 글자는 sm·default·grid 14 / lg 16, 반경은 grid 만 sm(4) 나머지 md(6).
 const sizeMap: Record<Size, string> = {
-  sm: "h-[var(--h-input-sm)] pl-3 pr-9 text-base lg:text-sm rounded-md",
-  default: "h-[var(--h-input-default)] pl-3 pr-10 text-base lg:text-sm rounded-md",
+  sm: "h-[var(--h-input-sm)] pl-3 pr-9 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-md",
+  default: "h-[var(--h-input-default)] pl-3 pr-10 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-md",
   lg: "h-[var(--h-input-lg)] pl-4 pr-11 text-base rounded-md",
-  grid: "h-[var(--h-datagrid)] pl-2 pr-8 text-base lg:text-sm rounded-sm",
+  grid: "h-[var(--h-datagrid)] pl-2 pr-8 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-sm",
 };
 
 export interface NativeSelectProps

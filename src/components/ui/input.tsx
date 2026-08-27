@@ -34,10 +34,10 @@ type State = "default" | "error" | "disabled" | "readonly";
  * 높이는 모바일인데 글자만 PC 인 구간이 생기지 않습니다.
  */
 const sizeMap: Record<Size, string> = {
-  sm: "h-[var(--h-input-sm)] px-3 gap-1.5 text-base lg:text-sm rounded-md [&_svg]:size-4",
-  default: "h-[var(--h-input-default)] px-3 gap-2 text-base lg:text-sm rounded-md [&_svg]:size-4",
+  sm: "h-[var(--h-input-sm)] px-3 gap-1.5 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-md [&_svg]:size-4",
+  default: "h-[var(--h-input-default)] px-3 gap-2 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-md [&_svg]:size-4",
   lg: "h-[var(--h-input-lg)] px-4 gap-2 text-base rounded-md [&_svg]:size-5",
-  grid: "h-[var(--h-datagrid)] px-2 gap-2 text-base lg:text-sm rounded-sm [&_svg]:size-4",
+  grid: "h-[var(--h-datagrid)] px-2 gap-2 text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)] rounded-sm [&_svg]:size-4",
 };
 
 const stateMap: Record<State, string> = {

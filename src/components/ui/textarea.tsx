@@ -86,7 +86,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className={cn(
             "field-sizing-content min-h-[100px] w-full resize-none bg-transparent outline-hidden",
             // 모바일 16px 이상 — iOS 자동 확대 방지. Input 과 같은 규칙입니다
-            "text-base lg:text-sm",
+            "text-[length:var(--text-input)] leading-[var(--leading-input)] tracking-[var(--text-sm--letter-spacing)]",
             "text-text-basic placeholder:text-text-placeholder",
             "disabled:cursor-not-allowed disabled:text-text-disabled"
           )}

@@ -223,6 +223,8 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 --text-list-item    Mobile 16 → PC 14   /* 높이만 키우면 줄이 헐거워 보입니다 */
 --h-calendar-cell   Mobile 44 → PC 36   /* iOS 44pt 기준 */
 --h-datagrid        Mobile 36 → PC 34
+--text-input        Mobile 16 → PC 14   /* 16 이상이어야 iOS 가 확대하지 않습니다 */
+--leading-input     Mobile 24 → PC 20   /* Textarea 는 여러 줄이라 줄높이가 보입니다 */
 ```
 
 컴포넌트에서 `h-[var(--h-input-default)]` 로 씁니다. 높이를 하드코딩하지 마세요.
@@ -230,6 +232,10 @@ Figma 의 Responsive 컬렉션을 그대로 옮겼습니다. **1024px 에서 갈
 **`max-lg:` 같은 미디어쿼리 유틸리티로 대신하지 마세요** — 그건 **브라우저 창**을 재기 때문에, 문서의 390 틀 안에 넣어도 창이 넓으면 PC 값이 나옵니다. `.ack-mobile` 은 CSS **변수**만 덮어쓰지 유틸리티 variant 는 못 막습니다. 그래서 크기도 변수로 둡니다 (`--text-list-item`).
 
 임의 길이(`text-[length:var(…)]`)로 주면 `text-sm` 이 얹어주던 **자간이 0 이 됩니다** — `tracking-[var(--text-sm--letter-spacing)]` 을 함께 주세요. 14·16 이 둘 다 `-0.02em` 이라 한 값으로 됩니다.
+
+**줄높이도 같이 빠집니다** — `text-base`·`text-sm` 은 line-height 를 함께 얹는데 임의 길이는 안 그렇습니다. 한 줄짜리(입력창·트리거)는 높이가 고정이라 티가 안 나지만 **`Textarea` 는 여러 줄이라 바로 보입니다.** 그래서 `--leading-input` 을 짝으로 둡니다.
+
+**입력 계열 넷이 `text-base lg:text-sm` 이었습니다** (2026-08-13 수정) — `Input` · `Textarea` · `NativeSelect` · `SelectTrigger` 열 곳. `ListItem` 은 이미 변수로 고쳤는데 이쪽만 남아 있어서, 문서의 390 틀 안에서 **목록은 16 인데 입력창만 14** 로 나왔습니다.
 
 ---
 
