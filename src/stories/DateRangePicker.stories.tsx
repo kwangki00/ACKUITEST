@@ -278,6 +278,45 @@ export const 월연범위: Story = {
  * 화면마다 자주 쓰는 기간이 다릅니다. `presets` 로 갈아끼우고,
  * 정해진 묶음이 없으면 **`quickSelect` 를 끄세요** (생년월일 · 검사 시행일).
  */
+/**
+ * **라벨은 전부 `FormField` 가 답니다** (2026-08-10). 한때 `DateRangeField` 가 라벨까지
+ * 안고 있었는데, **칩을 `DateRangePicker` 안으로 들이면서** 호출부의 컨트롤이 하나가 되어
+ * 그 근거가 사라졌습니다 — 그날 컴포넌트를 지웠습니다.
+ *
+ * **접근성이 그냥 맞습니다** — 입력창은 `FormField` 의 id 를 집어가고, 칩(`ToggleGroup`)은
+ * `aria-label="빠른 선택"` 으로 스스로 이름을 대서 컨텍스트를 쓰지 않습니다.
+ * 「직접 준 것이 이깁니다」 규칙이 여기서도 작동합니다.
+ *
+ * **설명·에러 배치가 오히려 나아졌습니다** — 예전에는 입력창만 감싸면 메시지 높이만큼
+ * 칩이 내려가서, 그걸 막으려고 줄 전체를 감싸는 구조를 따로 만들어야 했습니다.
+ * 지금은 `FormField` 가 한 덩어리를 감쌉니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  decorators: [],
+  parameters: { layout: "padded" },
+  render: function InForm(args) {
+    const [a, setA] = useState<DateRange>(week());
+    const [b, setB] = useState<DateRange>({ start: null, end: null });
+    const error = b.start && b.end ? undefined : "기간을 선택해 주세요.";
+    return (
+      <div className="flex max-w-160 flex-col gap-4">
+        <FormField label="기간 선택" description="오늘을 포함해 셉니다.">
+          <DateRangePicker quickSelect {...args} value={a} onValueChange={setA} />
+        </FormField>
+        <FormField label="검사 시행일" required error={error}>
+          <DateRangePicker
+            {...args}
+            state={error ? "error" : "default"}
+            value={b}
+            onValueChange={setB}
+          />
+        </FormField>
+      </div>
+    );
+  },
+};
+
 export const 빠른선택: Story = {
   // 칩이 입력창 옆에 서려면 288 로는 모자랍니다 — meta 의 w-72 를 벗습니다
   decorators: [],

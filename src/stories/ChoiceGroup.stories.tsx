@@ -133,7 +133,8 @@ export const 그룹속성: Story = {
 };
 
 /** FormField 의 Control 자리에 그룹째 들어갑니다 — Figma 가 말하는 본래 용도입니다. */
-export const 폼: Story = {
+export const 폼필드: Story = {
+  name: "FormField 안에서",
   parameters: { layout: "padded", ...design(figma.choiceGroup) },
   render: function InForm() {
     const [items, setItems] = useState<string[]>([]);

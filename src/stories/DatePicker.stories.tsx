@@ -177,6 +177,43 @@ export const State: Story = {
   },
 };
 
+/**
+ * **감싸기만 하면 라벨이 묶입니다** — `htmlFor` 도 `id` 도 넘기지 마세요.
+ * 트리거가 `<button>` 이 아니라 `<div role="combobox">` 라 `<label for>` 가 안 통하는데,
+ * `FormField` 가 **`aria-labelledby`** 로 묶어 줍니다 (`SelectTrigger` 계열과 같은 처리).
+ *
+ * **컨트롤에는 `state="error"` 만** 줍니다 — `required` · `description` · `error` 는
+ * `FormField` 쪽입니다. `Input` 과 같은 규칙입니다.
+ *
+ * **날짜에 `label` prop 을 달지 마세요** — `FormField` 가 하는 일이 두 벌이 됩니다.
+ * 빠른 선택이 붙는 기간은 `DateRangePicker` 로 갑니다.
+ */
+export const 폼필드: Story = {
+  name: "FormField 안에서",
+  decorators: [],
+  parameters: { layout: "padded" },
+  render: function InForm(args) {
+    const [a, setA] = useState<Date | null>(startOfDay(new Date()));
+    const [b, setB] = useState<Date | null>(null);
+    const error = b == null ? "검사일을 선택해 주세요." : undefined;
+    return (
+      <div className="flex w-56 flex-col gap-4">
+        <FormField label="접수일" description="조회 기준이 되는 날짜입니다.">
+          <DatePicker {...args} value={a} onValueChange={setA} />
+        </FormField>
+        <FormField label="검사일" required error={error}>
+          <DatePicker
+            {...args}
+            state={error ? "error" : "default"}
+            value={b}
+            onValueChange={setB}
+          />
+        </FormField>
+      </div>
+    );
+  },
+};
+
 /** 높이는 Input · Button 과 같은 `--h-input-*` 입니다. */
 export const Size: Story = {
   decorators: [],
