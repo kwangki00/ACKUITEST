@@ -82,17 +82,91 @@ function Axes() {
   );
 }
 
-function Group({ title, note, names }: { title: string; note?: string; names: string[] }) {
+function Group({
+  title,
+  note,
+  names,
+}: {
+  title: string;
+  /** 문자열도 되고 표·목록 같은 덩어리도 됩니다 — <p> 가 아니라 <div> 로 감쌉니다 */
+  note?: React.ReactNode;
+  names: string[];
+}) {
   return (
     <section className="mb-8">
       <h3 className="text-sm font-semibold text-text-basic">{title}</h3>
-      {note && <p className="mt-0.5 mb-3 text-xs text-text-subtle">{note}</p>}
+      {note && <div className="mt-0.5 mb-3 text-xs text-text-subtle">{note}</div>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {names.map((n) => (
           <Swatch key={n} name={n} />
         ))}
       </div>
     </section>
+  );
+}
+
+/**
+ * 글자색 그룹에 붙는 설명입니다.
+ *
+ * 「본문 4.5:1 · 큰 글자 3:1」 한 줄만 있었는데, **그 숫자가 어디서 온 것인지**가
+ * 없어서 새 색을 고를 때 기준으로 쓸 수 없었습니다.
+ */
+function ContrastNote() {
+  const rows: [string, string, string][] = [
+    ["본문 글자", "4.5:1", "7:1"],
+    ["큰 글자 — 24px 이상, 또는 18.7px 이상이면서 Bold", "3:1", "4.5:1"],
+    ["아이콘 · 테두리 등 글자가 아닌 것", "3:1", "—"],
+  ];
+  return (
+    <div className="flex flex-col gap-2">
+      <p>
+        <b className="text-text-basic">WCAG 명도 대비</b>를 따릅니다 — 웹 콘텐츠 접근성 지침
+        (Web Content Accessibility Guidelines)이 정한 <b className="text-text-basic">글자색과
+        배경색의 밝기 차이</b> 기준입니다. 두 색의 상대 휘도로 계산해{" "}
+        <code>(밝은 쪽 + 0.05) ÷ (어두운 쪽 + 0.05)</code> 로 구하며, 같은 색이면 1:1 ·
+        검정과 흰색이면 21:1 입니다.
+      </p>
+
+      <table className="w-full max-w-160 border-collapse text-2xs">
+        <thead>
+          <tr className="border-b border-border-gray-light text-left">
+            <th className="py-1 pr-3 font-semibold text-text-basic">대상</th>
+            <th className="w-20 py-1 pr-3 font-semibold text-text-basic">AA (기준)</th>
+            <th className="w-20 py-1 font-semibold text-text-basic">AAA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([what, aa, aaa]) => (
+            <tr key={what} className="border-b border-border-gray-light">
+              <td className="py-1 pr-3">{what}</td>
+              <td className="py-1 pr-3 font-medium text-text-basic">{aa}</td>
+              <td className="py-1">{aaa}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <ul className="flex list-disc flex-col gap-1 pl-4">
+        <li>
+          이 저장소는 <b className="text-text-basic">AA</b> 를 기준으로 잡았습니다. 종일 보는
+          업무 화면이라 본문이 흐리면 눈이 빨리 지칩니다.
+        </li>
+        <li>
+          <b className="text-text-basic">큰 글자 기준이 느슨한 이유</b>는 획이 두꺼워 같은 대비에서도
+          읽히기 때문입니다. 다만 한글은 획이 많아 라틴 문자보다 불리하니, 3:1 을 겨우 넘는 값은
+          피하는 편이 낫습니다.
+        </li>
+        <li>
+          <b className="text-text-basic">비활성 요소는 예외</b>입니다 — WCAG 가 명시적으로 뺍니다.
+          <code>text-disabled</code> 가 기준을 안 지키는 것은 그래서입니다.
+        </li>
+        <li>
+          <b className="text-text-basic">색만으로 뜻을 전하지 않는 것은 다른 조항</b>입니다.
+          대비를 지켜도 색각 이상 대응은 따로 해야 합니다 — 이 저장소가 상태에 색과 함께 글자를
+          두는 이유입니다 (이상결과 L · H, 완료여부 범례).
+        </li>
+      </ul>
+    </div>
   );
 }
 
@@ -181,7 +255,7 @@ export const Semantic: Story = {
       <Axes />
       <Group
         title="Text"
-        note="본문 4.5:1 · 큰 글자 3:1 을 지킵니다."
+        note={<ContrastNote />}
         names={["text-basic", "text-subtle", "text-disabled", "text-primary", "text-primary-strong", "text-danger", "text-success", "text-warning", "text-placeholder"]}
       />
       <Group
