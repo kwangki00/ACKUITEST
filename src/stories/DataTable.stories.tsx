@@ -152,6 +152,37 @@ export const 페이지네이션: Story = {
 };
 
 /**
+ * **`paginated` 를 끄면 받은 행이 전부 나옵니다.**
+ *
+ * 당연해 보이지만 **한동안 안 그랬습니다** (2026-08-13 수정). `rowPaginationFeature` 가
+ * features 에 늘 들어 있어서 `table.getRowModel()` 이 항상 페이지네이션을 거쳤고,
+ * TanStack 기본 `pageSize` 가 10 이라 **몇 건을 넘겨도 10행만 나오고 아래는 조용히
+ * 사라졌습니다.** 쪽 버튼은 `paginated` 일 때만 그리므로 화면에는 그냥
+ * 「10행짜리 표」로 보일 뿐 잘렸다는 신호가 없습니다.
+ *
+ * **행 수를 세는 확인이 없으면 못 잡습니다** — 표는 멀쩡히 그려지고 스크롤도 됩니다.
+ * 이 스토리가 그 자리를 지킵니다: 아래 표는 **24행이 전부** 보여야 합니다. 10행만 보이면 되돌아간 것입니다.
+ */
+export const 전부보임: Story = {
+  name: "쪽 나눔 없음",
+  /*
+    **행을 24로 늘려 씁니다.** 위 스토리들이 쓰는 10행은 하필 TanStack 기본
+    `pageSize` 와 같은 수라, 잘려도 티가 나지 않아 감시 구실을 못 합니다.
+  */
+  args: {
+    data: Array.from({ length: 24 }, (_, i) => ({
+      ...PATIENTS[i % PATIENTS.length],
+      no: i + 1,
+      chart: String(2312345 + i),
+    })),
+    paginated: false,
+    framed: true,
+    stickyHeader: true,
+    className: "h-90",
+  },
+};
+
+/**
  * **어떤 열을 볼지와 순서를 사용자가 고릅니다.** 오른쪽 위 「열」 버튼입니다.
  *
  * `ListItem` 을 쓰지 않았습니다 — `ListItem` 은 `<button>` 이라 안에 순서 버튼을

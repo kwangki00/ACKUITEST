@@ -250,7 +250,7 @@ const GROUPS: Group[] = [
     rows: [
       {
         name: "FilterBar",
-        what: "조회 조건 — 조회하면 접힙니다 (FilterRow 포함)",
+        what: "조회 조건 — 좁을 때만 조회 후 접힙니다 (FilterRow 포함)",
         rule: "**컨테이너 쿼리**로 자기 폭을 재서 배치를 정합니다 — 창이 아니라. 조건은 4개까지",
       },
     ],
