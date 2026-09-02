@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Calendar,
+  Copy,
   Download,
   Pencil,
   Plus,
@@ -8,6 +9,8 @@ import {
   RefreshCw,
   Search,
   Share2,
+  Info,
+  EllipsisVertical,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +18,35 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Radio, RadioGroup } from "@/components/ui/radio";
+import { Switch } from "@/components/ui/switch";
+import { CheckboxGroup } from "@/components/ui/choice-group";
+import { ToggleGroup, ToggleItem } from "@/components/ui/toggle-group";
+import { InputGroup } from "@/components/ui/input-group";
+import { Combobox } from "@/components/ui/combobox";
+import { Lookup } from "@/components/ui/lookup";
+import type { LookupColumns } from "@/components/ui/lookup";
+import { Chip } from "@/components/ui/chip";
+import { Avatar } from "@/components/ui/avatar";
+import { Card, CardHeader, CardBody, CardRow } from "@/components/ui/card";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Alert } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { ListItem } from "@/components/ui/list-item";
+import { Pagination } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/ui/form-field";
 import {
@@ -40,6 +72,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+interface TestItem {
+  code: string;
+  name: string;
+  unit: string;
+}
+
+/** `Lookup` 은 한 줄에 열이 여럿이라 코드까지 봐야 어느 것인지 압니다. */
+const TEST_ITEMS: TestItem[] = [
+  { code: "CD001", name: "일반혈액검사", unit: "10³/μL" },
+  { code: "CD002", name: "일반화학검사", unit: "mg/dL" },
+  { code: "CD003", name: "소변검사", unit: "—" },
+  { code: "CD004", name: "면역검사", unit: "IU/mL" },
+  { code: "CD005", name: "미생물검사", unit: "—" },
+];
+
+const TEST_COLUMNS: LookupColumns<TestItem> = [
+  { key: "code", header: "코드", value: (r) => r.code, width: 88, muted: true },
+  { key: "name", header: "검사명", value: (r) => r.name },
+  { key: "unit", header: "단위", value: (r) => r.unit, width: 88, align: "right" },
+];
+
+const OWNERS = ["김검사", "이검사", "박검사", "최검사"].map((v) => ({ value: v, label: v }));
+
+const SORTS = ["접수번호순", "성명순", "접수일순"];
 
 /** 섹션 래퍼 — 갤러리 자체는 조용하게, 컴포넌트가 주인공입니다. */
 const TESTS = [
@@ -134,6 +191,19 @@ function Gallery() {
   const [checked, setChecked] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  /* 아래 새 섹션들이 쓰는 값 — 스토리처럼 눌러 볼 수 있어야 합니다 */
+  const [memo, setMemo] = useState("");
+  const [output, setOutput] = useState("pdf");
+  const [notify, setNotify] = useState(true);
+  const [cols, setCols] = useState<string[]>(["summary"]);
+  const [view, setView] = useState("list");
+  const [tests, setTests] = useState<string[]>([]);
+  const [owner, setOwner] = useState("");
+  const [testCode, setTestCode] = useState("");
+  const [chips, setChips] = useState(["일반혈액검사", "생화학검사", "소변검사"]);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState("접수번호순");
 
   const toggle = (chart: string) =>
     setSelected((prev) => (prev.includes(chart) ? prev.filter((c) => c !== chart) : [...prev, chart]));
@@ -573,9 +643,300 @@ function Gallery() {
             </div>
           </div>
         </Section>
+
+        <Section title="Textarea" note="여러 줄이라 줄높이가 보입니다 — 크기·줄높이 모두 변수입니다.">
+          <div className="max-w-md">
+            <FormField label="메모" description="1,000자까지 입력할 수 있습니다.">
+              <Textarea
+                placeholder="특이사항을 적어 주세요."
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+              />
+            </FormField>
+          </div>
+        </Section>
+
+        <Section title="InputGroup" note="입력창 + 액션 버튼입니다. 아이콘·단위는 Input 이 직접 받습니다.">
+          <div className="max-w-md">
+            <FormField label="차트번호">
+              <InputGroup>
+                <Input placeholder="2312345" />
+                <Button variant="outline">
+                  <Search />
+                  조회
+                </Button>
+              </InputGroup>
+            </FormField>
+          </div>
+        </Section>
+
+        <Section
+          title="Combobox"
+          note="검색이 붙은 목록입니다. 항목이 서넛뿐이면 Select 를 쓰세요 — 항목보다 검색창이 더 큽니다."
+        >
+          <div className="flex flex-wrap items-end gap-4">
+            <FormField label="검사 항목" className="w-56">
+              <Combobox
+                type="multi"
+                options={TEST_ITEMS.map((t) => ({ value: t.code, label: t.name }))}
+                value={tests}
+                onValueChange={setTests}
+                placeholder="검사 항목"
+              />
+            </FormField>
+            <FormField label="담당자" className="w-44">
+              <Combobox
+                type="single"
+                render="editable"
+                options={OWNERS}
+                value={owner ? [owner] : []}
+                onValueChange={(v) => setOwner(v[0] ?? "")}
+                placeholder="전체"
+                clearable
+              />
+            </FormField>
+          </div>
+        </Section>
+
+        <Section
+          title="Lookup"
+          note="한 줄에 열이 여럿입니다. 이름만으로 판단되면 Combobox 를 쓰세요 — 열이 늘면 읽을 것이 많아집니다."
+        >
+          <div className="max-w-md">
+            <FormField label="검사 항목" description="코드·검사명·단위를 함께 봅니다.">
+              <Lookup
+                columns={TEST_COLUMNS}
+                rows={TEST_ITEMS}
+                getRowId={(r) => r.code}
+                value={testCode || undefined}
+                onValueChange={(r) => setTestCode(r ? r.code : "")}
+                placeholder="검사 항목을 고르세요"
+                clearable
+              />
+            </FormField>
+          </div>
+        </Section>
+
+        <Section
+          title="Radio · Switch · CheckboxGroup"
+          note="셋 다 자기 라벨을 스스로 답니다 — FormField 가 다는 것은 그룹 전체의 이름입니다."
+        >
+          <Row label="RadioGroup">
+            <RadioGroup value={output} onValueChange={setOutput} aria-label="출력 방식">
+              <Radio value="pdf" label="PDF 파일" />
+              <Radio value="print" label="바로 인쇄" />
+            </RadioGroup>
+          </Row>
+          <Row label="Switch">
+            <Switch
+              label="결과 알림 받기"
+              checked={notify}
+              onChange={(e) => setNotify(e.target.checked)}
+            />
+            <Switch label="비활성" disabled />
+          </Row>
+          <Row label="CheckboxGroup">
+            <CheckboxGroup value={cols} onValueChange={setCols} aria-label="출력 항목">
+              <Checkbox value="summary" label="검사 요약" />
+              <Checkbox value="detail" label="상세 수치" />
+            </CheckboxGroup>
+          </Row>
+        </Section>
+
+        <Section
+          title="ToggleGroup"
+          note="하나만 켜지는 배타 선택입니다. 지우는 개념이 있으면 Chip 이 맞습니다."
+        >
+          <Row label="Outline">
+            <ToggleGroup variant="outline" value={view} onValueChange={setView} aria-label="보기 방식">
+              <ToggleItem value="list">목록</ToggleItem>
+              <ToggleItem value="card">카드</ToggleItem>
+              <ToggleItem value="chart">그래프</ToggleItem>
+            </ToggleGroup>
+          </Row>
+        </Section>
+
+        <Section title="Chip · Avatar" note="Chip 은 지울 수 있는 태그입니다 — 못 지우면 Badge 를 쓰세요.">
+          <Row label="Chip">
+            {chips.map((c) => (
+              <Chip key={c} onRemove={() => setChips((prev) => prev.filter((x) => x !== c))}>
+                {c}
+              </Chip>
+            ))}
+            {chips.length === 0 && (
+              <span className="text-xs text-text-subtle">모두 지웠습니다</span>
+            )}
+          </Row>
+          <Row label="Avatar">
+            <Avatar initial="한" size="sm" />
+            <Avatar initial="김" />
+            <Avatar initial="이" size="lg" status="online" />
+          </Row>
+        </Section>
+
+        <Section
+          title="Card"
+          note="제목과 내용을 묶는 표면입니다. 섹션 여러 개를 담는 자리는 Card 가 아니라 판(프레임)입니다."
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Card variant="filled" size="sm">
+              <CardHeader title="접수정보" />
+              <CardBody>
+                <CardRow label="접수일">2025-06-01</CardRow>
+                <CardRow label="접수번호">202506011006</CardRow>
+                <CardRow label="차트번호">2312350</CardRow>
+              </CardBody>
+            </Card>
+            <Card size="sm">
+              <CardHeader title="검사정보" />
+              <CardBody>
+                <CardRow label="검사수">15건</CardRow>
+                <CardRow label="담당자">이검사</CardRow>
+              </CardBody>
+            </Card>
+          </div>
+        </Section>
+
+        <Section
+          title="Accordion"
+          note="접힌 내용은 잘 안 봅니다 — 부가 정보에 쓰고, 자주 보는 항목은 펼쳐 두세요."
+        >
+          <Accordion type="single" collapsible defaultValue="a">
+            <AccordionItem value="a">
+              <AccordionTrigger>검사 준비사항</AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm text-text-subtle">
+                  검사 8시간 전부터 금식이 필요합니다. 복용 중인 약이 있으면 미리 알려 주세요.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="b">
+              <AccordionTrigger>결과 확인 방법</AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm text-text-subtle">
+                  보고예정일 이후 목록에서 확인할 수 있습니다.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </Section>
+
+        <Section
+          title="Alert · Separator · EmptyState"
+          note="Toast 는 사라지고 Alert 은 남습니다 — 실패는 둘 다 쓰세요."
+        >
+          <div className="flex flex-col gap-3">
+            <Alert
+              tone="warning"
+              title="일부 결과가 아직 보고되지 않았습니다"
+              description="보고예정일 이후 다시 확인해 주세요."
+            />
+            <Alert
+              tone="danger"
+              title="조회에 실패했습니다"
+              description="잠시 후 다시 시도해 주세요."
+              action={
+                <Button size="sm" variant="outline">
+                  다시 시도
+                </Button>
+              }
+            />
+            <Separator />
+            <EmptyState type="no-result" size="sm" onAction={() => {}} />
+          </div>
+        </Section>
+
+        <Section
+          title="Progress · Skeleton · Spinner"
+          note="셋의 차이는 「얼마나 남았는지 아는가」입니다 — 알면 Progress, 자리를 알면 Skeleton, 둘 다 모르면 Spinner."
+        >
+          <Row label="Progress">
+            <div className="w-64">
+              <Progress value={64} label="결과 수신" showPercent />
+            </div>
+          </Row>
+          <Row label="Skeleton">
+            <div className="flex w-64 flex-col gap-2">
+              <Skeleton shape="text" />
+              <Skeleton shape="text" />
+            </div>
+          </Row>
+          <Row label="Spinner">
+            <Spinner />
+            <Spinner size="lg" />
+            <Button loading>조회 중</Button>
+          </Row>
+        </Section>
+
+        <Section
+          title="Popover · DropdownMenu · ListItem"
+          note="눌러서 값이 남으면 Combobox, 실행하고 끝나면 DropdownMenu 입니다."
+        >
+          <Row label="Popover">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Info />
+                  도움말
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent type="content" className="w-64">
+                <p className="text-sm text-text-basic">
+                  두 줄이 넘는 내용은 Tooltip 이 아니라 Popover 에 둡니다 — 마우스를 치우면
+                  사라지는 곳에 읽어야 할 것을 두면 안 됩니다.
+                </p>
+              </PopoverContent>
+            </Popover>
+          </Row>
+          <Row label="DropdownMenu">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-sm" aria-label="더 보기">
+                  <EllipsisVertical />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem leadingIcon={<Pencil />}>결과 수정</DropdownMenuItem>
+                <DropdownMenuItem leadingIcon={<Copy />}>복제</DropdownMenuItem>
+                <DropdownMenuItem leadingIcon={<Share2 />}>공유</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {/* 되돌릴 수 없는 동작은 마지막 · 구분선 아래 */}
+                <DropdownMenuItem tone="destructive" leadingIcon={<Trash2 />}>
+                  삭제
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Row>
+          <Row label="ListItem">
+            {/* 선택은 배경이 아니라 글자와 표식으로 알립니다 — 배경 하나가 hover·커서·선택 셋을 뜻합니다 */}
+            <div className="w-64 rounded-md border border-border-gray-light p-1">
+              {SORTS.map((o) => (
+                <ListItem
+                  key={o}
+                  type="check"
+                  selected={sort === o}
+                  onClick={() => setSort(o)}
+                  className="w-full"
+                >
+                  {o}
+                </ListItem>
+              ))}
+            </div>
+          </Row>
+        </Section>
+
+        <Section
+          title="Pagination"
+          note="몇 번째 쪽을 보고 있었는지 기억해야 할 때 씁니다 — 한 화면에서 훑는 목록은 스크롤입니다."
+        >
+          <div className="flex justify-center">
+            <Pagination page={page} totalPages={5} onPageChange={setPage} />
+          </div>
+        </Section>
       </div>
 
       {/* 되돌릴 수 없는 동작이라 확인을 받습니다. 제목은 질문형, 설명은 결과를 알립니다 */}
+
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
