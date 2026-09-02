@@ -279,16 +279,16 @@ export const 월연범위: Story = {
  * 정해진 묶음이 없으면 **`quickSelect` 를 끄세요** (생년월일 · 검사 시행일).
  */
 export const 빠른선택: Story = {
+  // 칩이 입력창 옆에 서려면 288 로는 모자랍니다 — meta 의 w-72 를 벗습니다
+  decorators: [],
   name: "빠른 선택 바꾸기",
   render: function Presets(args) {
     const [a, setA] = useState<DateRange>(week());
     const [b, setB] = useState<DateRange>({ start: null, end: null });
     return (
       /*
-        **`w-fit` 을 쓰지 않습니다.** `DateRangePicker` 의 뿌리가 `flex-wrap` 이라
-        `w-fit` 아래에서는 **가장 넓은 항목(입력창)** 폭으로 줄어듭니다 —
-        그러면 칩이 갈 자리가 없어 다음 줄로 내려갑니다.
-        여기는 빠른 선택 목록을 보여주는 자리라 폭은 넉넉히 두고 상한만 겁니다.
+        `w-fit` 을 쓰지 않습니다 — `DateRangePicker` 의 뿌리가 `flex-wrap` 이라
+        `w-fit` 아래에서는 **가장 넓은 항목(입력창)** 폭으로 줄어들어 칩이 내려갑니다.
         폭 자체를 다루는 것은 「폭 — 부모가 정합니다」 스토리입니다.
       */
       <div className="flex max-w-160 flex-col gap-5">
@@ -320,6 +320,8 @@ export const 빠른선택: Story = {
  * 여기서는 보여주려고 스토리가 직접 감쌌습니다. 실제 앱에서는 루트에 한 번만 둡니다.
  */
 export const 오버레이: Story = {
+  // 팝오버·시트를 나란히 놓습니다 — meta 의 w-72 를 벗습니다
+  decorators: [],
   name: "팝오버 · 시트",
   render: function Overlay(args) {
     const [a, setA] = useState<DateRange>(week());
@@ -374,6 +376,8 @@ export const 오버레이: Story = {
  * 세로로 쌓일 때만(`FilterBar` 의 좁은 배치) 칩이 늘어나 **옆 줄과 폭이 맞습니다.**
  */
 export const 폭: Story = {
+  // 폭 자체를 시연하는 자리라 바깥이 좁으면 뜻이 없습니다 — meta 의 w-72 를 벗습니다
+  decorators: [],
   name: "폭 — 부모가 정합니다",
   render: function Widths(args) {
     const [a, setA] = useState<DateRange>(week());
@@ -419,6 +423,8 @@ export const 폭: Story = {
  * 에러·설명은 `FormField` 가 받습니다 — 다른 컨트롤과 같습니다. 컨트롤에는 `state="error"` 만 줍니다.
  */
 export const 조건줄: Story = {
+  // 조회 조건 한 줄을 보여줍니다 — meta 의 w-72 를 벗습니다
+  decorators: [],
   name: "다른 조건과 나란히",
   render: function InRow(args) {
     const [a, setA] = useState<DateRange>(week());
