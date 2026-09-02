@@ -284,7 +284,14 @@ export const 빠른선택: Story = {
     const [a, setA] = useState<DateRange>(week());
     const [b, setB] = useState<DateRange>({ start: null, end: null });
     return (
-      <div className="flex w-fit flex-col gap-5">
+      /*
+        **`w-fit` 을 쓰지 않습니다.** `DateRangePicker` 의 뿌리가 `flex-wrap` 이라
+        `w-fit` 아래에서는 **가장 넓은 항목(입력창)** 폭으로 줄어듭니다 —
+        그러면 칩이 갈 자리가 없어 다음 줄로 내려갑니다.
+        여기는 빠른 선택 목록을 보여주는 자리라 폭은 넉넉히 두고 상한만 겁니다.
+        폭 자체를 다루는 것은 「폭 — 부모가 정합니다」 스토리입니다.
+      */
+      <div className="flex max-w-160 flex-col gap-5">
         <div>
           <p className="mb-1.5 text-xs text-text-subtle">
             화면 전용 목록 — <code>오늘 · 1주일 · 1개월</code>
