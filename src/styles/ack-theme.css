@@ -513,7 +513,7 @@
   /* Dialog · Toast */
   --color-dialog-surface: #ffffff;
   --color-dialog-border: #e5e7eb;
-  /* 하단 시트 손잡이. Figma 는 Color/gray/300 을 직접 참조하지만
+  /* 하단 시트 handlebar. Figma 는 Color/gray/300 을 직접 참조하지만
      컴포넌트는 Semantic 만 보게 이름을 붙였습니다 */
   --color-sheet-handle: #d1d5dc;
   --color-toast-surface: #ffffff;

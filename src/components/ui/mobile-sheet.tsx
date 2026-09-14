@@ -40,7 +40,7 @@ export interface MobileSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title?: string;
-  /** 끌어내려 닫는 손잡이. 닫기 버튼만 둘 거면 끄세요. */
+  /** 끌어내려 닫는 handlebar. 닫기 버튼만 둘 거면 끄세요. */
   handle?: boolean;
   showClose?: boolean;
   /** 확인·취소 버튼 줄. 고르는 즉시 닫히는 시트에는 필요 없습니다. */
@@ -137,7 +137,7 @@ export function MobileSheet({
   /*
     끌어내려 닫기.
 
-    손잡이를 보여줬으면 실제로 끌 수 있어야 합니다 — 신호만 주고 안 되면
+    handlebar 를 보여줬으면 실제로 끌 수 있어야 합니다 — 신호만 주고 안 되면
     한 번 해보고 다시는 시도하지 않습니다.
 
     아래로만 따라갑니다. 위로도 늘어나면 시트가 화면을 넘어 커집니다.
@@ -202,7 +202,7 @@ export function MobileSheet({
 
               `dvh` 는 **브라우저 창**을 잽니다 — 문서·데모의 390×844 틀 안에서는
               창이 크면 `85dvh` 가 844 를 넘어 시트가 틀보다 커집니다. `bottom-0` 이라
-              넘친 만큼이 **위에서** 잘리고, 손잡이와 머리글이 통째로 사라집니다.
+              넘친 만큼이 **위에서** 잘리고, handlebar 와 머리글이 통째로 사라집니다.
               (`.ack-mobile` · `lg:` 가 창을 재서 생기던 것과 같은 종류입니다.)
 
               틀이 있으면 `%` 로 갑니다 — `fixed` 의 기준이 그 틀이라(transform 이

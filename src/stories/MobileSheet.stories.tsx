@@ -62,7 +62,7 @@ const TESTS = ["일반혈액검사", "소변검사", "영상의학", "병리검�
  *
  * - **Scrim 은 안에 들어 있습니다.** 따로 깔지 마세요 — 빠뜨리거나 투명도가 달라집니다
  * - **시트를 두 개 겹치지 마세요.** 뒤로 가기 동작이 꼬입니다
- * - 손잡이는 **끌어내려 닫을 수 있다는 신호**입니다. 실제로 끌어보세요 —
+ * - handlebar 는 **끌어내려 닫을 수 있다는 신호**입니다. 실제로 끌어보세요 —
  *   신호만 주고 안 되면 한 번 해보고 다시는 시도하지 않습니다
  * - 아래 20px 은 홈 인디케이터 자리입니다
  *
@@ -247,11 +247,11 @@ export const 긴내용: Story = {
 };
 
 /**
- * 손잡이를 끄면 **닫기 버튼만** 남습니다.
- * 끌어내릴 수 없는데 손잡이가 있으면 거짓 신호입니다.
+ * handlebar 를 끄면 **닫기 버튼만** 남습니다.
+ * 끌어내릴 수 없는데 handlebar 가 있으면 거짓 신호입니다.
  */
-export const 손잡이없음: Story = {
-  name: "손잡이 없음",
+export const handlebar없음: Story = {
+  name: "handlebar 없음",
   render: function NoHandle(args) {
     const [open, setOpen] = useState(false);
     return (
