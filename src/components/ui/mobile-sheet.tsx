@@ -198,18 +198,32 @@ export function MobileSheet({
           style={{
             ...(offset ? { transform: `translateY(${offset}px)`, transition: "none" } : null),
             /*
-              키보드가 올라온 만큼 띄우고 최대 높이도 줄입니다. `min-h-60`(240)은
-              함께 풀어야 합니다 — 남은 자리보다 크면 최소 높이가 이겨서 아래가
-              도로 잘립니다.
+              **상한의 기준은 `container` 가 갈라 줍니다** (2026-09-14).
+
+              `dvh` 는 **브라우저 창**을 잽니다 — 문서·데모의 390×844 틀 안에서는
+              창이 크면 `85dvh` 가 844 를 넘어 시트가 틀보다 커집니다. `bottom-0` 이라
+              넘친 만큼이 **위에서** 잘리고, 손잡이와 머리글이 통째로 사라집니다.
+              (`.ack-mobile` · `lg:` 가 창을 재서 생기던 것과 같은 종류입니다.)
+
+              틀이 있으면 `%` 로 갑니다 — `fixed` 의 기준이 그 틀이라(transform 이
+              걸려 있습니다) 퍼센트가 **틀 높이**에 걸립니다. 실제 앱에는 틀이 없으니
+              `dvh` 그대로입니다 — 모바일 브라우저 주소줄까지 따라가려고 고른 단위라
+              `%`(주소줄을 뺀 큰 뷰포트)로 바꾸면 그 값이 사라집니다.
             */
-            ...(keyboard
-              ? { bottom: keyboard, maxHeight: `calc(85dvh - ${keyboard}px)`, minHeight: 0 }
-              : null),
+            maxHeight: keyboard
+              ? `calc(${target ? "85%" : "85dvh"} - ${keyboard}px)`
+              : target
+                ? "85%"
+                : "85dvh",
+            /* 키보드가 올라오면 `min-h-60`(240)도 함께 풉니다 — 남은 자리보다 크면
+               최소 높이가 이겨서 아래가 도로 잘립니다 */
+            ...(keyboard ? { bottom: keyboard, minHeight: 0 } : null),
           }}
           className={cn(
             "fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-background-white outline-hidden",
-            // 최소 240 · 최대 85% — 그 사이에서 내용이 높이를 정합니다
-            "max-h-[85dvh] min-h-60",
+            // 최소 240 · 최대 85% — 그 사이에서 내용이 높이를 정합니다.
+            // 상한은 위 style 이 정합니다(틀이 있으면 % · 없으면 dvh)
+            "min-h-60",
             "data-[state=open]:animate-slide-up",
             className
           )}
