@@ -176,6 +176,8 @@ export function MobileSelect({
           onSelect={pick}
           emptyText={emptyText}
           showSearch={searchable}
+          // 검색으로 결과가 줄어도 시트 높이가 안 흔들리게 — 검색이 있을 때만
+          stableHeight={searchable}
           placeholder={searchPlaceholder}
           selectAll={selectAll}
           onToggleAll={toggleAll}

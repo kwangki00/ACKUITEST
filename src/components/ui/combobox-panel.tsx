@@ -2,6 +2,7 @@ import * as React from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ListItem } from "@/components/ui/list-item";
+import { cn } from "@/lib/utils";
 
 /**
  * Figma: ComboboxPanel (2 변형 — Type 2)
@@ -68,6 +69,18 @@ export interface ComboboxPanelProps {
   onToggleAll?: () => void;
   /** Editable 렌더는 트리거에서 입력하므로 패널 검색창을 끕니다. */
   showSearch?: boolean;
+  /**
+   * **검색으로 결과가 줄어도 목록 칸이 자리를 지킵니다** (2026-09-14).
+   *
+   * 시트에서만 켭니다. 시트는 `bottom-0` 에 붙어 있어 내용이 줄면 **위쪽 가장자리가
+   * 내려오는데**, 검색창이 그 위에 있어서 **지금 치고 있는 입력창이 손가락 아래에서
+   * 움직입니다** — 한 글자마다요. 「기준점은 움직이지 않는다」(탭바 · 표 헤더 ·
+   * MobileListHeader 를 스크롤 밖에 두는 규칙)와 같은 자리입니다.
+   *
+   * PC 팝오버는 켜지 마세요 — 트리거에 붙어 아래로 자라니 위 가장자리가 고정이고,
+   * 결과가 셋뿐인데 240 을 차지하면 빈자리만 큽니다.
+   */
+  stableHeight?: boolean;
 }
 
 /**
@@ -88,6 +101,7 @@ export function ComboboxPanel({
   filtered,
   onToggleAll,
   showSearch = true,
+  stableHeight,
 }: ComboboxPanelProps) {
   const listId = React.useId();
 
@@ -151,7 +165,11 @@ export function ComboboxPanel({
         <div
           role="listbox"
           aria-multiselectable={type === "multi" || undefined}
-          className="flex max-h-60 flex-col gap-0.5 overflow-auto px-1 pt-0.5"
+          className={cn(
+            "flex max-h-60 flex-col gap-0.5 overflow-auto px-1 pt-0.5",
+            // 240 고정 — max 와 같은 값이라 「검색 있는 시트는 목록칸 240」 한 줄로 설명됩니다
+            stableHeight && "min-h-60"
+          )}
         >
           {options.map((o, i) => (
             <ListItem
@@ -174,7 +192,15 @@ export function ComboboxPanel({
         </div>
       ) : (
         // Figma 는 Empty 를 켜면 목록을 함께 끄라고 합니다 — 코드는 둘이 배타적입니다
-        <p className="py-8 text-center text-sm text-text-subtle">{emptyText}</p>
+        <p
+          className={cn(
+            "py-8 text-center text-sm text-text-subtle",
+            // 0건이 가장 크게 줄어듭니다 — 여기까지 자리를 지켜야 시트가 안 흔들립니다
+            stableHeight && "flex min-h-60 items-center justify-center py-0"
+          )}
+        >
+          {emptyText}
+        </p>
       )}
     </>
   );
